@@ -29,6 +29,5 @@ module io.github.juicefries.fct.lwjgl {
     requires org.lwjgl.glfw;
     requires org.lwjgl.opengl;
     requires org.lwjgl.stb;
-    requires org.lwjgl.fmod;
     requires org.lwjgl.freetype;
 }
