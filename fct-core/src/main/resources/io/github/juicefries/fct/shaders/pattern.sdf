@@ -1,0 +1,21 @@
+sdf pattern {
+
+    pattern {
+        sdf version is "0.0.4"
+        glsl version is GLSL330 core
+    }
+
+    shader vert {
+        encoding UTF_8
+        version is "0.0.1"
+        path is "/io/github/juicefries/fct/shaders/pattern.vert"
+    }
+
+    shader frag {
+        encoding UTF_8
+        version is "0.0.1"
+        path is "/io/github/juicefries/fct/shaders/pattern.frag"
+    }
+
+
+}

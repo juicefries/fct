@@ -1,0 +1,21 @@
+sdf graphics2d {
+
+    graphics2d {
+        sdf version is "0.0.1"
+        glsl version is GLSL330 core
+    }
+
+    shader vert {
+        encoding UTF_8
+        version is "0.0.1"
+        path is "/io/github/juicefries/fct/shaders/graphics2d.vert"
+    }
+
+    shader frag {
+        encoding UTF_8
+        version is "0.0.1"
+        path is "/io/github/juicefries/fct/shaders/graphics2d.frag"
+    }
+
+
+}

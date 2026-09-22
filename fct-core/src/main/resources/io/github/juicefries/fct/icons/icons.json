@@ -1,0 +1,9 @@
+{
+    "FCT-256" : "/io/github/juicefries/fct/icons/FCT_256.png",
+    "FCT-512" : "/io/github/juicefries/fct/icons/FCT_512.png",
+    "FCT-1025" : "/io/github/juicefries/fct/icons/FCT_1024.png",
+    "icon-16" : "/io/github/juicefries/fct/icons/icon_16.png",
+    "icon-32" : "/io/github/juicefries/fct/icons/icon_32.png",
+    "icon-64" : "/io/github/juicefries/fct/icons/icon_64.png",
+    "icon" : "/io/github/juicefries/fct/icons/icon.png"
+}

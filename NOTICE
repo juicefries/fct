@@ -1,0 +1,43 @@
+FCT (fan concept toolkit) - fct (core)
+Copyright (c) 2026 juicefries
+
+This product includes software from the following projects:
+
+  Lightweight Java Game Library (LWJGL) 3.4.3
+  https://www.lwjgl.org/
+  License: BSD 3-Clause License
+  Copyright (c) 2012-present Lightweight Java Game Library project
+
+  Java Native Access (JNA, JNA Platform) 5.19.1
+  https://github.com/java-native-access/jna
+  License: LGPL 2.1 or Apache License 2.0
+  Copyright (c) JNA project
+
+  Apache Log4j 2 (log4j-api, log4j-core) 2.25.4
+  https://logging.apache.org/log4j/
+  License: Apache License 2.0
+  Copyright The Apache Software Foundation
+
+  JetBrains Java Annotations 26.0.2
+  https://github.com/JetBrains/java-annotations
+  License: Apache License 2.0
+  Copyright JetBrains s.r.o.
+
+  JOML (Java OpenGL Math Library) 1.10.9
+  https://joml-ci.github.io/JOML/
+  License: MIT License
+  Copyright (c) JOML project
+
+Fonts:
+
+  JetBrains Mono
+  https://github.com/JetBrains/JetBrainsMono
+  License: SIL Open Font License 1.1
+
+  LXGW WenKai Mono (霞鹜文楷)
+  https://github.com/lxgw/LxgwWenKai
+  License: SIL Open Font License 1.1
+
+  Source Han Sans (思源黑体)
+  https://github.com/adobe-fonts/source-han-sans
+  License: SIL Open Font License 1.1

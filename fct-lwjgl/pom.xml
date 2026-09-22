@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.juicefries</groupId>
+    <artifactId>fct-lwjgl</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Fan Concept Toolkit</name>
+    <description>Too lazy to write</description>
+    <url>https://github.com/juicefries/fct</url>
+
+    <developers>
+        <developer>
+            <id>juicefries</id>
+            <name>juicefries</name>
+            <url>https://github.com/juicefries</url>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/juicefries/fct.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/juicefries/fct.git</developerConnection>
+        <url>https://github.com/juicefries/fct</url>
+    </scm>
+
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lwjgl.version>3.4.3</lwjgl.version>
+        <lwjgl.natives>natives-windows</lwjgl.natives>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>lwjgl-natives-linux</id>
+            <activation><os><family>linux</family></os></activation>
+            <properties><lwjgl.natives>natives-linux</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>lwjgl-natives-macos</id>
+            <activation><os><family>mac</family></os></activation>
+            <properties><lwjgl.natives>natives-macos</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>lwjgl-natives-windows</id>
+            <activation><os><family>windows</family></os></activation>
+            <properties><lwjgl.natives>natives-windows</lwjgl.natives></properties>
+        </profile>
+    </profiles>
+
+
+    <build>
+        <resources>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>LICENSE</include>
+                    <include>README.md</include>
+                    <include>NOTICE</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>licenses</directory>
+                <targetPath>META-INF/licenses</targetPath>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                    <doclint>none</doclint>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- GPG 签名 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.7</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 中央仓库发布 -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>juicefries</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- lwjgl绑定库 -->
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>${lwjgl.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-glfw</artifactId>
+            <version>${lwjgl.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-opengl</artifactId>
+            <version>${lwjgl.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-stb</artifactId>
+            <version>${lwjgl.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-freetype</artifactId>
+            <version>${lwjgl.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- lwjgl-native库 -->
+
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-glfw</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-opengl</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-stb</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-freetype</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+</project>

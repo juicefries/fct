@@ -1,0 +1,21 @@
+sdf image {
+
+    image {
+        sdf version is "0.0.3"
+        glsl version is GLSL330 core
+    }
+
+    shader vert {
+        encoding UTF_8
+        version is "0.0.1"
+        path is "/io/github/juicefries/fct/shaders/image.vert"
+    }
+
+    shader frag {
+        encoding UTF_8
+        version is "0.0.1"
+        path is "/io/github/juicefries/fct/shaders/image.frag"
+    }
+
+
+}
