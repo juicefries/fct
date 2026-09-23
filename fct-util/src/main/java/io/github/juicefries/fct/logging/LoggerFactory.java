@@ -31,6 +31,7 @@
 
 package io.github.juicefries.fct.logging;
 
+import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Uninitialized;
 import io.github.juicefries.fct.util.Lock;
 import io.github.juicefries.fct.util.Resources;
@@ -44,6 +45,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.message.MessageFactory;
+import org.jetbrains.annotations.ApiStatus;
 
 public class LoggerFactory implements Uninitialized {
 
@@ -153,4 +155,9 @@ public class LoggerFactory implements Uninitialized {
         return Init;
     }
 
+    @ApiStatus.Experimental
+    @ApiSign.InternalApi
+    public static LoggerContext getContext() {
+        return context;
+    }
 }
