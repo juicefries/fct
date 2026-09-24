@@ -33,12 +33,14 @@ package io.github.juicefries.fct.logging;
 
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.util.Lock;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.jetbrains.annotations.ApiStatus;
 
 public class LoggerUtil {
 
     private final static Lock lock = Lock.create();
+    private final static AtomicBoolean notDefault = new AtomicBoolean(false);
     static LoggerContext context = new LoggerContext("FCT");
 
     @ApiStatus.Experimental
@@ -50,6 +52,7 @@ public class LoggerUtil {
 
         synchronized (lock) {
             LoggerUtil.context = context;
+            notDefault.set(true);
         }
 
     }
@@ -58,4 +61,7 @@ public class LoggerUtil {
         return context;
     }
 
+    public static boolean isNotDefault() {
+        return notDefault.get();
+    }
 }

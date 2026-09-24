@@ -61,7 +61,9 @@ public class LoggerFactory implements Uninitialized {
 
     static {
         if (!Init) {
-            upConfig();
+            if (!LoggerUtil.isNotDefault()) {
+                upConfig();
+            }
             Init = true;
         }
     }
