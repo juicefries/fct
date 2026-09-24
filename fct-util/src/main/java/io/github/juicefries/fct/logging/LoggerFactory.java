@@ -52,7 +52,7 @@ public class LoggerFactory implements Uninitialized {
     public final static String DEFAULT_LOG_CONFIG_FILE_PATH = "/io/github/juicefries/fct/logging/log4j2.xml";
 
     private final static Lock lock = Lock.create();
-    private final static LoggerContext context = new LoggerContext("FCT");
+    private static LoggerContext context = LoggerUtil.getContext();
     private final static Logger log = LoggerFactory.getLogger(LoggerFactory.class);
 
     private static volatile boolean Init = false;
@@ -159,5 +159,17 @@ public class LoggerFactory implements Uninitialized {
     @ApiSign.InternalApi
     public static LoggerContext getContext() {
         return context;
+    }
+
+    @ApiStatus.Experimental
+    @ApiSign.InternalApi
+    public static void takeOver(LoggerContext context) {
+        if (context == null) {
+            throw new NullPointerException("context is null!");
+        }
+
+        synchronized (lock) {
+            LoggerFactory.context = context;
+        }
     }
 }
