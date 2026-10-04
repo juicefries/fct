@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * FCT 定时器
  * <p>
- *     参考 {@code javax.swing.Timer} 与 {@link io.github.juicefries.fct.util.IntervalTimer}，
+ *     参考 {@code javax.swing.Timer},
  *     <br>
  *     按固定间隔触发 {@link ActionListener}，每次触发创建一个 {@link TimerEvent}。
  * </p>
@@ -203,7 +203,7 @@ public class FTimer implements Runnable {
      */
     public final static class TimerEvent implements EventData {
 
-        public final static long TIMER_EVENT = Util.turn("Timer");
+        public final static long TIMER_EVENT = _event_data_util._build_event_id("Timer");
 
         long type;
         float delay;

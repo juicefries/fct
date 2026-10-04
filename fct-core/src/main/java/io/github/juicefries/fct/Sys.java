@@ -33,7 +33,7 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.event.SysEvent;
 import io.github.juicefries.fct.event.SystemListener;
-import io.github.juicefries.fct.logging.LoggerFactory;
+import io.github.juicefries.fct.lwjgl.WindowHint;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Manager;
 import io.github.juicefries.fct.sign.Uninitialized;
@@ -46,7 +46,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.lwjgl.glfw.GLFW;
@@ -79,7 +79,7 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     @Serial
     private final static long serialVersionUID = Util.turn("System");
 
-    private static final Logger logger = LoggerFactory.getLogger(Sys.class);
+    private static final Logger logger = LogManager.getLogger(Sys.class);
 
     /**
      * 锁
@@ -115,6 +115,7 @@ public final class Sys implements Uninitialized, Manager, Serializable {
 
     static {
         _reset_properties();
+        WindowHint.initialize();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (isAutomaticCleaning() && isAutomaticShutdown()) {

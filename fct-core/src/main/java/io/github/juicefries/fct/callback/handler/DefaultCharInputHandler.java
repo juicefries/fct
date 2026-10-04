@@ -34,15 +34,15 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.KeyCallback;
 import io.github.juicefries.fct.callback.KeyData;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWCharCallback;
 
 public final class DefaultCharInputHandler extends CharInputHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultCharInputHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultCharInputHandler.class);
 
     @Override
     public void simulate(CallbackData data) {

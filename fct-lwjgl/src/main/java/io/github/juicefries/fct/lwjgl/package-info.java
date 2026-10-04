@@ -23,45 +23,10 @@
  *
  */
 
-//
-// Created by juicefries
-// The project name is fct
-// Data 2026/09/24 16:47
-//
-
-package io.github.juicefries.fct.logging;
-
-import io.github.juicefries.fct.sign.ApiSign;
-import io.github.juicefries.fct.util.Lock;
-import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.jetbrains.annotations.ApiStatus;
-
-public class LoggerUtil {
-
-    private final static Lock lock = Lock.create();
-    private final static AtomicBoolean notDefault = new AtomicBoolean(false);
-    static LoggerContext context = new LoggerContext("FCT");
-
-    @ApiStatus.Experimental
-    @ApiSign.InternalApi
-    public static void takeOver(LoggerContext context) {
-        if (context == null) {
-            throw new NullPointerException("context is null!");
-        }
-
-        synchronized (lock) {
-            LoggerUtil.context = context;
-            notDefault.set(true);
-        }
-
-    }
-
-    public static LoggerContext getContext() {
-        return context;
-    }
-
-    public static boolean isNotDefault() {
-        return notDefault.get();
-    }
-}
+/**
+ * 基本没有任何东西，纯粹提供依赖用的。
+ * @since 1.0.1
+ * @author juicefries
+ * @version 1.1
+ */
+package io.github.juicefries.fct.lwjgl;

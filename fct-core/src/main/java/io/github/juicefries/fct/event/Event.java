@@ -25,5 +25,8 @@
 
 package io.github.juicefries.fct.event;
 
+import io.github.juicefries.fct.sign.ApiSign;
+
+@ApiSign.SignInterface(since = "0.0.1")
 public interface Event {
 }

@@ -32,20 +32,19 @@
 package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.util.Array;
-import io.github.juicefries.fct.util.Util;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class MouseEvent implements EventData {
 
-    public final static long MOUSE_MOUSE_POS_EVENT = Util.turn("MED-MousePos");
-    public final static long MOUSE_DROP_EVENT = Util.turn("MED-DROP");
-    public final static long MOUSE_PRESS_EVENT   = Util.turn("MED-Press");
-    public final static long MOUSE_RELEASE_EVENT = Util.turn("MED-Release");
-    public final static long MOUSE_SCROLL_EVENT = Util.turn("MED-Scroll");
-    public final static long MOUSE_ENTERED_EVENT = Util.turn("MED-Entered");
-    public final static long MOUSE_EXITED_EVENT = Util.turn("MED-Exited");
+    public final static long MOUSE_MOUSE_POS_EVENT  = _event_data_util._build_event_id("MED-MousePos");
+    public final static long MOUSE_DROP_EVENT       = _event_data_util._build_event_id("MED-DROP");
+    public final static long MOUSE_PRESS_EVENT      = _event_data_util._build_event_id("MED-Press");
+    public final static long MOUSE_RELEASE_EVENT    = _event_data_util._build_event_id("MED-Release");
+    public final static long MOUSE_SCROLL_EVENT     = _event_data_util._build_event_id("MED-Scroll");
+    public final static long MOUSE_ENTERED_EVENT    = _event_data_util._build_event_id("MED-Entered");
+    public final static long MOUSE_EXITED_EVENT     = _event_data_util._build_event_id("MED-Exited");
 
     public final static int MK_LEFT = 0;
     public final static int MK_RIGHT = 1;

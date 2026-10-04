@@ -25,6 +25,8 @@
 
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.sign.ApiSign;
+
 /**
  * 文本标签
  * <p>
@@ -37,6 +39,7 @@ package io.github.juicefries.fct;
  * @see Button
  * @see Control
  */
+@ApiSign.AIGenerated(since = "0.0.5")
 public class ALabel extends Control implements AIComponent {
 
     /** 左对齐 */

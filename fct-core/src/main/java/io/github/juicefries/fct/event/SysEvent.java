@@ -33,16 +33,15 @@ package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
-import io.github.juicefries.fct.util.Util;
 import java.util.Objects;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public final class SysEvent implements EventData, Copyable, Readonly {
 
-    public final static long SYS_INIT_EVENT = Util.turn("SysEvent-Init");
-    public final static long SYS_TERMINATE_EVENT = Util.turn("SysEvent-Terminate");
-    public final static long SYS_CANCEL_EVENT = Util.turn("SysEvent-Cancel");
+    public final static long SYS_INIT_EVENT = _event_data_util._build_event_id("SysEvent-Init");
+    public final static long SYS_TERMINATE_EVENT = _event_data_util._build_event_id("SysEvent-Terminate");
+    public final static long SYS_CANCEL_EVENT = _event_data_util._build_event_id("SysEvent-Cancel");
 
     long type;
 

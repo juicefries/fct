@@ -31,6 +31,7 @@
 
 package io.github.juicefries.fct.event;
 
+import io.github.juicefries.fct.sign.CopyFailedException;
 import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
 import io.github.juicefries.fct.util.Array;
@@ -172,10 +173,10 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
     public static final int VK_KP_ENTER = 335;
     public static final int VK_KP_EQUAL = 336;
 
-    public final static long KEY_CHAR_INPUT_EVENT = Util.turn("KED-CharInput");
-    public final static long KEY_PRESS_EVENT = Util.turn("KED-Press");
-    public final static long KEY_RELEASE_EVENT = Util.turn("KED-Release");
-    public final static long KEY_LONG_PRESS_EVENT = Util.turn("KED-LongPress");
+    public final static long KEY_CHAR_INPUT_EVENT = _event_data_util._build_event_id("KED-CharInput");
+    public final static long KEY_PRESS_EVENT      = _event_data_util._build_event_id("KED-Press");
+    public final static long KEY_RELEASE_EVENT    = _event_data_util._build_event_id("KED-Release");
+    public final static long KEY_LONG_PRESS_EVENT = _event_data_util._build_event_id("KED-LongPress");
 
     long type;
 
@@ -520,13 +521,17 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
 
     /**
      * 复制事件数据到指定事件
-     * @param e 目标事件
+     * @param template 目标事件
      * @since 0.0.4
-     * @throws NullPointerException 目标事件不能为{@code null}
+     * @throws CopyFailedException 目标事件不能为{@code null}
      */
-    public void copy(KeyEvent e) {
-        if (e == null) {
-            throw new NullPointerException("e is null!");
+    @Override
+    public void copy(Copyable template) throws CopyFailedException {
+        if (template == null) {
+            throw new CopyFailedException("event is null!");
+        }
+        if (!(template instanceof KeyEvent e)) {
+            throw new CopyFailedException("Incorrect template object!");
         }
         e.type = type;
         e.codepoint = codepoint;
@@ -545,7 +550,7 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
             var e = (KeyEvent) super.clone();
             copy(e);
             return e;
-        } catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException | CopyFailedException e) {
             throw new RuntimeException("clone failed!", e);
         }
     }
@@ -557,9 +562,13 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
      */
     @Override
     public KeyEvent copy() {
-        var e = create();
-        copy(e);
-        return e;
+        try {
+            var e = create();
+            copy(e);
+            return e;
+        } catch (CopyFailedException ex) {
+            throw new RuntimeException("An error occurred while copying!",ex);
+        }
     }
 
 }

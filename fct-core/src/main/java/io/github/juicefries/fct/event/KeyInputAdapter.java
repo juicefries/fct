@@ -26,40 +26,24 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/09/16 14:18
+// Data 2026/10/04 22:26
 //
 
-package io.github.juicefries.fct.glfw;
+package io.github.juicefries.fct.event;
 
-import io.github.juicefries.fct.Sys;
-import io.github.juicefries.fct.sign.ApiSign;
-import io.github.juicefries.fct.util.Array;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2d;
+public abstract class KeyInputAdapter implements KeyInputListener {
+    @Override
+    public void press(KeyEvent e) {
 
-
-import static org.lwjgl.system.MemoryUtil.NULL;
-
-import static org.lwjgl.glfw.GLFW.*;
-
-@ApiSign.NotRecommended(since = "0.0.4")
-public class Mouse {
-
-    public static @NotNull Vector2d getCursorPos(long window) {
-        Sys.checkInit();
-        var pos = new Vector2d();
-        if (window == NULL){
-            return pos;
-        }
-        var x = Array.createD(1);
-        var y = Array.createD(1);
-        glfwGetCursorPos(window,x,y);
-        pos.x = x[0];
-        pos.y = y[0];
-
-        return pos;
     }
 
+    @Override
+    public void longPress(KeyEvent e) {
 
+    }
 
+    @Override
+    public void release(KeyEvent e) {
+
+    }
 }

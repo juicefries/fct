@@ -47,13 +47,12 @@ import io.github.juicefries.fct.event.WindowMoveListener;
 import io.github.juicefries.fct.event.WindowRefreshListener;
 import io.github.juicefries.fct.event.WindowRestoredListener;
 import io.github.juicefries.fct.event.WindowSizeListener;
-import io.github.juicefries.fct.glfw.GLFWUtil;
-import io.github.juicefries.fct.glfw.GLUtil;
-import io.github.juicefries.fct.glfw.Hint;
-import io.github.juicefries.fct.glfw._GLFW_API;
-import io.github.juicefries.fct.glfw._GL_API;
+import io.github.juicefries.fct.lwjgl.GLFWUtil;
+import io.github.juicefries.fct.lwjgl.GLUtil;
+import io.github.juicefries.fct.lwjgl.Hint;
+import io.github.juicefries.fct.lwjgl._GLFW_API;
+import io.github.juicefries.fct.lwjgl._GL_API;
 import io.github.juicefries.fct.layout.PageLayout;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.util.Array;
@@ -66,7 +65,9 @@ import io.github.juicefries.fct.util.Util;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -88,6 +89,7 @@ import org.lwjgl.system.MemoryUtil;
  * </p>
  *
  * @since 0.0.1
+ * @version 1.2
  * @author juicefries
  * @see EventContainer
  * @see Graphics
@@ -102,7 +104,7 @@ public class Window extends EventContainer implements
         Initializable
 {
 
-    final static Logger logger = LoggerFactory.getLogger(Window.class);
+    final static Logger logger = LogManager.getLogger(Window.class);
     final Lock invokeLock = Lock.create();
 
     final AtomicBoolean initialize = new AtomicBoolean(false);
@@ -113,27 +115,9 @@ public class Window extends EventContainer implements
 
     Parameters<String,Object> parameters = new Parameters<>();
 
-    SystemListener listener = SystemListener.createProactiveListener(
-            "FCTWindowSystemListener",
-            Window.this,
-            e -> {
-                if (e == null) return;
-                if (isInit()) {
-                    var type = e.getType();
-                    if (type == SysEvent.SYS_CANCEL_EVENT) {
-                        dispose(DisposeType.CANCEL_INVOKE);
-                    }
-                    if (type == SysEvent.SYS_TERMINATE_EVENT) {
-                        dispose(DisposeType.TERMINATE_INVOKE);
-                    }
-                    if (type == SysEvent.SYS_INIT_EVENT) {
-                        logger.log(Level.ALL,"你的意思是你在整个FCT还没初始化的情况下，让窗口先初始化了?");
-                    }
-                }
-            }
-    );
-
     volatile long window = MemoryUtil.NULL;
+
+    protected SystemListener listener;
 
     {
         parameters.put("Point",new Vector2i(GLFW.GLFW_ANY_POSITION));
@@ -265,7 +249,7 @@ public class Window extends EventContainer implements
         // 初始化输入
         _init_input_sets();
         // 注册系统监听器
-        Sys.register(getListener());
+        Sys.register(getOrBuildListener());
         // 设置垂直同步
         _GL_API._swap_interval(true);
 
@@ -470,14 +454,14 @@ public class Window extends EventContainer implements
             invoke(() -> {
                 disposeImp();
                 if (type != DisposeType.CANCEL_INVOKE && type != DisposeType.TERMINATE_INVOKE) {
-                    Sys.cancel(getListener());
+                    Sys.cancel(getOrBuildListener());
                 }
             });
             return;
         }
         disposeImp();
         if (type != DisposeType.CANCEL_INVOKE && type != DisposeType.TERMINATE_INVOKE) {
-            Sys.cancel(getListener());
+            Sys.cancel(getOrBuildListener());
         }
     }
 
@@ -957,7 +941,43 @@ public class Window extends EventContainer implements
 
     // ==================== GET =========================
 
-    SystemListener getListener() {
+    /**
+     * 获取或构建监听器
+     * <p>
+     *     原名{@code getListener},
+     *     <br>
+     *     该方法在被调用时将先检查变量{@link #listener}是否为null,
+     *     <br>
+     *     若不为null则返回变量，若为null则构建在返回。
+     *     <br>
+     *     一般情况下不建议重写相关逻辑。
+     * </p>
+     *
+     * @return 系统监听器
+     * @since 1.0.1
+     */
+    protected SystemListener getOrBuildListener() {
+        if (listener != null) {
+            return listener;
+        }
+        var name = "FCT-Window[%d]SystemListener".formatted(window);
+        var source = this.getClass();
+        Consumer<SysEvent> event = e -> {
+            if (e == null) return;
+            if (isInit()) {
+                var type = e.getType();
+                if (type == SysEvent.SYS_CANCEL_EVENT) {
+                    dispose(DisposeType.CANCEL_INVOKE);
+                }
+                if (type == SysEvent.SYS_TERMINATE_EVENT) {
+                    dispose(DisposeType.TERMINATE_INVOKE);
+                }
+                if (type == SysEvent.SYS_INIT_EVENT) {
+                    logger.log(Level.ALL,"你的意思是你在整个FCT还没初始化的情况下，让窗口先初始化了?");
+                }
+            }
+        };
+        listener = SystemListener.createProactiveListener(name, source, event);
         return listener;
     }
 

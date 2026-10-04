@@ -33,9 +33,8 @@ package io.github.juicefries.fct.callback;
 
 import io.github.juicefries.fct.Sys;
 import io.github.juicefries.fct.Toolkit;
-import io.github.juicefries.fct.glfw._GL_API;
+import io.github.juicefries.fct.lwjgl._GL_API;
 import io.github.juicefries.fct.input.InputManager;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.sign.Manager;
@@ -50,6 +49,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -83,9 +83,7 @@ import org.lwjgl.system.MemoryUtil;
  */
 public class CallbackManager implements Manager, Initializable,Runnable {
 
-    //TODO 待完成后集成至Window类
-
-    private final static Logger logger = LoggerFactory.getLogger(CallbackManager.class);
+    private final static Logger logger = LogManager.getLogger(CallbackManager.class);
 
     private final Lock lock = Lock.create();
 

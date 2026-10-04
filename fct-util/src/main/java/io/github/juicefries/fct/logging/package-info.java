@@ -23,28 +23,14 @@
  *
  */
 
-//
-// Created by juicefries
-// The project name is fct
-// Data 2026/09/06 08:49
-//
-
-package io.github.juicefries.fct.glfw;
-
-import org.joml.Vector2i;
-import org.lwjgl.opengl.GL33;
-
-public class GLUtil {
-
-    public static void viewport(int width,int height) {
-        GL33.glViewport(0,0,width,height);
-    }
-
-    public static void viewport(Vector2i size) {
-        if (size == null) {
-            throw new NullPointerException("size is null!");
-        }
-        viewport(size.x,size.y);
-    }
-
-}
+/**
+ * 日志包
+ * <p>
+ *     自{@code 1.0.4}版本起，该包弃用，
+ *     API已无效。
+ * </p>
+ * @since  1.0.4
+ * @deprecated 过于无效
+ */
+@Deprecated(since = "1.0.4",forRemoval = true)
+package io.github.juicefries.fct.logging;

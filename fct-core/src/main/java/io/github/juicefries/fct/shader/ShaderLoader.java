@@ -25,9 +25,9 @@
 
 package io.github.juicefries.fct.shader;
 
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.sign.Uninitialized;
 import io.github.juicefries.fct.util.Resources;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Experimental
 public final class ShaderLoader implements Uninitialized {
 
-    private static final Logger log = LoggerFactory.getLogger(ShaderLoader.class);
+    private static final Logger log = LogManager.getLogger(ShaderLoader.class);
 
     @Deprecated(since = "0.0.2")
     public static String loadVert(String name, String defaultVertSrc) {

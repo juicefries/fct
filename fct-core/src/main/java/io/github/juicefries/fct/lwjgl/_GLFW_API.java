@@ -29,7 +29,7 @@
 // Data 2026/09/18 22:49
 //
 
-package io.github.juicefries.fct.glfw;
+package io.github.juicefries.fct.lwjgl;
 
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.util.Lock;

@@ -23,13 +23,28 @@
  *
  */
 
-package io.github.juicefries.fct.platform;
+//
+// Created by juicefries
+// The project name is fct
+// Data 2026/09/06 08:49
+//
 
-public enum PlatformType {
-    /// {@code windows} 平台实现
-    WINDOWS,
-    /// {@code linux} 平台实现
-    LINUX,
-    /// {@code mac} 平台实现
-    MAC,
+package io.github.juicefries.fct.lwjgl;
+
+import org.joml.Vector2i;
+import org.lwjgl.opengl.GL33;
+
+public class GLUtil {
+
+    public static void viewport(int width,int height) {
+        GL33.glViewport(0,0,width,height);
+    }
+
+    public static void viewport(Vector2i size) {
+        if (size == null) {
+            throw new NullPointerException("size is null!");
+        }
+        viewport(size.x,size.y);
+    }
+
 }

@@ -31,7 +31,6 @@
 
 package io.github.juicefries.fct.shader;
 
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Resources;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,12 +42,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Deprecated(since = "0.0.1")
 public abstract class ShaderLoadingTool {
 
-    private final static Logger log = LoggerFactory.getLogger(ShaderLoadingTool.class);
+    private final static Logger log = LogManager.getLogger(ShaderLoadingTool.class);
     protected String version;
 
     public String getVersion() {

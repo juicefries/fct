@@ -31,9 +31,10 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.glfw.Hint;
+import io.github.juicefries.fct.lwjgl.Hint;
 import io.github.juicefries.fct.platform.WindowUtil;
 
+@Deprecated
 public class FWindow extends Window {
 
     public FWindow(WindowConfig config) {

@@ -3,7 +3,6 @@ package io.github.juicefries.fct;
 import io.github.juicefries.fct.event.SysEvent;
 import io.github.juicefries.fct.event.SystemListener;
 import io.github.juicefries.fct.event.SystemListener.SysListenerType;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.sign.ApiSign;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -27,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.Experimental
 public class _DEBUG_API {
 
-    private final static Logger logger = LoggerFactory.getLogger("fct-debug-api");
+    private final static Logger logger = LogManager.getLogger("fct-debug-api");
 
     public static @NotNull JPanel _get_debug_system_listener_list_panel() {
         if (Sys.isDebugApiWarning()) {
@@ -211,7 +211,7 @@ public class _DEBUG_API {
         JLabel icon = new JLabel();
         icon.setHorizontalAlignment(JLabel.CENTER);
         try {
-            BufferedImage bi = ImageToolkit.toAwtImage(Toolkit.getIcon(key));
+            BufferedImage bi = Toolkit.toAwtImage(Toolkit.getIcon(key));
             icon.setIcon(new ImageIcon(bi));
         } catch (Exception e) {
             icon.setText("加载失败");

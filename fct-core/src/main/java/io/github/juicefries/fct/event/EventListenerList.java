@@ -32,9 +32,9 @@
 package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.Sys;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Lock;
 import java.lang.reflect.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public final class EventListenerList {
 
     private final static Object[] NULL_ARRAY = new Object[0];
     private final static Lock lock = Lock.create();
-    private static final Logger log = LoggerFactory.getLogger(EventListenerList.class);
+    private static final Logger log = LogManager.getLogger(EventListenerList.class);
 
     Object[] listeners = new Object[0];
 

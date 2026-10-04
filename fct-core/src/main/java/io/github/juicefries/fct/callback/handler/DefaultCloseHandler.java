@@ -34,8 +34,8 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.WindowData;
 import io.github.juicefries.fct.callback.WindowLifeCallback;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
@@ -43,7 +43,7 @@ import org.lwjgl.system.Callback;
 
 public final class DefaultCloseHandler extends CloseHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultCloseHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultCloseHandler.class);
 
     public DefaultCloseHandler() {
 

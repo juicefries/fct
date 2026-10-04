@@ -34,14 +34,14 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.WindowData;
 import io.github.juicefries.fct.callback.WindowToggleCallback;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.lwjgl.glfw.GLFWWindowIconifyCallback;
 
 public final class DefaultMinimizedHandler extends MinimizedHandler implements UnqualifiedWindowHandlerI {
-    private final static Logger logger = LoggerFactory.getLogger(DefaultMinimizedHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultMinimizedHandler.class);
 
     @Contract("null -> fail")
     @Override

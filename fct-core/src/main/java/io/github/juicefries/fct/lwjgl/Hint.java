@@ -23,7 +23,7 @@
  *
  */
 
-package io.github.juicefries.fct.glfw;
+package io.github.juicefries.fct.lwjgl;
 
 import io.github.juicefries.fct.Sys;
 import org.jetbrains.annotations.Contract;
@@ -51,6 +51,7 @@ public record Hint(int hint, int value) implements Cloneable {
      * @param hint 提示
      * @throws NullPointerException 提示类不能为{@code null}
      */
+    @Contract("null -> fail")
     public Hint(final Hint hint) {
         if (hint == null) {
             throw new NullPointerException("hint is null!");

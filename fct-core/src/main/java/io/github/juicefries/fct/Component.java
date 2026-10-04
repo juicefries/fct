@@ -33,9 +33,9 @@ package io.github.juicefries.fct;
 
 
 import io.github.juicefries.fct.sign.ApiSign;
+import io.github.juicefries.fct.util.Array;
 
 public abstract class Component {
-
 
     static {
         Toolkit.initialize();
@@ -51,10 +51,12 @@ public abstract class Component {
     boolean enabled = true;
 
     boolean opaque = true;
+
     Size maxSize = new Size();
     Size minSize = new Size();
-
     Size idealSize = new Size();
+
+    String cursorName = UIManager.DEFAULT_CURSOR;
 
     protected Component() {
 
@@ -93,6 +95,15 @@ public abstract class Component {
     }
 
     // ========================= SET =========================
+
+    public void setCursorName(String cursorName) {
+        if (cursorName == null) {
+            throw new NullPointerException("cursor is null!");
+        }
+        // 不匹配他会自己报错
+        UIManager.getCursor(cursorName);
+        this.cursorName = cursorName;
+    }
 
     public void setSize(float width,float height) {
         this.width = width;
@@ -294,6 +305,10 @@ public abstract class Component {
         return parent;
     }
 
+    public String getCursorName() {
+        return cursorName;
+    }
+
     // ========================= UTIL =========================
 
     @ApiSign.NotRecommended(since = "0.0.4")
@@ -319,6 +334,5 @@ public abstract class Component {
         for (Container p = parent; p != null; p = p.getParent()) arr[i++] = p;
         return arr;
     }
-
 
 }

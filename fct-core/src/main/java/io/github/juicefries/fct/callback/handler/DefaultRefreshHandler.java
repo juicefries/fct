@@ -34,14 +34,14 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.WindowData;
 import io.github.juicefries.fct.callback.WindowStateCallback;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
 
 public final class DefaultRefreshHandler extends RefreshHandler implements UnqualifiedWindowHandlerI {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultRefreshHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultRefreshHandler.class);
 
     public DefaultRefreshHandler() {
 

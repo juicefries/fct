@@ -48,10 +48,12 @@ public final class Lock implements Readonly {
         ctm = System.currentTimeMillis();
     }
 
+    @Contract(pure = true)
     public long getNt() {
         return nt;
     }
 
+    @Contract(pure = true)
     public long getCtm() {
         return ctm;
     }

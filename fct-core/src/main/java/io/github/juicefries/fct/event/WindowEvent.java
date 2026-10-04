@@ -74,7 +74,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see WindowLifeListener
      */
-    public final static long WINDOW_CLOSE_EVENT         = Util.turn("WED-Close");
+    public final static long WINDOW_CLOSE_EVENT         = _event_data_util._build_event_id("WED-Close");
 
     /**
      * 窗口重绘事件
@@ -82,7 +82,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see WindowRefreshListener
      */
-    public final static long WINDOW_REFRESH_EVENT       = Util.turn("WED-Refresh");
+    public final static long WINDOW_REFRESH_EVENT       = _event_data_util._build_event_id("WED-Refresh");
 
     /**
      * 窗口焦点事件
@@ -91,7 +91,7 @@ public final class WindowEvent implements EventData,
      * @see #isFocused()
      * @see WindowFocusListener
      */
-    public final static long WINDOW_FOCUS_EVENT         = Util.turn("WED-Focus");
+    public final static long WINDOW_FOCUS_EVENT         = _event_data_util._build_event_id("WED-Focus");
 
     /**
      * 窗口最大化事件
@@ -99,7 +99,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see WindowMaximizedListener
      */
-    public final static long WINDOW_MAXIMIZE_EVENT      = Util.turn("WED-Maximize");
+    public final static long WINDOW_MAXIMIZE_EVENT      = _event_data_util._build_event_id("WED-Maximize");
 
     /**
      * 窗口最小化事件
@@ -107,7 +107,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see WindowMinimizedListener
      */
-    public final static long WINDOW_MINIMIZED_EVENT     = Util.turn("WED-Minimized");
+    public final static long WINDOW_MINIMIZED_EVENT     = _event_data_util._build_event_id("WED-Minimized");
 
     /**
      * 窗口恢复事件
@@ -115,7 +115,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see WindowRestoredListener
      */
-    public final static long WINDOW_RESTORED_EVENT      = Util.turn("WED-Restored");
+    public final static long WINDOW_RESTORED_EVENT      = _event_data_util._build_event_id("WED-Restored");
 
     /**
      * 窗口移动事件
@@ -125,7 +125,7 @@ public final class WindowEvent implements EventData,
      * @see #getY()
      * @see WindowMoveListener
      */
-    public final static long WINDOW_MOVE_EVENT          = Util.turn("WED-Move");
+    public final static long WINDOW_MOVE_EVENT          = _event_data_util._build_event_id("WED-Move");
 
     /**
      * 窗口尺寸事件
@@ -135,7 +135,7 @@ public final class WindowEvent implements EventData,
      * @see #getHeight()
      * @see WindowSizeListener
      */
-    public final static long WINDOW_SIZE_EVENT          = Util.turn("WED-Size");
+    public final static long WINDOW_SIZE_EVENT          = _event_data_util._build_event_id("WED-Size");
 
     /**
      * 窗口缓冲区尺寸事件
@@ -145,7 +145,7 @@ public final class WindowEvent implements EventData,
      * @see #getHeight()
      * @see WindowFrameBufferSizeListener
      */
-    public final static long WINDOW_FRAME_BUFFER_SIZE   = Util.turn("WED-FrameBufferSize");
+    public final static long WINDOW_FRAME_BUFFER_SIZE   = _event_data_util._build_event_id("WED-FrameBufferSize");
 
     /**
      * 窗口内容缩放事件
@@ -155,7 +155,7 @@ public final class WindowEvent implements EventData,
      * @see #getYScale()
      * @see WindowContentScaleListener
      */
-    public final static long WINDOW_CONTENT_SCALE_EVENT = Util.turn("WED-ContentScale");
+    public final static long WINDOW_CONTENT_SCALE_EVENT = _event_data_util._build_event_id("WED-ContentScale");
 
     /**
      * 窗口光标进入事件
@@ -163,7 +163,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see CursorEnterListener
      */
-    public final static long WINDOW_ENTER_EVENT = Util.turn("WED-Enter");
+    public final static long WINDOW_ENTER_EVENT = _event_data_util._build_event_id("WED-Enter");
 
     /**
      * 窗口光标离开事件
@@ -171,7 +171,7 @@ public final class WindowEvent implements EventData,
      * @see #getType()
      * @see CursorEnterListener
      */
-    public final static long WINDOW_LEAVE_EVENT = Util.turn("WED-Leave");
+    public final static long WINDOW_LEAVE_EVENT = _event_data_util._build_event_id("WED-Leave");
 
     /**
      * 未定义的大小

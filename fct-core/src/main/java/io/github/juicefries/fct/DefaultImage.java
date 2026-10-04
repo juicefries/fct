@@ -30,6 +30,7 @@ import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**

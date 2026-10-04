@@ -31,9 +31,9 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Lock;
 import java.util.Objects;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.system.MemoryUtil;
 
@@ -59,7 +59,7 @@ import org.lwjgl.system.MemoryUtil;
  */
 public abstract class CrudeApplication extends Frame implements Application {
 
-    private final static Logger log = LoggerFactory.getLogger(CrudeApplication.class);
+    private final static Logger log = LogManager.getLogger(CrudeApplication.class);
 
     protected CrudeApplication() {
         this((Lock) null);

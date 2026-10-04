@@ -33,11 +33,8 @@ package io.github.juicefries.fct.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -87,7 +84,8 @@ public class Util {
         return _ -> {};
     }
 
-    public static <T> boolean notEqualTo(T a,T b) {
+    @Contract(pure = true)
+    public static <T> boolean notEqualTo(T a, T b) {
         return a != b;
     }
 
@@ -96,6 +94,7 @@ public class Util {
                 .getMostSignificantBits();
     }
 
+    @Contract(value = "true, _, _ -> param2; false, _, _ -> param3", pure = true)
     public static <T> T match(boolean condition, T a, T b) {
         if (condition) {
             return a;
@@ -104,6 +103,7 @@ public class Util {
         }
     }
 
+    @Contract(value = "_, _, null -> param2", pure = true)
     @SafeVarargs
     public static <T> T match(T val, T defVal, T ... vals) {
         if (vals == null) {
@@ -117,6 +117,7 @@ public class Util {
         return defVal;
     }
 
+    @Contract(pure = true)
     public static <T> boolean match(T val, T request) {
         return val == request;
     }

@@ -110,4 +110,22 @@ public final class ApiSign {
         String since() default "";
     }
 
+    /**
+     * 表示为AI生成的
+     * @since 1.0.4
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target({
+            ElementType.TYPE,
+            ElementType.ANNOTATION_TYPE,
+            ElementType.METHOD,
+            ElementType.CONSTRUCTOR,
+            ElementType.FIELD,
+            ElementType.PACKAGE
+    })
+    public @interface AIGenerated {
+        String since() default "";
+    }
+
 }

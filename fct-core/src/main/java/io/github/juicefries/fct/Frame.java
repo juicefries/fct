@@ -38,7 +38,6 @@ import io.github.juicefries.fct.util.Util;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -111,7 +110,7 @@ public class Frame extends Window implements WindowConstants {
 
         checkI : if (ib[0]) {
             if (icon == null) break checkI;
-            var glfwImage = ImageToolkit.getImage(icon);
+            var glfwImage = Toolkit.getImage(icon);
             GLFWImage.Buffer buffer = GLFWImage.malloc(1).put(0, glfwImage);
             GLFW.glfwSetWindowIcon(window, buffer);
             buffer.free();
@@ -255,7 +254,7 @@ public class Frame extends Window implements WindowConstants {
         }
 
         if (isInit()) {
-            var glfwImage = ImageToolkit.getImage(icon);
+            var glfwImage = Toolkit.getImage(icon);
             GLFWImage.Buffer buffer = GLFWImage.malloc(1).put(0, glfwImage);
             GLFW.glfwSetWindowIcon(window, buffer);
             buffer.free();

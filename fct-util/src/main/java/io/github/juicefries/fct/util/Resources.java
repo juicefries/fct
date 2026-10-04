@@ -31,27 +31,38 @@
 
 package io.github.juicefries.fct.util;
 
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.sign.Uninitialized;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 public final class Resources implements Uninitialized {
 
-    private final static Logger log = LoggerFactory.getLogger(Resources.class);
+    private final static Logger log = LogManager.getLogger(Resources.class);
     private final static Lock lock = Lock.create();
     private final static AtomicBoolean IGNORE_ROLLBACK_WARNING = new AtomicBoolean(true);
 
+    public static void setIgnoreRollbackWarning(boolean val) {
+        synchronized (lock) {
+            if (val == Resources.isNotIgnoreRollbackWarning()) {
+                return;
+            }
+            IGNORE_ROLLBACK_WARNING.set(val);
+        }
+    }
 
     public static boolean isNotIgnoreRollbackWarning() {
         return IGNORE_ROLLBACK_WARNING.get();
     }
 
-    public static InputStream getResourceAsStream(Class<?> clazz, String name) {
+    @Contract("null, _ -> fail; !null, null -> fail")
+    public static @Nullable InputStream getResourceAsStream(Class<?> clazz, String name) {
         if (clazz == null) {
             throw new NullPointerException("clazz is null!");
         }
@@ -101,7 +112,8 @@ public final class Resources implements Uninitialized {
         return null;
     }
 
-    public static URI getResourceURI(Class<?> clazz,String name,boolean create)
+    @Contract("null, _, _ -> fail; !null, null, _ -> fail")
+    public static URI getResourceURI(Class<?> clazz, String name, boolean create)
             throws NullPointerException,IllegalArgumentException,IOException
     {
         if (clazz == null) {
@@ -140,11 +152,12 @@ public final class Resources implements Uninitialized {
         throw new IOException("Failed to get URI!");
     }
 
-    public static URI getResourceURI(Class<?> clazz,String name) throws IOException {
+    @Contract("null, _ -> fail; !null, null -> fail")
+    public static URI getResourceURI(Class<?> clazz, String name) throws IOException {
         return getResourceURI(clazz,name,false);
     }
 
-
+    @Contract(pure = true)
     private Resources() {
 
     }

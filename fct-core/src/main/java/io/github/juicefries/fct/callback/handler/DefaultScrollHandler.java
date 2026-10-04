@@ -34,15 +34,15 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.MouseData;
 import io.github.juicefries.fct.callback.MouseScrollCallback;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.system.Callback;
 
 public final class DefaultScrollHandler extends ScrollHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultScrollHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultScrollHandler.class);
 
     @Override
     public void simulate(CallbackData data) {

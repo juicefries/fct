@@ -31,9 +31,8 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.glfw.GLFWUtil;
+import io.github.juicefries.fct.lwjgl.GLFWUtil;
 import io.github.juicefries.fct.image.Format;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.shader.ShaderLoader;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
@@ -48,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +97,7 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
     @Deprecated(since = "0.0.2")
     public final static String DEFAULT_FRAGMENT_SHADER_SRC_PATH = "/io/github/juicefries/fct/shaders/graphics2d.frag";
 
-    private static final Logger logger = LoggerFactory.getLogger(GLGraphics2D.class);
+    private static final Logger logger = LogManager.getLogger(GLGraphics2D.class);
 
     private final AtomicBoolean initialize = new AtomicBoolean(false);
     private final AtomicBoolean cachedTexture = new AtomicBoolean(true);

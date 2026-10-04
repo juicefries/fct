@@ -23,19 +23,17 @@
  *
  */
 
-//
-// Created by juicefries
-// The project name is fct
-// Data 2026/09/12 13:54
-//
-
+/**
+ * 平台包
+ * <p>
+ *     原本是想写LWJGL不支持，实现起来要用到各平台代码的包，
+ *     <br>
+ *     但是就写了一个类，没啥用就放弃了。
+ * </p>
+ * @since 1.0.1
+ * @deprecated 没啥用
+ * @version 1.1
+ * @author juicefries
+ */
+@Deprecated(since = "1.0.1")
 package io.github.juicefries.fct.platform;
-
-import io.github.juicefries.fct.util.Sheet;
-
-public class Platform {
-
-
-    //Sheet<String,Native,Native> sheet;
-
-}

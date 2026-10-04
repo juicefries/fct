@@ -29,10 +29,9 @@
 // Data 2026/09/04 15:00
 //
 
-package io.github.juicefries.fct.glfw;
+package io.github.juicefries.fct.lwjgl;
 
 import io.github.juicefries.fct.Image;
-import io.github.juicefries.fct.ImageToolkit;
 import io.github.juicefries.fct.Size;
 import io.github.juicefries.fct.Sys;
 import io.github.juicefries.fct.Toolkit;
@@ -192,7 +191,7 @@ public class GLFWUtil {
             throw new NullPointerException("icon is null!");
         }
 
-        GLFWImage image = ImageToolkit.getImage(icon);
+        GLFWImage image = Toolkit.getImage(icon);
         setWindowIcon(window, image, true);
     }
 
@@ -201,8 +200,8 @@ public class GLFWUtil {
             throw new NullPointerException("icon is null!");
         }
 
-        Image image = ImageToolkit.getImage(icon);
-        GLFWImage glfwImage = ImageToolkit.getImage(image);
+        Image image = Toolkit.getImage(icon);
+        GLFWImage glfwImage = Toolkit.getImage(image);
         setWindowIcon(window, glfwImage, true);
     }
 
@@ -269,9 +268,7 @@ public class GLFWUtil {
             throw new IllegalStateException("The window has not been initialized yet!");
         }
         Vector2i vector2i = center(window);
-        window.invoke(() -> {
-            window.setSize(vector2i.x, vector2i.y);
-        });
+        window.invoke(() -> window.setSize(vector2i.x, vector2i.y));
     }
 
     // ========================= getSize =========================

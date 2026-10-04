@@ -34,15 +34,15 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.MouseData;
 import io.github.juicefries.fct.callback.MouseDropCallback;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.system.Callback;
 
 public final class DefaultDropHandler extends DropHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultDropHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultDropHandler.class);
 
     @Override
     public void simulate(CallbackData data) {

@@ -31,147 +31,69 @@
 
 package io.github.juicefries.fct.logging;
 
-import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Uninitialized;
 import io.github.juicefries.fct.util.Lock;
-import io.github.juicefries.fct.util.Resources;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Objects;
-import org.apache.logging.log4j.Level;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.message.MessageFactory;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 
+@Deprecated(since = "1.0.4",forRemoval = true)
 public class LoggerFactory implements Uninitialized {
 
+    @Deprecated(since = "1.0.4",forRemoval = true)
     public final static String DEFAULT_LOG_CONFIG_FILE_PATH = "/io/github/juicefries/fct/logging/log4j2.xml";
-
+    private static final Logger log = LogManager.getLogger(LoggerFactory.class);
     private final static Lock lock = Lock.create();
-    private static LoggerContext context = LoggerUtil.getContext();
-    private final static Logger log = LoggerFactory.getLogger(LoggerFactory.class);
+    private final static AtomicBoolean IGNORE_ROLLBACK_WARNING = new AtomicBoolean(true);
 
-    private static volatile boolean Init = false;
-    private static Level level = Level.INFO;
-    private static String logConfigFilePath = DEFAULT_LOG_CONFIG_FILE_PATH;
-
-    static {
-        if (!Init) {
-            if (!LoggerUtil.isNotDefault()) {
-                upConfig();
-            }
-            Init = true;
-        }
-    }
-
-    public static void upConfig() {
-        if (!Init) {
-            synchronized (lock) {
-                System.setProperty("fct.log.out.level", level.toString());
-            }
-        }
-        configURI();
-        synchronized (lock) {
-            Configuration configuration = context.getConfiguration();
-            LoggerConfig config = configuration.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-            if (!Init) {
-                config.setLevel(level);
-            } else {
-                if (config.getLevel() != level) {
-                    config.setLevel(level);
-                }
-            }
-            context.updateLoggers();
-        }
-        if (!Init) {
-            Init = true;
-        }
-    }
-
-    private static void configURI() {
-        if (Init) {
-            if (Objects.equals(logConfigFilePath, context.getConfigLocation().getPath())) {
-                return;
-            }
-        }
-        try {
-            synchronized (lock) {
-                URI uri = Resources.getResourceURI(LoggerFactory.class, logConfigFilePath);
-                context.setConfigLocation(uri);
-            }
-        } catch (IOException e) {
-            log.warn("Log configuration failed to load!",e);
-        }
-    }
-
-
+    @Contract(pure = true)
     private LoggerFactory() {
 
     }
 
-    public static void setLevel(Level level) {
-        if (level == null) {
-            throw new NullPointerException("level is null!");
-        }
-        LoggerFactory.level = level;
-        upConfig();
-    }
-
-    public static void setLogConfigFilePath(String path) {
-        if (path == null) {
-            throw new NullPointerException("path is null!");
-        }
-        logConfigFilePath = path;
-        upConfig();
-    }
-
-    public static Logger getLogger(String name) {
-        return context.getLogger(name);
-    }
-
-    public static Logger getLogger(String name, MessageFactory messageFactory) {
-        return context.getLogger(name, messageFactory);
-    }
-
-    public static Logger getLogger(Class<?> cls) {
-        return context.getLogger(cls);
-    }
-
-    public static Logger getLogger(Class<?> cls, MessageFactory messageFactory) {
-        return context.getLogger(cls,messageFactory);
-    }
-
-    public static Level getLevel() {
-        return level;
-    }
-
-    public static String getLogConfigFilePath() {
-        return logConfigFilePath;
-    }
-
-    public static boolean isInit() {
-        return Init;
-    }
-
-    @ApiStatus.Experimental
-    @ApiSign.InternalApi
-    public static LoggerContext getContext() {
-        return context;
-    }
-
-    @ApiStatus.Experimental
-    @ApiSign.InternalApi
-    public static void takeOver(LoggerContext context) {
-        if (context == null) {
-            throw new NullPointerException("context is null!");
-        }
-
+    public static void setIgnoreRollbackWarning(boolean val) {
         synchronized (lock) {
-            LoggerFactory.context = context;
+            if (val == LoggerFactory.isNotIgnoreRollbackWarning()) {
+                return;
+            }
+            IGNORE_ROLLBACK_WARNING.set(val);
         }
     }
+
+    public static boolean isNotIgnoreRollbackWarning() {
+        return IGNORE_ROLLBACK_WARNING.get();
+    }
+
+    @Deprecated(since = "1.0.4",forRemoval = true)
+    public static Logger getLogger(String name) {
+        outputWarning();
+        return LogManager.getLogger(name);
+    }
+
+    @Deprecated(since = "1.0.4",forRemoval = true)
+    public static Logger getLogger(String name, MessageFactory messageFactory) {
+        outputWarning();
+        return LogManager.getLogger(name, messageFactory);
+    }
+
+    @Deprecated(since = "1.0.4",forRemoval = true)
+    public static Logger getLogger(Class<?> cls) {
+        outputWarning();
+        return LogManager.getLogger(cls);
+    }
+
+    @Deprecated(since = "1.0.4",forRemoval = true)
+    public static Logger getLogger(Class<?> cls, MessageFactory messageFactory) {
+        outputWarning();
+        return LogManager.getLogger(cls,messageFactory);
+    }
+
+    private static void outputWarning() {
+        if (isNotIgnoreRollbackWarning()) {
+            log.warn("Since version 1.0.4, this class has been deprecated and the factory methods of org.apache.logging.log4j LogManager should be used, which have been redirected to the corresponding methods.");
+        }
+    }
+
 }

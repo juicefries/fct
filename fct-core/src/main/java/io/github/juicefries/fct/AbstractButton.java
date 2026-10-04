@@ -43,11 +43,13 @@ public abstract class AbstractButton extends Control {
         addMouseEntersListener(new MouseEntersListener() {
             @Override
             public void entered(MouseEvent e) {
+                if (!isEnabled()) return;
                 setRollover(true);
                 validate();
             }
             @Override
             public void exited(MouseEvent e) {
+                if (!isEnabled()) return;
                 setRollover(false);
                 validate();
             }
@@ -55,6 +57,7 @@ public abstract class AbstractButton extends Control {
         addMouseButtonListener(new MouseButtonAdapter() {
             @Override
             public void press(MouseEvent e) {
+                if (!isEnabled()) return;
                 if (e.getButton() == MouseEvent.MK_LEFT) {
                     setSelect(true);
                     validate();
@@ -62,6 +65,7 @@ public abstract class AbstractButton extends Control {
             }
             @Override
             public void release(MouseEvent e) {
+                if (!isEnabled()) return;
                 if (e.getButton() == MouseEvent.MK_LEFT) {
                     setSelect(false);
                     validate();

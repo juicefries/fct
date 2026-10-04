@@ -26,13 +26,19 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/09/12 12:00
+// Data 2026/10/04 23:09
 //
 
-package io.github.juicefries.fct.platform;
+package io.github.juicefries.fct.event;
 
-public interface Native {
+public abstract class MouseEntersAdapter extends Adapter implements MouseEntersListener {
+    @Override
+    public void entered(MouseEvent e) {
 
+    }
 
+    @Override
+    public void exited(MouseEvent e) {
 
+    }
 }

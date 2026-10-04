@@ -33,7 +33,6 @@ package io.github.juicefries.fct.util;
 
 import io.github.juicefries.fct.sign.ListTask;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -123,6 +122,7 @@ public class Array {
     }
 
     @SafeVarargs
+    @Contract("_, null -> fail")
     public static <T> boolean contains(T value, T... values) {
         if (values == null) {
             throw new NullPointerException("values is null!");
@@ -139,6 +139,7 @@ public class Array {
     }
 
     @SafeVarargs
+    @Contract("_, null -> fail")
     public static <T> boolean notIncluded(T value, T... values) {
         return !contains(value, values);
     }

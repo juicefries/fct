@@ -6,7 +6,7 @@
 
     <groupId>io.github.juicefries</groupId>
     <artifactId>fct</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Fan Concept Toolkit</name>
@@ -39,7 +39,6 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ToolDependencyVersion>1.0.0</ToolDependencyVersion>
     </properties>
 
     <build>
@@ -140,19 +139,19 @@
         <dependency>
             <groupId>io.github.juicefries</groupId>
             <artifactId>fct-util</artifactId>
-            <version>${ToolDependencyVersion}</version>
+            <version>1.0.4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.juicefries</groupId>
             <artifactId>fct-lwjgl</artifactId>
-            <version>${ToolDependencyVersion}</version>
+            <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.juicefries</groupId>
             <artifactId>fct-platform</artifactId>
-            <version>${ToolDependencyVersion}</version>
+            <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

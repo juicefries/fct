@@ -36,6 +36,7 @@ import io.github.juicefries.fct.Container;
 import io.github.juicefries.fct.EventComponent;
 import io.github.juicefries.fct.KeyEventComponent;
 import io.github.juicefries.fct.MouseEventComponent;
+import io.github.juicefries.fct.UIManager;
 import io.github.juicefries.fct.Window;
 import io.github.juicefries.fct.callback.CallbackManager;
 import io.github.juicefries.fct.callback.GLFWCallback;
@@ -58,12 +59,12 @@ import io.github.juicefries.fct.callback.WindowStateCallback;
 import io.github.juicefries.fct.callback.WindowStateCallbackA;
 import io.github.juicefries.fct.callback.WindowToggleCallback;
 import io.github.juicefries.fct.callback.WindowToggleCallbackA;
-import io.github.juicefries.fct.glfw.Mouse;
-import io.github.juicefries.fct.logging.LoggerFactory;
+import io.github.juicefries.fct.lwjgl.Mouse;
 import io.github.juicefries.fct.util.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -73,12 +74,14 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DefaultEventTrigger extends EventTrigger {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultEventTrigger.class);
+    private static final Logger logger = LogManager.getLogger(DefaultEventTrigger.class);
     private final AtomicBoolean initialize = new AtomicBoolean(false);
 
     private KeyEventComponent focusComponent;
     private MouseEventComponent captureComponent;
     private MouseEventComponent hoverComponent;
+    /** 当前已应用到窗口上的光标名，避免重复设置 */
+    private String currentCursorName = UIManager.DEFAULT_CURSOR;
 
     Window window;
 
@@ -274,47 +277,82 @@ public final class DefaultEventTrigger extends EventTrigger {
             float x = (float) e.getXPos();
             float y = (float) e.getYPos();
 
-            var ec = getEventComponentAt(x, y);
+            // 非事件组件（容器、面板、空白）一律视作无悬停目标
+            var target = getEventComponentAt(x, y) instanceof MouseEventComponent mec ? mec : null;
 
-            if (ec != hoverComponent) {
+            if (target != hoverComponent) {
                 if (hoverComponent != null) {
-                    float oldLocalX = x - ((Component) hoverComponent).getAbsoluteX();
-                    float oldLocalY = y - ((Component) hoverComponent).getAbsoluteY();
-                    var _med_ex__ = MouseEvent.exited(oldLocalX, oldLocalY);
-                    var exitedListeners = getListeners(hoverComponent, MouseEntersListener.class);
-                    Array.forArr(exitedListeners, listener -> {
-                        if (listener == null) return;
-                        listener.exited(_med_ex__);
-                    });
+                    dispatchEnters(hoverComponent, false, x, y);
+                }
+                if (target != null) {
+                    dispatchEnters(target, true, x, y);
                 }
 
-                if (ec instanceof MouseEventComponent mec) {
-                    float newLocalX = x - ((Component) mec).getAbsoluteX();
-                    float newLocalY = y - ((Component) mec).getAbsoluteY();
-                    var _med_en__ = MouseEvent.entered(newLocalX, newLocalY);
-                    var enteredListeners = getListeners(mec, MouseEntersListener.class);
-                    Array.forArr(enteredListeners, listener -> {
-                        if (listener == null) return;
-                        listener.entered(_med_en__);
-                    });
-                }
-
-                if (ec instanceof MouseEventComponent mec) {
-                    hoverComponent = mec;
-                }
+                hoverComponent = target;
+                applyCursor((Component) target);
             }
 
-            if (!(ec instanceof MouseEventComponent mec)) return;
+            if (target == null) return;
 
-            float localX = x - ((Component) mec).getAbsoluteX();
-            float localY = y - ((Component) mec).getAbsoluteY();
+            float localX = x - ((Component) target).getAbsoluteX();
+            float localY = y - ((Component) target).getAbsoluteY();
             var _med_m_p__ = MouseEvent.pos(localX, localY);
 
-            var listeners = getListeners(mec, MouseCursorListener.class);
+            var listeners = getListeners(target, MouseCursorListener.class);
             Array.forArr(listeners, listener -> {
                 if (listener == null) return;
                 listener.mousePos(_med_m_p__);
             });
+        }
+
+        /**
+         * 派发进入 / 离开
+         * @param mec 目标事件组件
+         * @param entered {@code true} 为进入，{@code false} 为离开
+         * @param x 窗口坐标X
+         * @param y 窗口坐标Y
+         * @since 1.0.1
+         */
+        private void dispatchEnters(MouseEventComponent mec, boolean entered, float x, float y) {
+            if (mec == null) return;
+
+            float localX = x - ((Component) mec).getAbsoluteX();
+            float localY = y - ((Component) mec).getAbsoluteY();
+
+            var event = entered
+                    ? MouseEvent.entered(localX, localY)
+                    : MouseEvent.exited(localX, localY);
+
+            var listeners = getListeners(mec, MouseEntersListener.class);
+            Array.forArr(listeners, listener -> {
+                if (listener == null) return;
+                if (entered) {
+                    listener.entered(event);
+                } else {
+                    listener.exited(event);
+                }
+            });
+        }
+
+        /**
+         * 按组件声明的光标名切换窗口光标
+         * <p>
+         *     名称未变化时不会重复设置。
+         * </p>
+         * @param component 目标组件，{@code null}表示回到默认光标
+         * @since 1.0.1
+         */
+        void applyCursor(Component component) {
+            if (window == null) return;
+
+            String name = component == null ? UIManager.DEFAULT_CURSOR : component.getCursorName();
+            if (name == null) {
+                name = UIManager.DEFAULT_CURSOR;
+            }
+            if (name.equals(currentCursorName)) return;
+
+            currentCursorName = name;
+            UIManager.setWindowCursor(window, name);
         }
 
         @Override
@@ -351,6 +389,7 @@ public final class DefaultEventTrigger extends EventTrigger {
                 });
                 hoverComponent = null;
             }
+            applyCursor(null);
         }
 
     }

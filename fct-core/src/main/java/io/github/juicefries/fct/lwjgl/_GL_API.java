@@ -26,49 +26,56 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/09/22 19:20
+// Data 2026/09/18 23:04
 //
 
-package io.github.juicefries.fct.event;
+package io.github.juicefries.fct.lwjgl;
 
+import io.github.juicefries.fct.sign.ApiSign;
+import io.github.juicefries.fct.util.Lock;
 import io.github.juicefries.fct.util.Util;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL;
 
-public final class NullEvent implements EventData {
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwWaitEvents;
 
-    public final static long NULL_EVENT = _event_data_util._build_event_id("Null");
+@ApiSign.InternalApi(since = "0.0.5")
+public class _GL_API {
 
-    long type;
 
-    @Contract(pure = true)
-    NullEvent() {}
+    private final static Lock stateLock = Lock.create();
 
-    public static @NotNull NullEvent Null() {
-        var e = new NullEvent();
-        e.type = NULL_EVENT;
-        return e;
+    public static void _bind(long window) {
+        synchronized (stateLock) {
+            GLFW.glfwMakeContextCurrent(window);
+            GL.createCapabilities();
+        }
     }
 
-    @Contract(pure = true)
-    @Override
-    public long getType() {
-        return type;
+    public static void _swap_interval(boolean interval) {
+        final int _interval__ = Util.match(interval,GLFW.GLFW_TRUE,GLFW.GLFW_FALSE);
+        synchronized (stateLock) {
+            glfwSwapInterval(_interval__);
+        }
     }
 
-    @Override
-    public @NotNull EventData copy() {
-        var e = new NullEvent();
-        e.type = type;
-        return e;
+    public static void _poll_events() {
+        synchronized (stateLock) {
+            glfwPollEvents();
+        }
     }
 
-    @Override
-    public NullEvent clone() {
-        return Util.cloneFailed(() -> {
-            NullEvent e = (NullEvent) super.clone();
-            e.type = type;
-            return e;
-        });
+    public static void _glfw_wait_events() {
+        synchronized (stateLock) {
+            glfwWaitEvents();
+        }
     }
+
+    public static void _wait_events_timeout(double timeout) {
+        synchronized (stateLock) {
+            glfwWaitEventsTimeout(timeout);
+        }
+    }
+
 }

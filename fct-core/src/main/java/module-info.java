@@ -47,7 +47,7 @@ module io.github.juicefries.fct.core {
     exports io.github.juicefries.fct.image;
     exports io.github.juicefries.fct.shader;
     exports io.github.juicefries.fct.event;
-    exports io.github.juicefries.fct.glfw;
+    exports io.github.juicefries.fct.lwjgl;
     exports io.github.juicefries.fct.layout;
 
     opens io.github.juicefries.fct.icons;

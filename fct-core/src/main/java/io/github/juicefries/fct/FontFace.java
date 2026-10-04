@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTruetype;
@@ -92,7 +93,7 @@ public final class FontFace {
     }
 
 
-    Glyph ensure(int cp) {
+    @NotNull Glyph ensure(int cp) {
         Glyph g = glyphs.get(cp);
         if (g != null) return g;
         g = rasterize(cp);
@@ -100,7 +101,7 @@ public final class FontFace {
         return g;
     }
 
-    private Glyph rasterize(int cp) {
+    private @NotNull Glyph rasterize(int cp) {
         int[] w = {0}, h = {0}, xoff = {0}, yoff = {0};
         ByteBuffer bmp = STBTruetype.stbtt_GetCodepointBitmap(info, scaleX, scaleY, cp, w, h, xoff, yoff);
 

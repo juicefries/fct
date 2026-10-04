@@ -6,7 +6,7 @@
 
     <groupId>io.github.juicefries</groupId>
     <artifactId>fct-lwjgl</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Fan Concept Toolkit - LWJGL</name>
@@ -182,15 +182,7 @@
             <version>${lwjgl.version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-freetype</artifactId>
-            <version>${lwjgl.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- lwjgl-native库 -->
-
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
@@ -215,13 +207,6 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-freetype</artifactId>
             <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>compile</scope>

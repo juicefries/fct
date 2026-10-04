@@ -31,14 +31,14 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.glfw.Hint;
-import io.github.juicefries.fct.logging.LoggerFactory;
+import io.github.juicefries.fct.lwjgl.Hint;
 import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.TraverseList;
 import io.github.juicefries.fct.util.Util;
 import java.util.function.Consumer;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class WindowConfig implements Readonly, Copyable,Cloneable {
 
-    private final static Logger logger = LoggerFactory.getLogger(WindowConfig.class);
+    private final static Logger logger = LogManager.getLogger(WindowConfig.class);
 
     Consumer<Window> notice = Util.emptyConsumer();
 

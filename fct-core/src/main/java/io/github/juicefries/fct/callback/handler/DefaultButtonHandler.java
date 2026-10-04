@@ -34,8 +34,8 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.CallbackData;
 import io.github.juicefries.fct.callback.MouseButtonCallback;
 import io.github.juicefries.fct.callback.MouseData;
-import io.github.juicefries.fct.logging.LoggerFactory;
 import io.github.juicefries.fct.util.Array;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.lwjgl.glfw.GLFW;
@@ -44,7 +44,7 @@ import org.lwjgl.system.Callback;
 
 public final class DefaultButtonHandler extends ButtonHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultButtonHandler.class);
+    private final static Logger logger = LogManager.getLogger(DefaultButtonHandler.class);
 
     public DefaultButtonHandler() {
 
