@@ -1,0 +1,3 @@
+*.sdf linguist-language=ShaderDefinitionFile
+*.md            linguist-detectable=true
+*.xml           linguist-detectable=true
