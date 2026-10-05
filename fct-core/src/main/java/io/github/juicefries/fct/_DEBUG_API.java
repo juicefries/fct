@@ -141,9 +141,22 @@ public class _DEBUG_API {
         return panel;
     }
 
+    public static Thread _get_debug_fct_auxiliary_event_thread() {
+        if (Sys.isDebugApiWarning()) {
+            logger.warn("This method is a dangerous operation, please call it with caution!");
+        }
+        return Sys._auxiliary_event_thread;
+    }
 
-
-
+    public static void warning(String... lines) {
+        if (lines == null) return;
+        synchronized (System.err) {
+            for (String line : lines) {
+                if (line == null) continue;
+                System.err.println("WARNING: " + line);
+            }
+        }
+    }
 
 
     // ========================= 内部工具 =========================

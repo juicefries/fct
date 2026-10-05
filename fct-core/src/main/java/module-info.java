@@ -38,6 +38,7 @@ module io.github.juicefries.fct.core {
     requires io.github.juicefries.fct.platform;
     requires com.sun.jna.platform;
     requires com.sun.jna;
+    requires jdk.compiler;
 
     exports io.github.juicefries.fct;
     exports io.github.juicefries.fct.callback;

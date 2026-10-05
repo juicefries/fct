@@ -165,6 +165,37 @@ public class Toolkit implements Uninitialized, Manager {
 
     // ========================= OTM =========================
 
+    /**
+     * 延后任务，名称自动生成且只执行一次
+     * @param task 任务本体
+     * @see Sys#invokeLater(Runnable)
+     * @since 1.0.2
+     * @throws NullPointerException 当任务为null时抛出
+     */
+    @Contract("null -> fail")
+    public static void invokeLater(Runnable task) {
+        if (task == null) {
+            throw new NullPointerException("task is null!");
+        }
+
+        Sys.invokeLater(task);
+    }
+
+    /**
+     * 追加任务，名称自动生成且只执行一次
+     * @param task 任务本体
+     * @see Sys#invokeAppend(Runnable)
+     * @since 1.0.2
+     * @throws NullPointerException 当任务为null时抛出
+     */
+    @Contract("null -> fail")
+    public static void invokeAppend(Runnable task) {
+        if (task == null) {
+            throw new NullPointerException("task is null!");
+        }
+        Sys.invokeAppend(task);
+    }
+
     @ApiStatus.Internal
     @ApiSign.Dangerous(since = "0.0.3")
     public static void dispose() {

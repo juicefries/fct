@@ -532,12 +532,12 @@ public final class DefaultEventTrigger extends EventTrigger {
         public void inputKey(KeyData e) {
             var focus = focusComponent;
             if (focus == null) return;
-            var listeners = getListeners(focus, KeyInputListener.class);
+            var listeners = getListeners(focus, KeyCharInputListener.class);
             var codepoint = (char) e.getCodepoint();
             var _ked_c_i__ = KeyEvent.charInput(codepoint);
             Array.forArr(listeners,listener -> {
                 if (listener == null) return;
-                listener.press(_ked_c_i__);
+                listener.input(_ked_c_i__);
             });
         }
     }

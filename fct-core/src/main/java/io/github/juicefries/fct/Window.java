@@ -803,10 +803,6 @@ public class Window extends EventContainer implements
      *     <br>
      *     该方法应当在设置尺寸之后调用。
      *     <br>
-     *     目前在初始化前设置可能会因为初始化过快导致窗口闪现到指定位置。
-     *     <br>
-     *     目前还并不稳定。
-     *     <br>
      *     方法建议在{@link #invoke(Runnable)}中调用。
      * </p>
      *
@@ -814,7 +810,6 @@ public class Window extends EventContainer implements
      * @since 0.0.1
      */
     @Override
-    @ApiStatus.Experimental
     public void setLocation(Location location) {
         int x;
         int y;

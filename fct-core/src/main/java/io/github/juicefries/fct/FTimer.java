@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
  * @see ActionListener
  * @see TimerEvent
  */
+@Deprecated(since = "1.0.2")
 public class FTimer implements Runnable {
 
     private final transient Lock lock = Lock.create();
@@ -203,7 +204,7 @@ public class FTimer implements Runnable {
      */
     public final static class TimerEvent implements EventData {
 
-        public final static long TIMER_EVENT = _event_data_util._build_event_id("Timer");
+        public final static long TIMER_EVENT = _event_data_util._build_event_id("FTED-Timer");
 
         long type;
         float delay;
