@@ -31,9 +31,6 @@
 
 package io.github.juicefries.fct.lwjgl;
 
-import io.github.juicefries.fct.Sys;
-import io.github.juicefries.fct.event.SysEvent;
-import io.github.juicefries.fct.event.SystemListener;
 import io.github.juicefries.fct.util.Lock;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,31 +46,9 @@ public class WindowHint {
     private final static Map<String, Integer> mapping = new ConcurrentHashMap<>();
     private final static Map<Integer, String> nameMapping = new ConcurrentHashMap<>();
     private final static Lock lock = Lock.create();
-    private final static SystemListener listener = SystemListener.createPassiveListener(
-            "FCTWindowHintSystemListener",
-            WindowHint.class,
-            e ->
-            {
-                if (e.getType() == SysEvent.SYS_INIT_EVENT) {
-                    initMapping();
-                }
-                if (e.getType() == SysEvent.SYS_CANCEL_EVENT || e.getType() == SysEvent.SYS_TERMINATE_EVENT) {
-                    clearMapping();
-                }
-            }
-    );
 
     static {
-        registerSystemListener();
-        synchronized (lock) {
-            if (nameMapping.isEmpty() || mapping.isEmpty()) {
-                initMapping();
-            }
-        }
-    }
-
-    private static void registerSystemListener() {
-        Sys.register(listener);
+        initMapping();
     }
 
     private static void initMapping() {

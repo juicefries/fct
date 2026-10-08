@@ -26,40 +26,59 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/09/16 14:18
+// Data 2026/09/18 23:04
 //
 
 package io.github.juicefries.fct.lwjgl;
 
-import io.github.juicefries.fct.Sys;
 import io.github.juicefries.fct.sign.ApiSign;
-import io.github.juicefries.fct.util.Array;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2d;
+import io.github.juicefries.fct.util.Lock;
+import io.github.juicefries.fct.util.Util;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL;
 
 
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwWaitEvents;
+import static org.lwjgl.glfw.GLFW.glfwWaitEventsTimeout;
 
-import static org.lwjgl.glfw.GLFW.*;
+@ApiSign.InternalApi(since = "0.0.5")
+public class _GL_API {
 
-@ApiSign.NotRecommended(since = "0.0.4")
-public class Mouse {
 
-    public static @NotNull Vector2d getCursorPos(long window) {
-        Sys.checkInit();
-        var pos = new Vector2d();
-        if (window == NULL){
-            return pos;
+    private final static Lock stateLock = Lock.create();
+
+    public static void _bind(long window) {
+        synchronized (stateLock) {
+            GLFW.glfwMakeContextCurrent(window);
+            GL.createCapabilities();
         }
-        var x = Array.createD(1);
-        var y = Array.createD(1);
-        glfwGetCursorPos(window,x,y);
-        pos.x = x[0];
-        pos.y = y[0];
-
-        return pos;
     }
 
+    public static void _swap_interval(boolean interval) {
+        final int _interval__ = Util.match(interval,GLFW.GLFW_TRUE,GLFW.GLFW_FALSE);
+        synchronized (stateLock) {
+            glfwSwapInterval(_interval__);
+        }
+    }
 
+    public static void _poll_events() {
+        synchronized (stateLock) {
+            glfwPollEvents();
+        }
+    }
+
+    public static void _glfw_wait_events() {
+        synchronized (stateLock) {
+            glfwWaitEvents();
+        }
+    }
+
+    public static void _wait_events_timeout(double timeout) {
+        synchronized (stateLock) {
+            glfwWaitEventsTimeout(timeout);
+        }
+    }
 
 }

@@ -31,14 +31,16 @@
 
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.event.EventListenerList;
 import io.github.juicefries.fct.event.SysEvent;
 import io.github.juicefries.fct.event.SystemListener;
+import io.github.juicefries.fct.event.SystemListener.SysListenerType;
 import io.github.juicefries.fct.lwjgl.WindowHint;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Manager;
 import io.github.juicefries.fct.sign.Uninitialized;
+import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
-import io.github.juicefries.fct.util.TraverseList;
 import io.github.juicefries.fct.util.Util;
 import java.io.Serial;
 import java.io.Serializable;
@@ -87,15 +89,6 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     public final static int InfiniteTask = -1;
     public final static int DisposableTask = 1;
 
-    /**
-     * 猜
-     * @since 0.0.2
-     */
-    @Deprecated(since = "0.0.2")
-    private final static byte[] CHAR_1263_BYTE = {
-            102, 117, 99, 107, 32, 121, 111, 117, 96, 32, 109, 111, 109
-    };
-
     @Serial
     private final static long serialVersionUID = Util.turn("System");
 
@@ -106,8 +99,8 @@ public final class Sys implements Uninitialized, Manager, Serializable {
      * 锁
      * @since 0.0.1
      */
-    private final static Lock updateLock = Lock.create();
-    private final static Lock taskLock = Lock.create();
+    private final static Lock updateLock = Lock.create("FCT.System.UpdateLock");
+    private final static Lock taskLock = Lock.create("FCT.System.TaskLock");
 
     /**
      * 初始化标记
@@ -116,10 +109,10 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     private final static AtomicBoolean initialize = new AtomicBoolean(false);
 
     /**
-     * 系统监听器
-     * @since 0.0.3
+     * 系统监听器列表
+     * @since 1.0.5
      */
-    final static TraverseList<SystemListener> listeners = new TraverseList<>(SystemListener.class);
+    final static EventListenerList listenerList = new EventListenerList();
 
     /**
      * 危险操作开关
@@ -196,6 +189,31 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     }
 
     // ========================= OTM =========================
+
+    /**
+     * 检查关闭条件
+     * <p>
+     *     监听器为空、或其中没有主动型监听器时返回{@code true}。
+     * </p>
+     * @return 是否满足关闭条件
+     * @since 0.0.3
+     */
+    public static boolean checkClosingConditions() {
+        synchronized (updateLock) {
+            if (listenerList.isEmpty()) return true;
+
+            var listeners = listenerList.getListeners(SystemListener.class);
+            for (var l : listeners) {
+                if (l == null) continue;
+
+                if (l.getType() == SysListenerType.Proactive) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
 
     /**
      * 标记任务待移除
@@ -560,7 +578,8 @@ public final class Sys implements Uninitialized, Manager, Serializable {
                 _auxiliary_event_thread.start();
 
                 initialize.set(true);
-                listeners.forEach(listener -> listener.event(SysEvent.init()));
+                var listeners = listenerList.getListeners(SystemListener.class);
+                Array.forArr(listeners,listener -> listener.event(SysEvent.init()));
                 initStatus.set(SystemStatus.Complete);
             } finally {
                 initStatus.set(SystemStatus.Nothing);
@@ -652,10 +671,7 @@ public final class Sys implements Uninitialized, Manager, Serializable {
         if (listener == null) {
             throw new NullPointerException("listener is null!");
         }
-        checkInit(true);
-        synchronized (updateLock) {
-            listeners.add(listener);
-        }
+        synchronizedTask(() -> listenerList.add(SystemListener.class,listener));
     }
 
     /**
@@ -663,7 +679,9 @@ public final class Sys implements Uninitialized, Manager, Serializable {
      * <p>
      *     注销时向该监听器派发取消事件，
      *     <br>
-     *     若开启自动关闭且满足关闭条件将触发{@link #terminate()}。
+     *     若开启自动关闭且满足关闭条件，将在锁外终止整个库，
+     *     <br>
+     *     出锁后会再复核一次条件，避免期间又有监听器注册进来。
      * </p>
      * @param listener 监听器
      * @throws NullPointerException 监听器为{@code null}
@@ -676,21 +694,27 @@ public final class Sys implements Uninitialized, Manager, Serializable {
         if (listener == null) {
             throw new NullPointerException("listener is null!");
         }
-        if (listeners.isEmpty()) {
-            throw new IllegalArgumentException("There is no listener to cancel!");
-        }
+
+        boolean close;
         synchronized (updateLock) {
-            if (!listeners.contains(listener)) {
+            if (listenerList.isEmpty()) {
+                throw new IllegalArgumentException("There is no listener to cancel!");
+            }
+            var listeners = listenerList.getListeners(SystemListener.class);
+
+            if (!Array.contains(listener, listeners)) {
                 throw new IllegalArgumentException("Listener does not exist!");
             }
-            listeners.remove(listener);
+
+            listenerList.remove(SystemListener.class, listener);
             listener.event(SysEvent.cancel());
-            if (isAutomaticShutdown()) {
-                var checked = checkClosingConditions();
-                if (checked) {
-                    terminate();
-                }
-            }
+            close = isAutomaticShutdown() && checkClosingConditions();
+        }
+
+        // 必须在锁外终止：terminate 会等待AET结束，
+        // 而AET每轮都要拿 updateLock，持锁等它容易互等
+        if (close && checkClosingConditions()) {
+            terminate();
         }
     }
 
@@ -747,16 +771,16 @@ public final class Sys implements Uninitialized, Manager, Serializable {
      * 设置自动关闭
      *
      * <p>
-     *     设置在{@link #listeners}为空时是否自动调用{@link #terminate()},
+     *     设置在{@link #listenerList}为空时是否自动调用{@link #terminate()},
      *     <br>
      *     若为{@code true}则在调用{@link #cancel(SystemListener)}时检查，
      *     <br>
-     *     若为{@code true}且{@link #listeners}为空将调用{@link #terminate()}
+     *     若为{@code true}且{@link #listenerList}为空将调用{@link #terminate()}
      * </p>
      *
      * @param automatic 自动
      * @since 0.0.1
-     * @see #listeners
+     * @see #listenerList
      * @see #cancel(SystemListener)
      * @see #terminate()
      */
@@ -835,24 +859,6 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     /** 获取初始化状态 */
     public static boolean isInitialize() {
         return initialize.get();
-    }
-
-    /**
-     * 获取{@link #CHAR_1263_BYTE}的副本
-     * @return 常量数组的副本
-     * @since 0.0.2
-     */
-    public static byte[] getChar1263Byte() {
-        return CHAR_1263_BYTE.clone();
-    }
-
-    /**
-     * 获取监听器列表的副本
-     * @return 副本，改动它不会影响内部列表
-     * @since 0.0.3
-     */
-    public static TraverseList<SystemListener> getListeners() {
-        return listeners.clone();
     }
 
     /** 获取调试API警告开关 */
@@ -1134,40 +1140,17 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     }
 
     /**
-     * 检查关闭条件
-     * <p>
-     *     监听器为空、或其中没有主动型监听器时返回{@code true}。
-     * </p>
-     * @return 是否满足关闭条件
-     * @since 0.0.3
-     */
-    @ApiSign.InternalApi(since = "0.0.3")
-    public static boolean checkClosingConditions() {
-        if (listeners.isEmpty()) return true;
-
-        for (var l : listeners) {
-            if (l == null) continue;
-
-            if (l.getType() == SystemListener.SysListenerType.Proactive) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * 向全部监听器派发终止事件并清空列表
      * @since 0.0.3
      */
     static void traversalListener() {
-        if (listeners.isEmpty()) return;
-
-        for (SystemListener listener : listeners) {
+        if (listenerList.isEmpty()) return;
+        var listeners = listenerList.getListeners(SystemListener.class);
+        for (var listener : listeners) {
             if (listener == null) continue;
             listener.event(SysEvent.terminate());
+            listenerList.remove(SystemListener.class,listener);
         }
-        listeners.clear();
     }
 
 }

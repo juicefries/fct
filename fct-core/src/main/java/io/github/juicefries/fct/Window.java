@@ -48,11 +48,11 @@ import io.github.juicefries.fct.event.WindowRefreshListener;
 import io.github.juicefries.fct.event.WindowRestoredListener;
 import io.github.juicefries.fct.event.WindowSizeListener;
 import io.github.juicefries.fct.lwjgl.GLFWUtil;
+import io.github.juicefries.fct.layout.PageLayout;
 import io.github.juicefries.fct.lwjgl.GLUtil;
 import io.github.juicefries.fct.lwjgl.Hint;
 import io.github.juicefries.fct.lwjgl._GLFW_API;
 import io.github.juicefries.fct.lwjgl._GL_API;
-import io.github.juicefries.fct.layout.PageLayout;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.util.Array;
@@ -120,17 +120,16 @@ public class Window extends EventContainer implements
     protected SystemListener listener;
 
     {
-        parameters.put("Point",new Vector2i(GLFW.GLFW_ANY_POSITION));
-        parameters.put("Point",new Vector2i(GLFW.GLFW_ANY_POSITION));
-        parameters.put("Size",new Vector2i(800,600));
+        parameters.put("Point",UIManager.getVector2i("fct.window.point"));
+        parameters.put("Size",UIManager.getVector2i("fct.window.size"));
         parameters.put("Title","");
         parameters.put("Config",new WindowConfig());
         parameters.put("EventTrigger",(EventTrigger) null);
-        parameters.put("Visible",false);
+        parameters.put("Visible",UIManager.getBoolean("fct.window.visible"));
         parameters.put("ReuseGraphics",false);
         layout = new PageLayout();
-        visible = false;
-        background = Color.NEAR_BLACK.copy();
+        visible = UIManager.getBoolean("fct.window.visible");
+        background = UIManager.getColor("fct.window.background");
         parent = null;
     }
 
@@ -246,6 +245,11 @@ public class Window extends EventContainer implements
         threadMgr.setThreadName("FCT-WindowThread[%d]".formatted(window));
         // 绑定
         _GL_API._bind(window);
+        ComponentContext context = new ComponentContext();
+        componentContext = context;
+        context.bind(this);
+        context.gainFocus(this);
+        ComponentContext.FCT_CC_LOCAL.set(context);
         // 初始化输入
         _init_input_sets();
         // 注册系统监听器
@@ -254,7 +258,7 @@ public class Window extends EventContainer implements
         _GL_API._swap_interval(true);
 
         GLGraphics2D.setGlClearColor(getBackground());
-        threadMgr.screen(callbackMgr);
+        threadMgr.every(callbackMgr);
         initialize.set(true);
         initComplete();
 
@@ -427,21 +431,49 @@ public class Window extends EventContainer implements
 
     void disposeImp() {
         synchronized (invokeLock) {
-            if (!isInit()) return;
-            setVisible(false);
-            if (graphics != null) {
-                graphics.dispose();
-                graphics = null;
+            try {
+                // 开始清理
+                logger.log(Level.ALL, "window[{}]-Start cleaning", window);
+                if (!isInit()) return;
+                // 隐藏窗口
+                logger.log(Level.ALL, "window[{}]-Hidden window", window);
+                setVisible(false);
+                // 检查画笔缓存并清理
+                logger.log(Level.ALL, "window[{}]-Check graphics and clean up", window);
+                if (graphics != null) {
+                    graphics.dispose();
+                    graphics = null;
+                }
+                // 清理初始化参数表
+                logger.log(Level.ALL, "window[{}]-Clear initial parameter cache", window);
+                parameters.clear();
+                // 清理线程管理器
+                logger.log(Level.ALL, "window[{}]-Cleanup thread", window);
+                threadMgr.removeEvery(callbackMgr);
+                threadMgr.cleanup();
+                threadMgr = null;
+                // 清理事件处理器
+                logger.log(Level.ALL, "window[{}]-Clear EventTrigger", window);
+                eventTrigger.dispose();
+                eventTrigger = null;
+                // 清理回调管理器
+                logger.log(Level.ALL, "window[{}]-Clear CallbackManager", window);
+                callbackMgr.dispose();
+                callbackMgr = null;
+                // 清理组件上下文
+                logger.log(Level.ALL,"window[{}]-Clear component context",window);
+                componentContext.cleanup();
+                ComponentContext.FCT_CC_LOCAL.remove();
+                // 设置标志位
+                logger.log(Level.ALL, "window[{}]-Set flag bit", window);
+                initialize.set(false);
+                // 销毁窗口
+                logger.log(Level.ALL, "window[{}]-Destroy window handle", window);
+                GLFW.glfwDestroyWindow(window);
+                logger.log(Level.ALL, "window[{}]-Cleaning completed", window);
+            } catch (Exception e) {
+                logger.error("An error occurred while disposing the window[{}].", window, e);
             }
-            parameters.clear();
-            threadMgr.cleanup();
-            threadMgr = null;
-            eventTrigger.dispose();
-            eventTrigger = null;
-            callbackMgr.dispose();
-            callbackMgr = null;
-            initialize.set(false);
-            GLFW.glfwDestroyWindow(window);
         }
     }
 
@@ -453,15 +485,20 @@ public class Window extends EventContainer implements
         if (!isWorkerThread()) {
             invoke(() -> {
                 disposeImp();
-                if (type != DisposeType.CANCEL_INVOKE && type != DisposeType.TERMINATE_INVOKE) {
-                    Sys.cancel(getOrBuildListener());
-                }
+                cancel(type);
             });
             return;
         }
         disposeImp();
+        cancel(type);
+    }
+
+    void cancel(DisposeType type) {
         if (type != DisposeType.CANCEL_INVOKE && type != DisposeType.TERMINATE_INVOKE) {
-            Sys.cancel(getOrBuildListener());
+            logger.log(Level.ALL,"dispose()[type:{}][cancel-SystemListener]",type);
+            Toolkit.invokeLater(() -> {
+                Sys.cancel(getOrBuildListener());
+            });
         }
     }
 
@@ -493,7 +530,14 @@ public class Window extends EventContainer implements
 
     @Override
     public void validate() {
-        eventTrigger.update();
+        if (!isWorkerThread()) {
+            invoke(this::validateImp);
+            return;
+        }
+        validateImp();
+    }
+
+    protected void validateImp() {
         layout();
         repaint();
     }

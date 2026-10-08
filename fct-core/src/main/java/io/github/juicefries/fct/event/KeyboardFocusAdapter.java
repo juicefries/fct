@@ -26,59 +26,61 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/20 22:39
+// Data 2026/10/07 19:23
 //
 
-package io.github.juicefries.fct.image;
+package io.github.juicefries.fct.event;
 
-import io.github.juicefries.fct.Graphics;
-import io.github.juicefries.fct.Image;
-import java.nio.ByteBuffer;
+/**
+ * 键盘焦点适配器
+ *
+ * <p>
+ *     键盘焦点监听器的空实现适配器，
+ *     <br>
+ *     就是个标准空实现。
+ * </p>
+ *
+ * @since 1.0.3
+ * @see KeyboardFocusListener
+ * @see KeyboardFocusEvent
+ * @author juicefries
+ */
+public abstract class KeyboardFocusAdapter extends Adapter implements KeyboardFocusListener {
 
-@Deprecated
-public class BufferedImage extends Image {
-
-    Format format;
-    ByteBuffer buffer;
-    public BufferedImage(int width,int height,Format format) {
+    protected KeyboardFocusAdapter() {
 
     }
 
-    public BufferedImage(int width,int height) {
-        this(width,height,Format.RGBA);
-    }
-
+    /**
+     * 获取焦点事件的空实现
+     * @param e 事件
+     * @since 1.0.3
+     * @see KeyboardFocusEvent
+     */
     @Override
-    public int getWidth() {
-        return 0;
+    public void gain(KeyboardFocusEvent e) {
+
     }
 
+    /**
+     * 失去焦点事件的空实现
+     * @param e 事件
+     * @since 1.0.3
+     * @see KeyboardFocusEvent
+     */
     @Override
-    public int getHeight() {
-        return 0;
+    public void lose(KeyboardFocusEvent e) {
+
     }
 
+    /**
+     * 获取类名
+     * @return 类名
+     * @since 1.0.3
+     */
     @Override
-    public Format getFormat() {
-        return null;
+    public String toString() {
+        return getClass().getCanonicalName();
     }
 
-    @Override
-    public ByteBuffer getData() {
-        return null;
-    }
-
-    @Override
-    public int getSizeInBytes() {
-        return 0;
-    }
-
-    @Override
-    public int getBytesPerPixel() {
-        return 0;
-    }
-
-    public Graphics createGraphics() {
-        return null;
-    }
 }

@@ -38,8 +38,6 @@ public abstract class EventTrigger implements Initializable {
 
     public abstract void bind(Window window);
 
-    public abstract void update();
-
     @Override
     public abstract void initialize();
 

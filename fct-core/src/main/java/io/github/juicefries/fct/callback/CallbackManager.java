@@ -33,8 +33,8 @@ package io.github.juicefries.fct.callback;
 
 import io.github.juicefries.fct.Sys;
 import io.github.juicefries.fct.Toolkit;
-import io.github.juicefries.fct.lwjgl._GL_API;
 import io.github.juicefries.fct.input.InputManager;
+import io.github.juicefries.fct.lwjgl._GL_API;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.sign.Manager;

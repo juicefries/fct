@@ -34,6 +34,7 @@ package io.github.juicefries.fct;
 import io.github.juicefries.fct.event.EventListenerList;
 import io.github.juicefries.fct.event.KeyCharInputListener;
 import io.github.juicefries.fct.event.KeyInputListener;
+import io.github.juicefries.fct.event.KeyboardFocusListener;
 import io.github.juicefries.fct.event.MouseButtonListener;
 import io.github.juicefries.fct.event.MouseCursorListener;
 import io.github.juicefries.fct.event.MouseDropListener;
@@ -49,7 +50,6 @@ public abstract class Control extends Component implements
 {
 
     protected EventListenerList listenerList = new EventListenerList();
-    boolean focus = true;
     Color foreground;
     Font font;
 
@@ -60,15 +60,21 @@ public abstract class Control extends Component implements
     // ========================= OTM =========================
 
     @Override
-    public void getFocus() {
-        if (focus) return;
-        focus = true;
+    public void gainFocus() {
+        var context = getComponentContext();
+        if (context != null) {
+            context.gainFocus(this);
+        }
+        validate();
     }
 
     @Override
     public void loseFocus() {
-        if (!focus) return;
-        focus = false;
+        var context = getComponentContext();
+        if (context != null) {
+            context.loseFocus(this);
+        }
+        validate();
     }
 
     // ========================= SET =========================
@@ -93,7 +99,11 @@ public abstract class Control extends Component implements
 
     @Override
     public boolean isFocus() {
-        return focus;
+        var context = getComponentContext();
+        if (context != null) {
+            return context.isFocused(this);
+        }
+        return false;
     }
 
     @Override
@@ -134,6 +144,11 @@ public abstract class Control extends Component implements
     }
 
     @Override
+    public void addKeyboardFocusListener(KeyboardFocusListener l) {
+        listenerList.add(KeyboardFocusListener.class,l);
+    }
+
+    @Override
     public void addMouseEntersListener(MouseEntersListener l) {
         listenerList.add(MouseEntersListener.class,l);
     }
@@ -148,6 +163,11 @@ public abstract class Control extends Component implements
     @Override
     public void removeKeyCharInputListener(KeyCharInputListener l) {
         listenerList.remove(KeyCharInputListener.class,l);
+    }
+
+    @Override
+    public void removeKeyboardFocusListener(KeyboardFocusListener l) {
+        listenerList.remove(KeyboardFocusListener.class,l);
     }
 
     @Override

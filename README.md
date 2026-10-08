@@ -6,13 +6,13 @@
 
 就是一个参照了`swing`做的demo项目。
 
-`fct`-`1.0.2`
+`fct`-`1.0.3`
 
-`fct-util`-`1.0.4`
+`fct-util`-`1.0.5`
 
-`fct-lwjgl`-`1.0.1`
+`fct-lwjgl`-`1.0.2`
 
-`fct-platform`-`1.0.1`
+`fct-platform`-`1.0.2`
 
 ```xml
 <dependency>
@@ -36,4 +36,4 @@ dependencies {
 }
 ```
 
-data - 2026/10/6-03:28
+data - 2026/10/8-17:39

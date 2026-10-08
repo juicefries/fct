@@ -1,9 +1,11 @@
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.event.EventListenerList;
 import io.github.juicefries.fct.event.SysEvent;
 import io.github.juicefries.fct.event.SystemListener;
 import io.github.juicefries.fct.event.SystemListener.SysListenerType;
 import io.github.juicefries.fct.sign.ApiSign;
+import io.github.juicefries.fct.util.Parameters;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -29,6 +31,7 @@ import javax.swing.JToolBar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 @ApiSign.InternalApi(since = "0.0.5")
@@ -158,13 +161,31 @@ public class _DEBUG_API {
         }
     }
 
+    public static SystemListener[] _get_debug_fct_system_listener() {
+        if (Sys.isDebugApiWarning()) {
+            logger.warn("Dangerous operation, the program is attempting to acquire references to all system listeners!");
+        }
+        return Sys.listenerList.getListeners(SystemListener.class);
+    }
+
+    public static EventListenerList _get_debug_fct_event_listener_list() {
+        if (Sys.isDebugApiWarning()) {
+            logger.warn("Dangerous operation, the program is trying to obtain a reference to the event listener list!");
+        }
+        return Sys.listenerList;
+    }
+
+    @Contract(pure = true)
+    public static Parameters<String,Object> _get_fct_default_ui_parameters() {
+        return UIManager.DEFAULT_UI;
+    }
 
     // ========================= 内部工具 =========================
 
     private static void refresh(@NotNull DefaultListModel<SystemListener> model,
                                 @NotNull JList<SystemListener> list) {
         int sel = list.getSelectedIndex();          // 记住选中
-        var arr = Sys.listeners.getArray();
+        var arr = Sys.listenerList.getListeners(SystemListener.class);
         model.clear();
         for (var l : arr) {
             if (l != null) model.addElement(l);
@@ -188,7 +209,7 @@ public class _DEBUG_API {
     }
 
     private static void forceRemove(SystemListener l) {
-        if (l != null) Sys.listeners.remove(l);
+        if (l != null) Sys.listenerList.remove(SystemListener.class,l);
     }
 
     private static void showDetail(SystemListener l, JTextArea detail) {

@@ -33,7 +33,6 @@ package io.github.juicefries.fct;
 
 
 import io.github.juicefries.fct.sign.ApiSign;
-import io.github.juicefries.fct.util.Array;
 
 public abstract class Component {
 
@@ -46,7 +45,7 @@ public abstract class Component {
     float width;
     float height;
     Container parent;
-    Color background = Color.NEAR_BLACK.copy();
+    Color background = Color.NEAR_BLACK;
     boolean visible = true;
     boolean enabled = true;
 
@@ -57,6 +56,7 @@ public abstract class Component {
     Size idealSize = new Size();
 
     String cursorName = UIManager.DEFAULT_CURSOR;
+    volatile ComponentContext componentContext;
 
     protected Component() {
 
@@ -307,6 +307,10 @@ public abstract class Component {
 
     public String getCursorName() {
         return cursorName;
+    }
+
+    public ComponentContext getComponentContext() {
+        return componentContext;
     }
 
     // ========================= UTIL =========================

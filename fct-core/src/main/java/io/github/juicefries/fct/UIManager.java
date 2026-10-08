@@ -36,6 +36,7 @@ import io.github.juicefries.fct.event.SystemListener;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Manager;
 import io.github.juicefries.fct.util.Lock;
+import io.github.juicefries.fct.util.Parameters;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +47,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.system.MemoryUtil;
@@ -206,10 +208,12 @@ public class UIManager implements Manager {
      */
     private final static Map<String,Integer> DEFAULT_CURSOR_STYLE_MAPPING = new HashMap<>();
 
+    final static Parameters<String,Object> DEFAULT_UI = new Parameters<>();
 
     static {
         Toolkit.initialize();
         initialize();
+        initDefaultUiValue();
     }
 
     /**
@@ -273,6 +277,15 @@ public class UIManager implements Manager {
             throw new NullPointerException("window is null!");
         }
         setWindowCursor(window,getCursor(name));
+    }
+
+    @Contract("null -> fail")
+    @ApiStatus.Experimental
+    public static void resetCursor(Window window) {
+        if (window == null) {
+            throw new NullPointerException("window is null!");
+        }
+        setWindowCursor(window,MemoryUtil.NULL);
     }
 
     /**
@@ -484,6 +497,94 @@ public class UIManager implements Manager {
         return -1;
     }
 
+    @Contract("null -> fail")
+    public static Color getColor(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return Color.NEAR_BLACK;
+        }
+        return DEFAULT_UI.get(key,Color.NEAR_BLACK);
+    }
+
+    @Contract("null -> fail")
+    public static int getInteger(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return 0;
+        }
+        return DEFAULT_UI.get(key,0);
+    }
+
+    @Contract("null -> fail")
+    public static long getLong(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return 0L;
+        }
+        return DEFAULT_UI.get(key,0L);
+    }
+
+    @Contract("null -> fail")
+    public static float getFloat(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return 0.0f;
+        }
+        return DEFAULT_UI.get(key,0.0f);
+    }
+
+    @Contract("null -> fail")
+    public static boolean getBoolean(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return false;
+        }
+        return DEFAULT_UI.get(key,false);
+    }
+
+    @Contract("null -> fail")
+    public static char getChar(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return '\u0000';
+        }
+        return DEFAULT_UI.get(key,'\u0000');
+    }
+
+    @Contract("null -> fail")
+    public static Object getObject(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return new Object();
+        }
+        return DEFAULT_UI.get(key,new Object());
+    }
+
+    @Contract("null -> fail")
+    public static Vector2i getVector2i(String key) {
+        if (key == null) {
+            throw new NullPointerException("key is null!");
+        }
+        if (!DEFAULT_UI.containsKey(key)) {
+            return new Vector2i(0);
+        }
+        return DEFAULT_UI.get(key,new Vector2i(0));
+    }
+
     // ========================= UTIL =========================
 
     /**
@@ -514,6 +615,38 @@ public class UIManager implements Manager {
             map.put(RESIZE_ALL_CURSOR, GLFW.GLFW_RESIZE_ALL_CURSOR);
             map.put(NOT_ALLOWED_CURSOR, GLFW.GLFW_NOT_ALLOWED_CURSOR);
         }
+    }
+
+    static void initDefaultUiValue() {
+        var defaultUi = DEFAULT_UI;
+        defaultUi.put("fct.window.background",Color.NEAR_BLACK);
+        defaultUi.put("fct.window.foreground",Color.NEAR_WHITE);
+        defaultUi.put("fct.window.size",new Vector2i(500));
+        defaultUi.put("fct.window.point",new Vector2i(GLFW.GLFW_ANY_POSITION));
+        defaultUi.put("fct.window.visible",false);
+        defaultUi.put("fct.component.background",Color.NEAR_WHITE);
+        defaultUi.put("fct.control.background",Color.NEAR_WHITE);
+        defaultUi.put("fct.container.background",Color.NEAR_WHITE);
+        defaultUi.put("fct.button.background",new Color(0.08f, 0.08f, 0.08f, 1.0f));
+        defaultUi.put("fct.button.foreground",Color.NEAR_WHITE);
+
+        // 通用前景，给没有单独定义的类型兜底
+        defaultUi.put("fct.component.foreground", Color.NEAR_WHITE);
+        defaultUi.put("fct.control.foreground", Color.NEAR_WHITE);
+        defaultUi.put("fct.container.foreground", Color.NEAR_WHITE);
+
+        // 标签
+        defaultUi.put("fct.label.background", Color.NONE);
+        defaultUi.put("fct.label.foreground", Color.NEAR_WHITE);
+
+        // 按钮状态
+        defaultUi.put("fct.button.background.hover", new Color(0.13f, 0.13f, 0.13f, 1.0f));
+        defaultUi.put("fct.button.background.press", new Color(0.05f, 0.05f, 0.05f, 1.0f));
+        defaultUi.put("fct.button.font.size", 14.0f);
+
+        // 全局字体与不透明度
+        defaultUi.put("fct.font.size", 16.0f);
+        defaultUi.put("fct.component.opaque", true);
     }
 
     /**

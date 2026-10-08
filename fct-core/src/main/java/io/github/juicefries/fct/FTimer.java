@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
  * @see ActionListener
  * @see TimerEvent
  */
-@Deprecated(since = "1.0.2")
+@Deprecated(since = "1.0.2",forRemoval = true)
 public class FTimer implements Runnable {
 
     private final transient Lock lock = Lock.create();

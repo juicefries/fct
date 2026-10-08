@@ -6,7 +6,7 @@
 
     <groupId>io.github.juicefries</groupId>
     <artifactId>fct</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
     <name>Fan Concept Toolkit</name>
@@ -139,19 +139,19 @@
         <dependency>
             <groupId>io.github.juicefries</groupId>
             <artifactId>fct-util</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.juicefries</groupId>
             <artifactId>fct-lwjgl</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.juicefries</groupId>
             <artifactId>fct-platform</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

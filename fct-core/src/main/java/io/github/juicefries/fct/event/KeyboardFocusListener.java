@@ -23,8 +23,43 @@
  *
  */
 
-package io.github.juicefries.fct.image;
+package io.github.juicefries.fct.event;
 
-@Deprecated
-public class SoftwareGraphics {
+import io.github.juicefries.fct.KeyEventComponent;
+
+/**
+ * 键盘焦点监听器
+ *
+ * <p>
+ *     组件级，对于{@link KeyEventComponent}用于通知组件获取失去焦点通知。
+ *     <br>
+ *     一般情况下仅对{@link KeyEventComponent}有效。
+ * </p>
+ *
+ * @since 1.0.3
+ * @author juicefries
+ */
+public interface KeyboardFocusListener extends Listener {
+
+    /**
+     * 获取键盘焦点事件
+     * @param e 事件
+     * @since 1.0.3
+     * @see KeyboardFocusEvent
+     */
+    void gain(KeyboardFocusEvent e);
+
+    /**
+     * 失去键盘焦点事件
+     *
+     * <p>
+     *     前提为，当前组件是焦点组件才会在失去焦点时分发该事件。
+     * </p>
+     *
+     * @param e 事件
+     * @since 1.0.3
+     * @see KeyboardFocusEvent
+     */
+    void lose(KeyboardFocusEvent e);
+
 }

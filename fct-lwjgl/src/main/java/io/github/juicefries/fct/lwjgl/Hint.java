@@ -25,13 +25,11 @@
 
 package io.github.juicefries.fct.lwjgl;
 
-import io.github.juicefries.fct.Sys;
+import java.util.Objects;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.Objects;
 
 /**
  * 提示类
@@ -64,7 +62,6 @@ public record Hint(int hint, int value) implements Cloneable {
      * @see GLFW#glfwWindowHint(int, int)
      */
     public void apply() {
-        Sys.checkInit(true);
         GLFW.glfwWindowHint(hint,value);
     }
 

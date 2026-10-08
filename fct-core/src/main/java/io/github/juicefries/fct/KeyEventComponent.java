@@ -33,6 +33,7 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.event.KeyCharInputListener;
 import io.github.juicefries.fct.event.KeyInputListener;
+import io.github.juicefries.fct.event.KeyboardFocusListener;
 
 public interface KeyEventComponent extends EventComponent {
 
@@ -51,7 +52,7 @@ public interface KeyEventComponent extends EventComponent {
      * 获取键盘焦点
      * @since 0.0.4
      */
-    void getFocus();
+    void gainFocus();
 
     // ========================= ADD =========================
 
@@ -59,11 +60,15 @@ public interface KeyEventComponent extends EventComponent {
 
     void addKeyInputListener(KeyInputListener l);
 
+    void addKeyboardFocusListener(KeyboardFocusListener l);
+
     // ========================= REMOVE =========================
 
     void removeKeyInputListener(KeyInputListener l);
 
     void removeKeyCharInputListener(KeyCharInputListener l);
+
+    void removeKeyboardFocusListener(KeyboardFocusListener l);
 
     // ========================= GET =========================
 
@@ -75,6 +80,10 @@ public interface KeyEventComponent extends EventComponent {
 
     default KeyCharInputListener[] getKeyCharInputListeners() {
         return getListeners(KeyCharInputListener.class);
+    }
+
+    default KeyboardFocusListener[] getKeyboardFocusListeners() {
+        return getListeners(KeyboardFocusListener.class);
     }
 
 }

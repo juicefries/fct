@@ -72,6 +72,7 @@ public final class GLFWCallbackList {
         if (c ==null) return;
         if (!t.isInstance(c)) throw new IllegalArgumentException("GLFWCallback " + c + " is not of type " + t);
 
+        //noinspection DuplicatedCode
         synchronized (lock) {
             int index = -1;
             for (int i = callbacks.length - 2; i >= 0; i -= 2) {

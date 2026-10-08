@@ -68,11 +68,6 @@ public final class EventListenerList {
             tmp[i + 1] = l;
 
             listeners = tmp;
-
-            if (t == SystemListener.class) {
-                log.warn("Dangerous operation, such listeners should not be passed into add()!");
-                Sys.register((SystemListener) l);
-            }
         }
     }
 
@@ -97,10 +92,6 @@ public final class EventListenerList {
                             tmp, index, tmp.length - index
                     );
                 listeners = (tmp.length == 0) ? NULL_ARRAY : tmp;
-            }
-            if (t == SystemListener.class) {
-                log.warn("Dangerous operation, such listeners should not be passed into remove()!");
-                Sys.cancel((SystemListener) l);
             }
         }
     }

@@ -32,7 +32,6 @@
 package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.Component;
-import io.github.juicefries.fct.Container;
 import io.github.juicefries.fct.EventComponent;
 import io.github.juicefries.fct.KeyEventComponent;
 import io.github.juicefries.fct.MouseEventComponent;
@@ -77,7 +76,6 @@ public final class DefaultEventTrigger extends EventTrigger {
     private static final Logger logger = LogManager.getLogger(DefaultEventTrigger.class);
     private final AtomicBoolean initialize = new AtomicBoolean(false);
 
-    private KeyEventComponent focusComponent;
     private MouseEventComponent captureComponent;
     private MouseEventComponent hoverComponent;
     /** 当前已应用到窗口上的光标名，避免重复设置 */
@@ -106,34 +104,10 @@ public final class DefaultEventTrigger extends EventTrigger {
             }
         }
         this.window = window;
-        this.focusComponent = window;
     }
 
-    @Override
-    public void update() {
-        var window = this.window;
-        var focusComponent = getFocusComponent(window);
-        if (focusComponent != null) {
-            this.focusComponent = focusComponent;
-        }
-    }
-
-    @Contract("null -> null")
-    @Nullable KeyEventComponent getFocusComponent(Component component) {
-        //noinspection IfCanBeSwitch
-        if (component == null) return null;
-        if (component instanceof KeyEventComponent kec && kec.isFocus()) return kec;
-
-
-        if (component instanceof Container container) {
-            for (var c : container.getComponents()) {
-                if (c == null) continue;
-                var found = getFocusComponent(c);
-                if (found != null) return found;
-            }
-        }
-
-        return null;
+    @Nullable KeyEventComponent getFocusComponent() {
+        return window.getComponentContext().getFocusComponent();
     }
 
 
@@ -493,7 +467,7 @@ public final class DefaultEventTrigger extends EventTrigger {
 
         @Override
         public void pressKey(KeyData e) {
-            var focus = focusComponent;
+            var focus = getFocusComponent();
             if (focus == null) return;
             var listeners = getListeners(focus, KeyInputListener.class);
 
@@ -506,7 +480,7 @@ public final class DefaultEventTrigger extends EventTrigger {
 
         @Override
         public void loosenKey(KeyData e) {
-            var focus = focusComponent;
+            var focus = getFocusComponent();
             if (focus == null) return;
             var listeners = getListeners(focus, KeyInputListener.class);
             var _ked_r__ = KeyEvent.release(e.getKey(),e.getMods());
@@ -518,7 +492,7 @@ public final class DefaultEventTrigger extends EventTrigger {
 
         @Override
         public void longPress(KeyData e) {
-            var focus = focusComponent;
+            var focus = getFocusComponent();
             if (focus == null) return;
             var listeners = getListeners(focus, KeyInputListener.class);
             var _ked_l_p__ = KeyEvent.longPress(e.getKey(),e.getMods());
@@ -530,7 +504,7 @@ public final class DefaultEventTrigger extends EventTrigger {
 
         @Override
         public void inputKey(KeyData e) {
-            var focus = focusComponent;
+            var focus = getFocusComponent();
             if (focus == null) return;
             var listeners = getListeners(focus, KeyCharInputListener.class);
             var codepoint = (char) e.getCodepoint();

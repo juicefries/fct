@@ -64,6 +64,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWImage;
@@ -291,6 +292,10 @@ public class Toolkit implements Uninitialized, Manager {
     }
 
     // ========================= GET =========================
+
+    public static @NonNls ComponentContext getComponentContext() {
+        return ComponentContext.FCT_CC_LOCAL.get();
+    }
 
     public static @NotNull Handlers getHandlers() {
         Handlers handlers = new Handlers(false);

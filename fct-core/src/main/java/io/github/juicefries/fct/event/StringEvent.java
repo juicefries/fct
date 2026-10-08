@@ -23,21 +23,58 @@
  *
  */
 
-/**
- * 基本没有任何东西，纯粹提供依赖用的。
- * @since 1.0.1
- * @author juicefries
- */
-module io.github.juicefries.fct.lwjgl {
-    requires java.logging;
-    requires org.lwjgl;
-    requires org.lwjgl.glfw;
-    requires org.lwjgl.opengl;
-    requires org.lwjgl.stb;
-    requires org.jetbrains.annotations;
-    requires io.github.juicefries.fct.util;
-    requires org.joml;
+//
+// Created by juicefries
+// The project name is fct
+// Data 2026/10/07 19:58
+//
 
-    exports io.github.juicefries.fct.lwjgl;
+package io.github.juicefries.fct.event;
 
+import io.github.juicefries.fct.util.Util;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+public class StringEvent implements EventData {
+
+    public final static long STRING_EVENT = _event_data_util._build_event_id("SED-String");
+
+    long type;
+    String string;
+
+    @Contract(pure = true)
+    private StringEvent() {
+
+    }
+
+    public static @NotNull StringEvent create(String s) {
+        var e = new StringEvent();
+        e.type = STRING_EVENT;
+        e.string = s;
+        return e;
+    }
+
+    public String getString() {
+        return string;
+    }
+
+    @Override
+    public long getType() {
+        return type;
+    }
+
+    @Override
+    public StringEvent copy() {
+        return create(string);
+    }
+
+    @Override
+    public EventData clone() {
+        return Util.cloneFailed(() -> {
+            var e = (StringEvent) super.clone();
+            e.type = type;
+            e.string = string;
+            return e;
+        });
+    }
 }

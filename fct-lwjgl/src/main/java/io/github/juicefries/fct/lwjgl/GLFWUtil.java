@@ -31,11 +31,6 @@
 
 package io.github.juicefries.fct.lwjgl;
 
-import io.github.juicefries.fct.Image;
-import io.github.juicefries.fct.Size;
-import io.github.juicefries.fct.Sys;
-import io.github.juicefries.fct.Toolkit;
-import io.github.juicefries.fct.Window;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
@@ -46,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryUtil;
@@ -78,7 +72,6 @@ public class GLFWUtil {
     // ========================= Monitor =========================
 
     public static long @Nullable [] getMonitors() {
-        Sys.checkInit(true);
         PointerBuffer monitors = GLFW.glfwGetMonitors();
 
         if (monitors != null) {
@@ -93,7 +86,6 @@ public class GLFWUtil {
     }
 
     public static GLFWVidMode getVideoMode(long monitor) {
-        Sys.checkInit(true);
         GLFWVidMode vidMode;
         if (monitor != MemoryUtil.NULL) {
             vidMode = GLFW.glfwGetVideoMode(monitor);
@@ -106,7 +98,6 @@ public class GLFWUtil {
     // ========================= CreateWindow =========================
 
     public static long createWindow(int width,int height,String title,boolean bind) {
-        Sys.checkInit();
         if (width < 0) {
             throw new IllegalArgumentException("width is less than or equal to 0!");
         }
@@ -150,72 +141,6 @@ public class GLFWUtil {
         return createWindow(width,height,true);
     }
 
-    // ========================= SetIcon =========================
-
-    public static void setWindowIcon(long window, GLFWImage.Buffer icon, boolean free) {
-        if (icon == null) {
-            throw new NullPointerException("icon is null!");
-        }
-        GLFW.glfwSetWindowIcon(window, icon);
-        if (free) {
-            icon.free();
-        }
-    }
-
-    public static void setWindowIcon(long window, GLFWImage.Buffer icon) {
-        setWindowIcon(window, icon, false);
-    }
-
-    public static void setWindowIcon(long window, GLFWImage image, boolean free) {
-        if (image == null) {
-            throw new NullPointerException("image is null!");
-        }
-
-        GLFWImage.Buffer buffer = GLFWImage.malloc(1).put(0, image);
-
-        setWindowIcon(window, buffer);
-
-        if (free) {
-            buffer.free();
-            image.free();
-        }
-
-    }
-
-    public static void setWindowIcon(long window, GLFWImage image) {
-        setWindowIcon(window, image, false);
-    }
-
-    public static void setWindowIcon(long window, Image icon) {
-        if (icon == null) {
-            throw new NullPointerException("icon is null!");
-        }
-
-        GLFWImage image = Toolkit.getImage(icon);
-        setWindowIcon(window, image, true);
-    }
-
-    public static void setWindowIcon(long window, java.awt.Image icon) {
-        if (icon == null) {
-            throw new NullPointerException("icon is null!");
-        }
-
-        Image image = Toolkit.getImage(icon);
-        GLFWImage glfwImage = Toolkit.getImage(image);
-        setWindowIcon(window, glfwImage, true);
-    }
-
-    public static void setWindowIcon(Window window, java.awt.Image icon) {
-        if (window == null) {
-            throw new NullPointerException("window is null!");
-        }
-        if (icon == null) {
-            throw new NullPointerException("icon is null!");
-        }
-        long _window__ = Toolkit.getWindow(window);
-        setWindowIcon(_window__,icon);
-    }
-
     // ========================= center =========================
 
     @Contract("_, null -> fail")
@@ -228,8 +153,6 @@ public class GLFWUtil {
         if (width < 0) throw new IllegalArgumentException("width is less than or equal to 0!");
         if (height < 0) throw new IllegalArgumentException("height is less than or equal to 0!");
 
-
-        Sys.checkInit(true);
         final GLFWVidMode vidMode = getVideoMode(monitor);
 
         final int x = ((vidMode.width() - width) / 2);
@@ -243,38 +166,9 @@ public class GLFWUtil {
         return center(MemoryUtil.NULL, size);
     }
 
-    public static @NotNull Vector2i center(@NotNull Size size) {
-        return center(size.toVector2i());
-    }
-
-    @Contract("null -> fail")
-    public static @NotNull Vector2i center(Window window) {
-        if (window == null) {
-            throw new NullPointerException("window is null!");
-        }
-        if (!window.isInit()) {
-            throw new IllegalStateException("The window has not been initialized yet!");
-        }
-        final long _window__ = Toolkit.getWindow(window);
-        final long monitor = GLFW.glfwGetWindowMonitor(_window__);
-        return GLFWUtil.center(monitor, window.getSize().toVector2i());
-    }
-
-    public static void centerVoid(Window window) {
-        if (window == null) {
-            throw new NullPointerException("window is null!");
-        }
-        if (!window.isInit()) {
-            throw new IllegalStateException("The window has not been initialized yet!");
-        }
-        Vector2i vector2i = center(window);
-        window.invoke(() -> window.setSize(vector2i.x, vector2i.y));
-    }
-
     // ========================= getSize =========================
 
     public static @NotNull Vector2i getSize(long window) {
-        Sys.checkInit();
         if (window == MemoryUtil.NULL) {
             throw new IllegalArgumentException("Invalid window!");
         }
@@ -289,7 +183,6 @@ public class GLFWUtil {
     }
 
     public static @NotNull Vector2i getFrameBufferSize(long window) {
-        Sys.checkInit();
         if (window == MemoryUtil.NULL) {
             throw new IllegalArgumentException("Invalid window!");
         }

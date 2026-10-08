@@ -42,10 +42,12 @@ public final class Lock implements Readonly {
     // nano time id
     private final long nt;
     private final long ctm;
+    private final String name;
 
-    private Lock() {
+    private Lock(String name) {
         nt = System.nanoTime();
         ctm = System.currentTimeMillis();
+        this.name = name;
     }
 
     @Contract(pure = true)
@@ -58,12 +60,23 @@ public final class Lock implements Readonly {
         return ctm;
     }
 
+    @Contract(pure = true)
+    public String getName() {
+        return name;
+    }
+
+    @Contract(pure = true)
+    public String name() {
+        return getName();
+    }
+
     /**
      * @return 无
      * @throws CloneNotSupportedException 该类不允许被克隆
      * @since 0.0.2
      * @deprecated 懒得写理由
      */
+    @Contract(" -> fail")
     @Override
     @Deprecated(since = "0.0.1", forRemoval = true)
     protected Lock clone() throws CloneNotSupportedException {
@@ -77,22 +90,30 @@ public final class Lock implements Readonly {
         }
 
         if (!(object instanceof Lock lock)) return false;
-        return (nt == lock.nt) && (ctm == lock.ctm);
+        return (Objects.equals(name, lock.name)) && (nt == lock.nt) && (ctm == lock.ctm);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nt, ctm);
+        return Objects.hash(name,nt, ctm);
     }
 
     @Override
     public String toString() {
-        return getClass().getCanonicalName() + "[nti=" + nt + ",ctm=" + ctm + "]";
+        return getClass().getCanonicalName() + "[name=" + name + ",nti=" + nt + ",ctm=" + ctm + "]";
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull Lock create(String name) {
+        if (name == null) {
+            return new Lock("Unnamed Lock");
+        }
+        return new Lock(name);
     }
 
     @Contract(" -> new")
     public static @NotNull Lock create() {
-        return new Lock();
+        return create(null);
     }
 
 }

@@ -31,15 +31,64 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.util.Array;
-import io.github.juicefries.fct.util.TraverseList;
+import io.github.juicefries.fct.util.Lock;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * <h2>容器 </h2>
+ *
+ * <p>
+ *     可以容纳子组件的组件，负责子组件列表的维护与布局的下发，
+ *     <br>
+ *     子组件列表由{@link #cul}保护，所有结构性修改都在锁内完成，
+ *     <br>
+ *     读取一律返回快照，因此遍历过程不会受并发修改影响，
+ *     <br>
+ *     锁内不调用任何外部代码，避免与其他锁串成环。
+ *     <br>
+ *     文档由AI生成。
+ * </p>
+ *
+ * @since 0.0.1
+ * @author juicefries
+ * @see Component
+ * @see Layout
+ */
 public abstract class Container extends Component {
 
+    /**
+     * 子组件列表的更新锁
+     * <p>
+     *     所有对{@link #components}的读写都必须持有它，
+     *     <br>
+     *     组件上下文相关的操作（聚焦、失焦）一律放在锁外进行。
+     * </p>
+     * @since 1.0.3
+     */
+    final Lock cul = Lock.create("FCT.ComponentsUpdateLock");
+
+    /**
+     * 布局有效标记
+     * @since 0.0.1
+     * @deprecated 已无实际作用
+     */
+    @Deprecated(since = "0.0.3")
     volatile boolean valid = false;
 
-    final TraverseList<Component> components = new TraverseList<>(Component.class);
+    /**
+     * 子组件列表
+     * <p>
+     *     读写都需要持有{@link #cul}。
+     * </p>
+     * @since 0.0.1
+     */
+    final List<Component> components = new ArrayList<>();
 
+    /**
+     * 当前布局
+     * @since 0.0.1
+     */
     volatile Layout layout;
 
     protected Container() {
@@ -48,6 +97,13 @@ public abstract class Container extends Component {
 
     // ========================= OTM =========================
 
+    /**
+     * 执行一次布局
+     * <p>
+     *     未设置布局时不做任何事。
+     * </p>
+     * @since 0.0.1
+     */
     public void layout() {
         Layout layout = this.layout;
         if (layout != null) {
@@ -55,7 +111,15 @@ public abstract class Container extends Component {
         }
     }
 
-
+    /**
+     * 向上校验并执行本容器的布局
+     * <p>
+     *     先让父容器校验，再对本容器布局，
+     *     <br>
+     *     不持有{@link #cul}，布局期间读取子组件拿的是快照。
+     * </p>
+     * @since 0.0.1
+     */
     @Override
     public void validate() {
         var parent = this.parent;
@@ -67,16 +131,32 @@ public abstract class Container extends Component {
 
     // ========================= SET =========================
 
+    /**
+     * 设置布局
+     * @param layout 布局
+     * @since 0.0.1
+     */
     public void setLayout(Layout layout) {
         this.layout = layout;
     }
 
+    /**
+     * 设置尺寸并重新布局
+     * @param width 宽
+     * @param height 高
+     * @since 0.0.1
+     */
     @Override
     public void setSize(float width, float height) {
         super.setSize(width, height);
         layout();
     }
 
+    /**
+     * 设置可见性，转为可见时重新布局
+     * @param visible 可见
+     * @since 0.0.1
+     */
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
@@ -85,24 +165,45 @@ public abstract class Container extends Component {
         }
     }
 
+    /**
+     * 设置位置并重新布局
+     * @param x X
+     * @param y Y
+     * @since 0.0.1
+     */
     @Override
     public void setLocation(float x, float y) {
         super.setLocation(x, y);
         layout();
     }
 
+    /**
+     * 设置理想尺寸并重新布局
+     * @param size 尺寸
+     * @since 0.0.1
+     */
     @Override
     public void setIdealSize(Size size) {
         super.setIdealSize(size);
         layout();
     }
 
+    /**
+     * 设置最大尺寸并重新布局
+     * @param size 尺寸
+     * @since 0.0.1
+     */
     @Override
     public void setMaxSize(Size size) {
         super.setMaxSize(size);
         layout();
     }
 
+    /**
+     * 设置最小尺寸并重新布局
+     * @param size 尺寸
+     * @since 0.0.1
+     */
     @Override
     public void setMinSize(Size size) {
         super.setMinSize(size);
@@ -111,21 +212,58 @@ public abstract class Container extends Component {
 
     // ========================= GET =========================
 
+    /**
+     * 获取布局
+     * @return 布局，未设置时为{@code null}
+     * @since 0.0.1
+     */
     public Layout getLayout() {
         return layout;
     }
 
+    /**
+     * 获取子组件快照
+     * <p>
+     *     返回的是调用这一刻的副本，遍历它不会受并发修改影响，
+     *     <br>
+     *     改动它也不会影响容器内部。
+     * </p>
+     * @return 子组件快照
+     * @since 0.0.1
+     */
     public Component[] getComponents() {
-        return components.getArray();
+        synchronized (cul) {
+            Component[] array = new Component[components.size()];
+            return components.toArray(array);
+        }
     }
 
+    /**
+     * 获取布局有效标记
+     * @return 是否有效
+     * @since 0.0.1
+     * @deprecated 已无实际作用
+     */
     @Deprecated(since = "0.0.3")
     public boolean isValid() {
         return valid;
     }
 
+    /**
+     * 获取坐标所在的子组件
+     * <p>
+     *     坐标相对于本容器左上角，从最上层开始判定，
+     *     <br>
+     *     命中子容器时会继续向下查找，
+     *     <br>
+     *     点在本容器内但没有命中任何子组件时返回本容器。
+     * </p>
+     * @param x X
+     * @param y Y
+     * @return 命中的组件，点不在容器内时为{@code null}
+     * @since 0.0.4
+     */
     public Component getComponentAt(float x, float y) {
-        // 点不在容器自己内
         if (!contains(x, y)) {
             return null;
         }
@@ -135,30 +273,53 @@ public abstract class Container extends Component {
             Component comp = arr[i];
             if (comp == null || !comp.isVisible()) continue;
 
-            float lx = x - comp.getX();   // 减偏移 → 子组件本地坐标
+            float lx = x - comp.getX();
             float ly = y - comp.getY();
 
             if (comp instanceof Container container) {
                 Component deeper = container.getComponentAt(lx, ly);
-                if (deeper != null) return deeper;    // 命中深层子组件
+                if (deeper != null) return deeper;
             } else {
-                if (comp.contains(lx, ly)) return comp;  // 命中叶子控件
+                if (comp.contains(lx, ly)) return comp;
             }
         }
-        return this;   // 点在自己内，但没命中任何子组件，返回自己
+        return this;
     }
 
-
+    /**
+     * 获取坐标所在的子组件
+     * @param location 坐标
+     * @return 命中的组件，点不在容器内时为{@code null}
+     * @throws NullPointerException 坐标为{@code null}
+     * @since 0.0.4
+     */
     public Component getComponentAt(Location location) {
         if (location == null) {
             throw new NullPointerException("location is null!");
         }
-        return getComponentAt(location.x,location.y);
+        return getComponentAt(location.x, location.y);
     }
 
     // ========================= ADD =========================
 
-    protected Component addImp(Component comp,Object constraints,int index) {
+    /**
+     * 添加子组件的实际实现
+     * <p>
+     *     组件若已有父容器，会先从旧容器中摘除，
+     *     <br>
+     *     这一句会在本容器加锁之前完成，避免同时持有两把容器锁，
+     *     <br>
+     *     加入后会注入当前上下文，并让组件获取键盘焦点。
+     * </p>
+     * @param comp 组件
+     * @param constraints 布局约束
+     * @param index 插入位置，小于{@code 0}表示追加到末尾
+     * @return 被添加的组件
+     * @throws NullPointerException 组件为{@code null}
+     * @throws IllegalArgumentException 容器自身、父容器、祖先容器或窗口
+     * @since 0.0.1
+     */
+    protected Component addImp(Component comp, Object constraints, int index) {
         if (comp == null) {
             throw new NullPointerException("comp is null!");
         }
@@ -167,25 +328,31 @@ public abstract class Container extends Component {
             checkContainer(container);
         }
 
-        if (comp instanceof KeyEventComponent component) {
-            var rc = getRootContainer();
-            if (rc instanceof KeyEventComponent ec) {
-                ec.loseFocus();
-            }
-            for (Component c : rc.getComponents()) {
-                if (c == null) continue;
-                loseFocus(c);
-            }
-            component.getFocus();
+        // 先从旧容器摘除：这一步会拿对方容器的锁，
+        // 必须在拿本容器的锁之前做完，否则两把锁可能互等
+        var oldParent = comp.getParent();
+        if (oldParent != null) {
+            oldParent.remove(comp);
         }
 
-        if (index <= -1) {
-            components.add(comp);
-        } else {
-            components.add(index,comp);
+        var context = getComponentContext();
+
+        synchronized (cul) {
+            if (index <= -1) {
+                components.add(comp);
+            } else {
+                components.add(index, comp);
+            }
         }
 
+        comp.componentContext = context;
         comp.parent = this;
+
+        if (comp instanceof KeyEventComponent kec && context != null) {
+            context.gainFocus(kec);
+        }
+
+        var layout = this.layout;
         if (layout != null) {
             layout.addLayoutComponent(comp, constraints);
         }
@@ -194,33 +361,50 @@ public abstract class Container extends Component {
         return comp;
     }
 
-    protected void loseFocus(Component comp) {
-        if (!(comp instanceof KeyEventComponent ec)) {
-            return;
-        }
-        if (ec.isFocus()) {
-            ec.loseFocus();
-        }
-
-        if (ec instanceof Container container) {
-            for (Component c : container.getComponents()) {
-                loseFocus(c);
-            }
-        }
-    }
-
-    public void add(Component component,Object constraints,int index) {
+    /**
+     * 添加子组件
+     * @param component 组件
+     * @param constraints 布局约束
+     * @param index 插入位置，小于{@code 0}表示追加到末尾
+     * @since 0.0.1
+     */
+    public void add(Component component, Object constraints, int index) {
         addImp(component, constraints, index);
     }
 
+    /**
+     * 添加子组件到末尾
+     * @param component 组件
+     * @return 被添加的组件
+     * @since 0.0.1
+     */
     public Component add(Component component) {
-        return addImp(component,null,-1);
+        return addImp(component, null, -1);
     }
 
-    public Component add(Component component,Object constraints) {
-        return addImp(component,constraints,-1);
+    /**
+     * 添加子组件到末尾
+     * @param component 组件
+     * @param constraints 布局约束
+     * @return 被添加的组件
+     * @since 0.0.1
+     */
+    public Component add(Component component, Object constraints) {
+        return addImp(component, constraints, -1);
     }
 
+    /**
+     * 移除子组件
+     * <p>
+     *     只在锁内摘除列表项，父引用、上下文引用与失焦处理都放在锁外，
+     *     <br>
+     *     若该组件正持有键盘焦点，会先让它失去焦点。
+     * </p>
+     * @param comp 组件
+     * @throws NullPointerException 组件为{@code null}
+     * @throws IllegalArgumentException 组件为容器自身，或不在本容器中
+     * @since 0.0.1
+     */
     public void remove(Component comp) {
         if (comp == null) {
             throw new NullPointerException("comp is null!");
@@ -228,35 +412,67 @@ public abstract class Container extends Component {
         if (comp == this) {
             throw new IllegalArgumentException("The container cannot remove itself!");
         }
-        var components = getComponents();
-        if (!Array.contains(comp,components)) {
-            throw new IllegalArgumentException("Component does not exist!");
+
+        synchronized (cul) {
+            if (!components.contains(comp)) {
+                throw new IllegalArgumentException("Component does not exist!");
+            }
+            components.remove(comp);
         }
-        this.components.remove(comp);
+
+        comp.parent = null;
+
+        var context = comp.getComponentContext();
+        if (context != null && comp instanceof KeyEventComponent kec && context.isFocused(kec)) {
+            kec.loseFocus();
+        }
+
+        comp.componentContext = null;
+
         validate();
     }
 
+    /**
+     * 按索引移除子组件
+     * <p>
+     *     先取出引用，再走{@link #remove(Component)}，
+     *     <br>
+     *     因此清理流程与按引用移除完全一致。
+     * </p>
+     * @param index 索引
+     * @throws IllegalArgumentException 索引越界
+     * @since 0.0.1
+     */
     public void remove(int index) {
-        if (index < 0) {
-            throw new IllegalArgumentException("Index is less than 0!");
+        Component comp;
+        synchronized (cul) {
+            if (index < 0 || index >= components.size()) {
+                throw new IllegalArgumentException("Index out of bounds!");
+            }
+            comp = components.get(index);
         }
-        if (index > components.size() - 1) {
-            throw new IllegalArgumentException("Index out of bounds!");
-        }
-        this.components.remove(index);
-        validate();
+        remove(comp);
     }
 
+    /**
+     * 移除全部子组件
+     * @since 0.0.1
+     */
     public void removeAll() {
-        Array.forArr(getComponents(),(comp, _) -> {
-            if (comp == null) return;
+        for (Component comp : getComponents()) {
+            if (comp == null) continue;
             remove(comp);
-        });
+        }
         validate();
     }
 
     // ========================= PAINT =========================
 
+    /**
+     * 绘制本容器与全部子组件
+     * @param g 画笔
+     * @since 0.0.1
+     */
     @Override
     public void paint(Graphics g) {
         paintBackground(g);
@@ -264,17 +480,35 @@ public abstract class Container extends Component {
         paintForeground(g);
     }
 
+    /**
+     * 绘制背景
+     * @param g 画笔
+     * @since 0.0.1
+     */
     public void paintBackground(Graphics g) {
         if (isOpaque()) {
             g.setColor(getBackground());
-            g.fillRect(0,0,getWidth(),getHeight());
+            g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
+    /**
+     * 绘制前景
+     * @param g 画笔
+     * @since 0.0.1
+     */
     public void paintForeground(Graphics g) {
 
     }
 
+    /**
+     * 绘制全部子组件
+     * <p>
+     *     遍历的是子组件快照，绘制期间发生增删不影响本轮。
+     * </p>
+     * @param g 画笔
+     * @since 0.0.1
+     */
     public void paintComponents(Graphics g) {
         if (g == null) return;
 
@@ -284,11 +518,11 @@ public abstract class Container extends Component {
             g.save();
             int cx = (int) Math.floor(comp.getAbsoluteX());
             int cy = (int) Math.floor(comp.getAbsoluteY());
-            int cw = (int) Math.ceil(comp.getAbsoluteX() + comp.getWidth())  - cx;
+            int cw = (int) Math.ceil(comp.getAbsoluteX() + comp.getWidth()) - cx;
             int ch = (int) Math.ceil(comp.getAbsoluteY() + comp.getHeight()) - cy;
             g.clip(cx, cy, cw, ch);
 
-            g.translate(comp.getX(),comp.getY());
+            g.translate(comp.getX(), comp.getY());
             comp.paint(g);
             g.unclip();
             g.restore();
@@ -297,6 +531,11 @@ public abstract class Container extends Component {
 
     // ========================= UTIL =========================
 
+    /**
+     * 获取根容器
+     * @return 顺着父引用走到的最顶层容器
+     * @since 0.0.1
+     */
     protected Container getRootContainer() {
         Container p = this;
         while (p.getParent() != null) {
@@ -305,7 +544,12 @@ public abstract class Container extends Component {
         return p;
     }
 
-
+    /**
+     * 检查待加入的容器是否合法
+     * @param container 待加入的容器
+     * @throws IllegalArgumentException 自身、父容器、祖先容器或窗口
+     * @since 0.0.1
+     */
     private void checkContainer(Container container) {
         if (container == this) {
             throw new IllegalArgumentException("A container cannot add itself!");
@@ -325,6 +569,12 @@ public abstract class Container extends Component {
         }
     }
 
+    /**
+     * 判断给定容器是否为当前容器的祖先
+     * @param container 容器
+     * @return 是否为祖先
+     * @since 0.0.1
+     */
     private boolean checkIsParent(Container container) {
         if (container == null) {
             return false;

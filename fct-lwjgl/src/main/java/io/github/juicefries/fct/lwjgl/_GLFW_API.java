@@ -36,9 +36,8 @@ import io.github.juicefries.fct.util.Lock;
 import java.util.Objects;
 
 
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.glfw.GLFW.*;
-import static io.github.juicefries.fct.Sys.checkInit;
 
 @ApiSign.InternalApi(since = "0.0.5")
 public final class _GLFW_API {
@@ -48,7 +47,6 @@ public final class _GLFW_API {
 
 
     public static long _create_window(int width, int height, String title, long monitor, long share, Hint... hints) {
-        checkInit();
         var w = Math.max(width, 0);
         var h = Math.max(height,0);
         var t = Objects.requireNonNullElse(title, "");
@@ -77,10 +75,5 @@ public final class _GLFW_API {
     public static long _create_window(int width, int height, String title, Hint... hints) {
         return _create_window(width,height,title,NULL,NULL,hints);
     }
-
-
-
-
-
 
 }
