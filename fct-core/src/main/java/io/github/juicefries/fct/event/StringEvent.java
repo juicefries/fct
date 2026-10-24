@@ -77,4 +77,10 @@ public class StringEvent implements EventData {
             return e;
         });
     }
+
+    public boolean match(String s) {
+        //noinspection StringEquality
+        return string == s;
+    }
+
 }

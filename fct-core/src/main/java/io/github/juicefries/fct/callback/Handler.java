@@ -33,6 +33,17 @@ package io.github.juicefries.fct.callback;
 
 import org.lwjgl.system.Callback;
 
+/**
+ * 一种 GLFW 回调的处理者。
+ *
+ * <p>三件事：注册到窗口（{@code register}）、接住模拟事件（{@code simulate}）、
+ * 用完释放原生回调（{@code free}）。{@code getType()} 返回的字符串就是 {@link Handlers} 里的键。
+ *
+ * <p>想换分发逻辑就实现它，再替换 {@code Handlers} 里的映射。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface Handler {
 
     // WINDOW

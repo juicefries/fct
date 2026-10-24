@@ -35,6 +35,14 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.system.Callback;
 
+/**
+ * 按键的处理底座，包着 LWJGL 那个原生回调。
+ *
+ * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultKeyInputHandler}。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class KeyInputHandler extends GLFWKeyCallback implements KeyHandler {
 
     private final Lock lock = Lock.create();

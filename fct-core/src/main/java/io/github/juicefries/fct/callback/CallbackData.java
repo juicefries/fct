@@ -30,7 +30,19 @@ import io.github.juicefries.fct.sign.Readonly;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public interface CallbackData extends Copyable,Cloneable, Readonly {
+/**
+ * 回调事件数据的公共外壳。
+ *
+ * <p>键盘 / 鼠标 / 窗口的事件数据都实现它，靠 {@code getType()} 区分是哪种事件；
+ * {@code CallbackManager} 就是拿这个接口当队列元素的类型。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
+public abstract class CallbackData implements Copyable,Cloneable, Readonly {
+
+    protected long window;
+    protected long type;
 
     @Contract(value = " -> new", pure = true)
     static long @NotNull [] toCallbackEventTypes() {
@@ -55,17 +67,40 @@ public interface CallbackData extends Copyable,Cloneable, Readonly {
         };
     }
 
-    @Override
-    CallbackData copy();
-    CallbackData clone();
+    @Contract("_, null -> fail")
+    public static @NotNull CallbackData handleMatching(long window, CallbackData data) {
+        if (data == null) {
+            throw new NullPointerException("data is null!");
+        }
 
-    long getWindow();
-    long getType();
-    default long window() {
+        if (data.getWindow() == window) return data;
+
+        data.window = window;
+
+        return data;
+    }
+
+    @Override
+    public abstract CallbackData copy();
+
+    @Override
+    public CallbackData clone() throws CloneNotSupportedException {
+        return (CallbackData) super.clone();
+    }
+
+    public long getWindow() {
+        return window;
+    }
+
+    public long getType() {
+        return type;
+    }
+
+    public long window() {
         return getWindow();
     }
 
-    default long type() {
+    public long type() {
         return getType();
     }
 }

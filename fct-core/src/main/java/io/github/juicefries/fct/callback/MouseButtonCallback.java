@@ -25,6 +25,15 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 鼠标按钮监听。
+ *
+ * <p>按下调 {@code press}，松开调 {@code release}，两个都调完还会再调一次 {@code button}
+ * （不想分按下松开就只覆盖它）。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface MouseButtonCallback extends GLFWCallback{
 
     void press(MouseData e);

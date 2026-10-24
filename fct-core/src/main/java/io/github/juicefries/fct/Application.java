@@ -27,6 +27,7 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.sign.Initializable;
 
+@Deprecated(since = "1.0.4")
 public interface Application extends Initializable {
     void start();
     void stop();

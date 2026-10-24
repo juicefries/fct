@@ -31,6 +31,7 @@
 
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.event.KeyEventComponent;
 import io.github.juicefries.fct.util.Lock;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,20 +112,14 @@ public abstract class Container extends Component {
         }
     }
 
-    /**
-     * 向上校验并执行本容器的布局
-     * <p>
-     *     先让父容器校验，再对本容器布局，
-     *     <br>
-     *     不持有{@link #cul}，布局期间读取子组件拿的是快照。
-     * </p>
-     * @since 0.0.1
-     */
     @Override
-    public void validate() {
-        var parent = this.parent;
-        if (parent != null) {
-            parent.validate();
+    protected void update() {
+        synchronized (cul) {
+            var components = getComponents();
+            for (var component : components) {
+                if (component == null) continue;
+                component.update();
+            }
         }
         layout();
     }
@@ -348,8 +343,8 @@ public abstract class Container extends Component {
         comp.componentContext = context;
         comp.parent = this;
 
-        if (comp instanceof KeyEventComponent kec && context != null) {
-            context.gainFocus(kec);
+        if (comp.isFocusable() && context != null) {
+            context.gainFocus(comp);
         }
 
         var layout = this.layout;
@@ -357,7 +352,7 @@ public abstract class Container extends Component {
             layout.addLayoutComponent(comp, constraints);
         }
 
-        validate();
+        notice();
         return comp;
     }
 
@@ -423,13 +418,13 @@ public abstract class Container extends Component {
         comp.parent = null;
 
         var context = comp.getComponentContext();
-        if (context != null && comp instanceof KeyEventComponent kec && context.isFocused(kec)) {
-            kec.loseFocus();
+        if (context != null && context.isFocused(comp)) {
+            comp.loseFocus();
         }
 
         comp.componentContext = null;
 
-        validate();
+        notice();
     }
 
     /**
@@ -463,7 +458,7 @@ public abstract class Container extends Component {
             if (comp == null) continue;
             remove(comp);
         }
-        validate();
+        notice();
     }
 
     // ========================= PAINT =========================

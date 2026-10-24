@@ -23,33 +23,48 @@
  *
  */
 
-package io.github.juicefries.fct;
+package io.github.juicefries.fct.event;
 
-public class DecoratorException extends Exception {
+/**
+ * 动作监听器事件组件
+ *
+ * <p>
+ *     没什么狗屁用途，就是表示该类拥有对应的方法但是在1.0.4版本之后，
+ *     <br>
+ *     组件原生就拥有了事件承载能力基本上已经没什么屁用了，当做标记接口来看就行
+ * </p>
+ *
+ * @since 1.0.4
+ * @see EventComponent
+ * @see ActionListener
+ * @author juicefries
+ */
+public interface ActionEventComponent extends EventComponent {
 
-    public DecoratorException(String message) {
-        super(message);
-    }
+    /**
+     * 添加动作监听器
+     * @param l 监听器
+     * @since 1.0.4
+     * @see ActionListener
+     */
+    void addActionListener(ActionListener l);
 
-    public DecoratorException() {
-        super();
-    }
+    /**
+     * 移除动作监听器
+     * @param l 监听器
+     * @since 1.0.4
+     * @see ActionListener
+     */
+    void removeActionListener(ActionListener l);
 
-    public DecoratorException(Throwable cause) {
-        super(cause);
-    }
-
-    public DecoratorException(String message, Throwable cause) {
-        super(message,cause);
-    }
-
-    public DecoratorException(
-            String message,
-            Throwable cause,
-            boolean enableSuppression,
-            boolean writableStackTrace
-    ) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    /**
+     * 获取所有动作监听器
+     * @return 组件所有动作监听器
+     * @since 1.0.4
+     * @see ActionListener
+     */
+    default ActionListener[] getActionListeners() {
+        return getListeners(ActionListener.class);
     }
 
 }

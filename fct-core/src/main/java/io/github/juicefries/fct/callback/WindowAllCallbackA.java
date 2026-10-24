@@ -31,6 +31,14 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 窗口全部回调拼在一起的空实现。
+ *
+ * <p>关闭、尺寸、帧缓冲、位置、焦点、刷新、缩放、最大化 / 最小化 / 恢复，一次接全。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class WindowAllCallbackA implements
         WindowLifeCallback,
         WindowToggleCallback,

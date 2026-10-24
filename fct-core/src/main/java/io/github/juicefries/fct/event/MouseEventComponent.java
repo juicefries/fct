@@ -29,13 +29,7 @@
 // Data 2026/09/20 16:59
 //
 
-package io.github.juicefries.fct;
-
-import io.github.juicefries.fct.event.MouseButtonListener;
-import io.github.juicefries.fct.event.MouseCursorListener;
-import io.github.juicefries.fct.event.MouseDropListener;
-import io.github.juicefries.fct.event.MouseEntersListener;
-import io.github.juicefries.fct.event.MouseWheelListener;
+package io.github.juicefries.fct.event;
 
 public interface MouseEventComponent extends EventComponent {
 

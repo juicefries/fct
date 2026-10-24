@@ -25,8 +25,6 @@
 
 package io.github.juicefries.fct.event;
 
-import io.github.juicefries.fct.KeyEventComponent;
-
 /**
  * 键盘焦点监听器
  *

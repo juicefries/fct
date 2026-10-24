@@ -32,37 +32,141 @@
 package io.github.juicefries.fct;
 
 
+import io.github.juicefries.fct.event.ActionEventComponent;
+import io.github.juicefries.fct.event.ActionListener;
+import io.github.juicefries.fct.event.EventComponent;
+import io.github.juicefries.fct.event.EventListenerList;
+import io.github.juicefries.fct.event.KeyCharInputListener;
+import io.github.juicefries.fct.event.KeyEventComponent;
+import io.github.juicefries.fct.event.KeyInputListener;
+import io.github.juicefries.fct.event.KeyboardFocusListener;
+import io.github.juicefries.fct.event.MouseButtonListener;
+import io.github.juicefries.fct.event.MouseCursorListener;
+import io.github.juicefries.fct.event.MouseDropListener;
+import io.github.juicefries.fct.event.MouseEntersListener;
+import io.github.juicefries.fct.event.MouseEventComponent;
+import io.github.juicefries.fct.event.MouseWheelListener;
 import io.github.juicefries.fct.sign.ApiSign;
 
-public abstract class Component {
+/**
+ *
+ */
+public abstract class Component implements
+        EventComponent,
+        MouseEventComponent,
+        KeyEventComponent,
+        ActionEventComponent
+{
 
     static {
         Toolkit.initialize();
     }
 
+    /**
+     * 坐标X
+     * @since 0.0.1
+     */
     float x;
+
+    /**
+     * 坐标Y
+     * @since 0.0.1
+     */
     float y;
+
+    /**
+     * 宽度
+     * @since 0.0.1
+     */
     float width;
+
+    /**
+     * 高度
+     * @since 0.0.1
+     */
     float height;
+
+    /**
+     * 父组件
+     * @since 0.0.1
+     */
     Container parent;
+
+    /**
+     * 背景色
+     * @since 0.0.1
+     */
     Color background = Color.NEAR_BLACK;
+
+    /**
+     * 可见性
+     * @since 0.0.1
+     */
     boolean visible = true;
+
+    /**
+     * 启用
+     * @since 0.0.1
+     */
     boolean enabled = true;
 
+    /**
+     * 不透明
+     * @since 0.0.1
+     */
     boolean opaque = true;
+
+    /**
+     * 可聚焦
+     * @since 1.0.4
+     */
+    boolean focusable = true;
 
     Size maxSize = new Size();
     Size minSize = new Size();
     Size idealSize = new Size();
 
-    String cursorName = UIManager.DEFAULT_CURSOR;
+    /**
+     * 使用的光标名称
+     * @since 1.0.1
+     */
+    volatile String cursorName = UIManager.DEFAULT_CURSOR;
+
+    /**
+     * 组件上下文
+     * @since 1.0.3
+     */
     volatile ComponentContext componentContext;
+
+    /**
+     * 事件监听器列表
+     * @since 1.0.3
+     */
+    protected EventListenerList listenerList = new EventListenerList();
 
     protected Component() {
 
     }
 
     // ========================= OTM =========================
+
+    @Override
+    public void gainFocus() {
+        var context = getComponentContext();
+        if (context != null) {
+            context.gainFocus(this);
+        }
+        notice();
+    }
+
+    @Override
+    public void loseFocus() {
+        var context = getComponentContext();
+        if (context != null) {
+            context.loseFocus(this);
+        }
+        notice();
+    }
 
     public void paint(Graphics g) {
         if (g == null) return;
@@ -87,12 +191,14 @@ public abstract class Component {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
-    public void validate() {
-        var parent = this.parent;
-        if (parent != null) {
-            parent.validate();
+    public final void notice() {
+        var context = getComponentContext();
+        if (context != null) {
+            context.notice(ComponentContext.STATUS_UPDATE);
         }
     }
+
+    protected abstract void update();
 
     // ========================= SET =========================
 
@@ -203,6 +309,10 @@ public abstract class Component {
         this.background = background;
     }
 
+    public void setFocusable(boolean focusable) {
+        this.focusable = focusable;
+    }
+
     // ========================= GET =========================
 
     public float getX() {
@@ -311,6 +421,118 @@ public abstract class Component {
 
     public ComponentContext getComponentContext() {
         return componentContext;
+    }
+
+    @Override
+    public EventListenerList getListenerList() {
+        return listenerList;
+    }
+
+    @Override
+    public boolean isFocus() {
+        var context = getComponentContext();
+        if (context != null) {
+            return context.isFocused(this);
+        }
+        return false;
+    }
+
+    public boolean isFocusable() {
+        return focusable;
+    }
+
+    // ========================= ADD =========================
+
+    @Override
+    public void addMouseButtonListener(MouseButtonListener l) {
+        listenerList.add(MouseButtonListener.class,l);
+    }
+
+    @Override
+    public void addMouseWheelListener(MouseWheelListener l) {
+        listenerList.add(MouseWheelListener.class,l);
+    }
+
+    @Override
+    public void addMouseCursorListener(MouseCursorListener l) {
+        listenerList.add(MouseCursorListener.class,l);
+    }
+
+    @Override
+    public void addMouseDropListener(MouseDropListener l) {
+        listenerList.add(MouseDropListener.class,l);
+    }
+
+    @Override
+    public void addKeyCharInputListener(KeyCharInputListener l) {
+        listenerList.add(KeyCharInputListener.class,l);
+    }
+
+    @Override
+    public void addKeyInputListener(KeyInputListener l) {
+        listenerList.add(KeyInputListener.class,l);
+    }
+
+    @Override
+    public void addKeyboardFocusListener(KeyboardFocusListener l) {
+        listenerList.add(KeyboardFocusListener.class,l);
+    }
+
+    @Override
+    public void addMouseEntersListener(MouseEntersListener l) {
+        listenerList.add(MouseEntersListener.class,l);
+    }
+
+    @Override
+    public void addActionListener(ActionListener l) {
+        listenerList.add(ActionListener.class,l);
+    }
+
+    // ========================= REMOVE =========================
+
+    @Override
+    public void removeKeyInputListener(KeyInputListener l) {
+        listenerList.remove(KeyInputListener.class,l);
+    }
+
+    @Override
+    public void removeKeyCharInputListener(KeyCharInputListener l) {
+        listenerList.remove(KeyCharInputListener.class,l);
+    }
+
+    @Override
+    public void removeKeyboardFocusListener(KeyboardFocusListener l) {
+        listenerList.remove(KeyboardFocusListener.class,l);
+    }
+
+    @Override
+    public void removeMouseButtonListener(MouseButtonListener l) {
+        listenerList.remove(MouseButtonListener.class,l);
+    }
+
+    @Override
+    public void removeMouseWheelListener(MouseWheelListener l) {
+        listenerList.remove(MouseWheelListener.class,l);
+    }
+
+    @Override
+    public void removeMouseCursorListener(MouseCursorListener l) {
+        listenerList.remove(MouseCursorListener.class,l);
+    }
+
+    @Override
+    public void removeMouseDropListener(MouseDropListener l) {
+        listenerList.remove(MouseDropListener.class,l);
+    }
+
+    @Override
+    public void removeMouseEntersListener(MouseEntersListener l) {
+        listenerList.remove(MouseEntersListener.class,l);
+    }
+
+    @Override
+    public void removeActionListener(ActionListener l) {
+        listenerList.remove(ActionListener.class,l);
     }
 
     // ========================= UTIL =========================

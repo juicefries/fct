@@ -115,6 +115,11 @@ public interface SystemListener extends Listener {
         return getListenerName();
     }
 
+    @Override
+    default String name() {
+        return listenerName();
+    }
+
     Object getSource();
 
     /**

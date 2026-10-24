@@ -38,6 +38,14 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.system.Callback;
 
+/**
+ * 文件拖放的处理底座，包着 LWJGL 那个原生回调。
+ *
+ * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultDropHandler}。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class DropHandler extends GLFWDropCallback implements MouseHandler {
 
     private final Lock lock = Lock.create();

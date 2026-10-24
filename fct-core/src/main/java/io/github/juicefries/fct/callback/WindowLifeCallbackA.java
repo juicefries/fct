@@ -31,6 +31,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * {@link WindowLifeCallback} 的空实现。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class WindowLifeCallbackA implements WindowLifeCallback {
     @Override
     public void close(WindowData data) {

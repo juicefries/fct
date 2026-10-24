@@ -23,33 +23,15 @@
  *
  */
 
-//
-// Created by juicefries
-// The project name is fct
-// Data 2026/09/12 13:31
-//
-
-package io.github.juicefries.fct;
-
-import io.github.juicefries.fct.lwjgl.Hint;
-import io.github.juicefries.fct.platform.WindowUtil;
-
-@Deprecated
-public class FWindow extends Window {
-
-    public FWindow(WindowConfig config) {
-        super(config);
-    }
-
-    public FWindow() {
-        this(null);
-    }
-
-    @Override
-    void _window_sets() {
-        //noinspection deprecation
-        WindowUtil.setWindowType(window,WindowUtil.TOOL_DIALOG);
-        setWindowAttrib(Hint.decorated(false));
-        super._window_sets();
-    }
-}
+/**
+ * <h2>callback.handler</h2>
+ *
+ * <p>每种回调一个底座 {@code XxxHandler}，外加一个默认实现 {@code DefaultXxxHandler}。
+ *
+ * <p>默认实现先给 fct 登记的监听器，再把事件转给挂在 GLFW 上的原生回调；
+ * 想换分发逻辑就继承底座自己写，再把 {@code Handlers} 里对应的映射换掉。
+ *
+ * @author DeepSeek (AI) 文档
+ * @since 0.0.3
+ */
+package io.github.juicefries.fct.callback.handler;

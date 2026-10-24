@@ -25,6 +25,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 光标相关的监听：移动，以及进出窗口。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface MouseCursorCallback extends GLFWCallback {
 
     void cursorPos(MouseData e);

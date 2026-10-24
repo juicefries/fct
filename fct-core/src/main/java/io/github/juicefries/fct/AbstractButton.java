@@ -31,7 +31,6 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.event.ActionListener;
 import io.github.juicefries.fct.event.MouseButtonAdapter;
 import io.github.juicefries.fct.event.MouseEntersListener;
 import io.github.juicefries.fct.event.MouseEvent;
@@ -45,13 +44,13 @@ public abstract class AbstractButton extends Control {
             public void entered(MouseEvent e) {
                 if (!isEnabled()) return;
                 setRollover(true);
-                validate();
+                notice();
             }
             @Override
             public void exited(MouseEvent e) {
                 if (!isEnabled()) return;
                 setRollover(false);
-                validate();
+                notice();
             }
         });
         addMouseButtonListener(new MouseButtonAdapter() {
@@ -60,7 +59,7 @@ public abstract class AbstractButton extends Control {
                 if (!isEnabled()) return;
                 if (e.getButton() == MouseEvent.MK_LEFT) {
                     setSelect(true);
-                    validate();
+                    notice();
                 }
             }
             @Override
@@ -68,9 +67,9 @@ public abstract class AbstractButton extends Control {
                 if (!isEnabled()) return;
                 if (e.getButton() == MouseEvent.MK_LEFT) {
                     setSelect(false);
-                    validate();
+                    notice();
                     if (contains(e.getX(), e.getY())) {
-                        var listeners = getListeners(ActionListener.class);
+                        var listeners = getActionListeners();
                         Array.forArr(listeners, action -> action.action(e));
                     }
                 }
@@ -89,17 +88,6 @@ public abstract class AbstractButton extends Control {
     }
 
     // ========================= OTM =========================
-
-
-
-
-    public void addActionListener(ActionListener l) {
-        listenerList.add(ActionListener.class,l);
-    }
-
-    public void removeActionListener(ActionListener l) {
-        listenerList.remove(ActionListener.class,l);
-    }
 
     // ========================= SET =========================
 

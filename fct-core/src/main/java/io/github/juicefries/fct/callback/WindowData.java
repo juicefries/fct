@@ -39,7 +39,15 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryUtil;
 
-public final class WindowData implements CallbackData, Copyable,Cloneable, Readonly {
+/**
+ * 窗口事件的数据：尺寸、帧缓冲尺寸、位置、缩放比例、最大 / 最小化状态。
+ *
+ * <p>静态工厂按事件类型造，{@code copy()} 出一份给监听器。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
+public final class WindowData extends CallbackData implements Copyable,Cloneable, Readonly {
 
 
     public final static long WINDOW_CLOSE_EVENT = Util.turn("WindowEvent-%s".formatted(Handler.CLOSE));

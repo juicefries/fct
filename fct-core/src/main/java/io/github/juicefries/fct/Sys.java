@@ -41,6 +41,7 @@ import io.github.juicefries.fct.sign.Manager;
 import io.github.juicefries.fct.sign.Uninitialized;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
+import io.github.juicefries.fct.util.Math;
 import io.github.juicefries.fct.util.Util;
 import java.io.Serial;
 import java.io.Serializable;
@@ -164,6 +165,8 @@ public final class Sys implements Uninitialized, Manager, Serializable {
     static LinkedList<TaskEntity> buffer = new LinkedList<>();
     static LinkedList<TaskEntity> tasks = new LinkedList<>();
     static LinkedList<TaskEntity> discardList = new LinkedList<>();
+
+    final static TaskEntity AUTOMATIC_SHUTDOWN_CHECK = buildAutomaticShutdownCheck();
 
     // ========================= STA =========================
 
@@ -577,6 +580,13 @@ public final class Sys implements Uninitialized, Manager, Serializable {
                 initializeAET();
                 _auxiliary_event_thread.start();
 
+                if (isEnableAutomaticShutdownCheck()) {
+                    invokeLater(() -> synchronizedAETTask(() -> {
+                        if (tasks.contains(AUTOMATIC_SHUTDOWN_CHECK)) return;
+                        tasks.add(AUTOMATIC_SHUTDOWN_CHECK);
+                    }));
+                }
+
                 initialize.set(true);
                 var listeners = listenerList.getListeners(SystemListener.class);
                 Array.forArr(listeners,listener -> listener.event(SysEvent.init()));
@@ -844,7 +854,38 @@ public final class Sys implements Uninitialized, Manager, Serializable {
         }
     }
 
+    /**
+     * 启用自动关闭检查
+     *
+     * <p>
+     *     启用后，AET会自动检查是否到了应当自动关闭的时机，不推荐使用，可能会导致错误的提前关闭。
+     * </p>
+     *
+     * @param enable 启用
+     * @since 1.0.4
+     */
+    @ApiStatus.Experimental()
+    public static void setEnableAutomaticShutdownCheck(boolean enable) {
+        synchronizedTask(() -> {
+            if (isEnableAutomaticShutdownCheck() == enable) return;
+            properties.put("EnableAutomaticShutdownCheck",enable);
+            invokeLater(() -> synchronizedAETTask(() -> {
+                if (tasks.contains(AUTOMATIC_SHUTDOWN_CHECK)) return;
+                tasks.add(AUTOMATIC_SHUTDOWN_CHECK);
+            }));
+        });
+    }
+
     // ========================= GET =========================
+
+    /**
+     * 获取是否启用自动关闭检查的状态
+     * @return 状态值
+     * @since 1.0.4
+     */
+    public static boolean isEnableAutomaticShutdownCheck() {
+        return properties.get("EnableAutomaticShutdownCheck");
+    }
 
     /** 获取自动关闭开关 */
     public static boolean isAutomaticShutdown() {
@@ -903,13 +944,14 @@ public final class Sys implements Uninitialized, Manager, Serializable {
         if (task == null) {
             throw new NullPointerException("task is null!");
         }
-        return interval -> task.run();
+        return _ -> task.run();
     }
 
     static void _reset_properties() {
         properties.put("AutomaticShutdown",true);
         properties.put("AutomaticCleaning",false);
         properties.put("DebugApiWarning",true);
+        properties.put("EnableAutomaticShutdownCheck",false);
     }
 
     /**
@@ -1151,6 +1193,31 @@ public final class Sys implements Uninitialized, Manager, Serializable {
             listener.event(SysEvent.terminate());
             listenerList.remove(SystemListener.class,listener);
         }
+    }
+
+    private static @NotNull TaskEntity buildAutomaticShutdownCheck(){
+        TaskEntity asc = new TaskEntity();
+        asc.name = "AET.AutomaticShutdownCheck";
+        asc.count = Sys.InfiniteTask;
+        asc.task = (_) -> {
+            boolean[] end = {false};
+            synchronizedAETTask(() -> {
+                boolean[] conditions = {
+                        isInitialize(),
+                        isEnableAutomaticShutdownCheck(),
+                        checkClosingConditions(),
+                        isAutomaticShutdown(),
+                        isAutomaticCleaning()
+                };
+                if (!Array.contains(false,conditions)) {
+                    end[0] = true;
+                }
+            });
+            if (end[0]) {
+                terminate();
+            }
+        };
+        return asc;
     }
 
 }

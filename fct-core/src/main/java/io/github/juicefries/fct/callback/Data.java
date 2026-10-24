@@ -34,6 +34,15 @@ import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryUtil;
 
 // field
+/**
+ * 一次分发的上下文。
+ *
+ * <p>装着当前窗口句柄、{@code keep} 开关（关掉就只走原生回调、不再分发给监听器），
+ * 以及要转发给哪些 GLFW 原生回调和 fct 监听器。每个 Handler 手里都有一份。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public class Data extends Settings implements Copyable, Readonly {
 
     public Data() {

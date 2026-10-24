@@ -39,6 +39,14 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.system.Callback;
 
+/**
+ * 窗口尺寸变化（逻辑像素）的处理底座，包着 LWJGL 那个原生回调。
+ *
+ * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultSizeHandler}。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class SizeHandler extends GLFWWindowSizeCallback implements WindowHandler {
 
     private final Lock lock = Lock.create();

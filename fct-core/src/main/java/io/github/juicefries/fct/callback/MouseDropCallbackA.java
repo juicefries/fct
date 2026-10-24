@@ -31,6 +31,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * {@link MouseDropCallback} 的空实现。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class MouseDropCallbackA implements MouseDropCallback{
     @Override
     public void drop(MouseData e) {

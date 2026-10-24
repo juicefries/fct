@@ -31,25 +31,15 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.event.EventListenerList;
-import io.github.juicefries.fct.event.KeyCharInputListener;
-import io.github.juicefries.fct.event.KeyInputListener;
-import io.github.juicefries.fct.event.KeyboardFocusListener;
-import io.github.juicefries.fct.event.MouseButtonListener;
-import io.github.juicefries.fct.event.MouseCursorListener;
-import io.github.juicefries.fct.event.MouseDropListener;
-import io.github.juicefries.fct.event.MouseEntersListener;
-import io.github.juicefries.fct.event.MouseWheelListener;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class Control extends Component implements
-        EventComponent,
-        KeyEventComponent,
-        MouseEventComponent
-{
+public abstract class Control extends Component {
+//        implements EventComponent
+//        , MouseEventComponent
+//        ,KeyEventComponent
+//{
 
-    protected EventListenerList listenerList = new EventListenerList();
     Color foreground;
     Font font;
 
@@ -59,23 +49,29 @@ public abstract class Control extends Component implements
 
     // ========================= OTM =========================
 
-    @Override
-    public void gainFocus() {
-        var context = getComponentContext();
-        if (context != null) {
-            context.gainFocus(this);
-        }
-        validate();
-    }
+//    @Override
+//    public void gainFocus() {
+//        var context = getComponentContext();
+//        if (context != null) {
+//            context.gainFocus(this);
+//        }
+//        validate();
+//    }
+
+//    @Override
+//    public void loseFocus() {
+//        var context = getComponentContext();
+//        if (context != null) {
+//            context.loseFocus(this);
+//        }
+//        validate();
+//    }
 
     @Override
-    public void loseFocus() {
-        var context = getComponentContext();
-        if (context != null) {
-            context.loseFocus(this);
-        }
-        validate();
+    protected void update() {
+
     }
+
 
     // ========================= SET =========================
 
@@ -97,103 +93,48 @@ public abstract class Control extends Component implements
         return font;
     }
 
-    @Override
-    public boolean isFocus() {
-        var context = getComponentContext();
-        if (context != null) {
-            return context.isFocused(this);
-        }
-        return false;
-    }
-
-    @Override
-    public EventListenerList getListenerList() {
-        return listenerList;
-    }
+//    @Override
+//    public boolean isFocus() {
+//        var context = getComponentContext();
+//        if (context != null) {
+//            return context.isFocused(this);
+//        }
+//        return false;
+//    }
 
     // ========================= ADD =========================
 
-    @Override
-    public void addMouseButtonListener(MouseButtonListener l) {
-        listenerList.add(MouseButtonListener.class,l);
-    }
-
-    @Override
-    public void addMouseWheelListener(MouseWheelListener l) {
-        listenerList.add(MouseWheelListener.class,l);
-    }
-
-    @Override
-    public void addMouseCursorListener(MouseCursorListener l) {
-        listenerList.add(MouseCursorListener.class,l);
-    }
-
-    @Override
-    public void addMouseDropListener(MouseDropListener l) {
-        listenerList.add(MouseDropListener.class,l);
-    }
-
-    @Override
-    public void addKeyCharInputListener(KeyCharInputListener l) {
-        listenerList.add(KeyCharInputListener.class,l);
-    }
-
-    @Override
-    public void addKeyInputListener(KeyInputListener l) {
-        listenerList.add(KeyInputListener.class,l);
-    }
-
-    @Override
-    public void addKeyboardFocusListener(KeyboardFocusListener l) {
-        listenerList.add(KeyboardFocusListener.class,l);
-    }
-
-    @Override
-    public void addMouseEntersListener(MouseEntersListener l) {
-        listenerList.add(MouseEntersListener.class,l);
-    }
+//    @Override
+//    public void addKeyCharInputListener(KeyCharInputListener l) {
+//        listenerList.add(KeyCharInputListener.class,l);
+//    }
+//
+//    @Override
+//    public void addKeyInputListener(KeyInputListener l) {
+//        listenerList.add(KeyInputListener.class,l);
+//    }
+//
+//    @Override
+//    public void addKeyboardFocusListener(KeyboardFocusListener l) {
+//        listenerList.add(KeyboardFocusListener.class,l);
+//    }
 
     // ========================= REMOVE =========================
 
-    @Override
-    public void removeKeyInputListener(KeyInputListener l) {
-        listenerList.remove(KeyInputListener.class,l);
-    }
-
-    @Override
-    public void removeKeyCharInputListener(KeyCharInputListener l) {
-        listenerList.remove(KeyCharInputListener.class,l);
-    }
-
-    @Override
-    public void removeKeyboardFocusListener(KeyboardFocusListener l) {
-        listenerList.remove(KeyboardFocusListener.class,l);
-    }
-
-    @Override
-    public void removeMouseButtonListener(MouseButtonListener l) {
-        listenerList.remove(MouseButtonListener.class,l);
-    }
-
-    @Override
-    public void removeMouseWheelListener(MouseWheelListener l) {
-        listenerList.remove(MouseWheelListener.class,l);
-    }
-
-    @Override
-    public void removeMouseCursorListener(MouseCursorListener l) {
-        listenerList.remove(MouseCursorListener.class,l);
-    }
-
-    @Override
-    public void removeMouseDropListener(MouseDropListener l) {
-        listenerList.remove(MouseDropListener.class,l);
-    }
-
-    @Override
-    public void removeMouseEntersListener(MouseEntersListener l) {
-        listenerList.remove(MouseEntersListener.class,l);
-    }
+//    @Override
+//    public void removeKeyInputListener(KeyInputListener l) {
+//        listenerList.remove(KeyInputListener.class,l);
+//    }
+//
+//    @Override
+//    public void removeKeyCharInputListener(KeyCharInputListener l) {
+//        listenerList.remove(KeyCharInputListener.class,l);
+//    }
+//
+//    @Override
+//    public void removeKeyboardFocusListener(KeyboardFocusListener l) {
+//        listenerList.remove(KeyboardFocusListener.class,l);
+//    }
 
     // ========================= UTIL =========================
 

@@ -25,6 +25,14 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 滚轮监听。
+ *
+ * <p>{@code xOffset} / {@code yOffset} 是这一帧滚了多少，方向看平台，别假设正数就是向上。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface MouseScrollCallback extends GLFWCallback {
 
     void scroll(MouseData e);

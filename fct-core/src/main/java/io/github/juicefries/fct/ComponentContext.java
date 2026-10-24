@@ -31,31 +31,37 @@
 
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.event.ActionEventComponent;
 import io.github.juicefries.fct.event.ActionListener;
+import io.github.juicefries.fct.event.EventComponent;
 import io.github.juicefries.fct.event.EventListenerList;
 import io.github.juicefries.fct.event.KeyboardFocusEvent;
+import io.github.juicefries.fct.event.KeyboardFocusListener;
 import io.github.juicefries.fct.event.StringEvent;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
-public final class ComponentContext {
+@ApiStatus.Experimental
+public final class ComponentContext implements ActionEventComponent {
 
     private static final Logger log = LogManager.getLogger(ComponentContext.class);
 
     public final static String FOCUS_SWITCHING = "FocusSwitching";
-    public final static String FOCUS_CLEAR = "Focus Clear";
+    public final static String FOCUS_CLEAR = "FocusClear";
+    public final static String STATUS_UPDATE = "StatusUpdate";
 
     final static ThreadLocal<ComponentContext> FCT_CC_LOCAL = new ThreadLocal<>();
 
     private final Lock udl = Lock.create("FCT.CC.UpdateDataLock");
     private final Lock fcl = Lock.create("FCT.CC.FocusComponentLock");
 
-    volatile KeyEventComponent oldFocusComponent;
-    volatile KeyEventComponent focusComponent;
+    volatile Component oldFocusComponent;
+    volatile Component focusComponent;
 
     final EventListenerList listeners = new EventListenerList();
     Window window;
@@ -65,6 +71,10 @@ public final class ComponentContext {
     }
 
     // ========================= OTM =========================
+
+    public void statusUpdate() {
+        notice(STATUS_UPDATE);
+    }
 
     @ApiSign.Dangerous(since = "1.0.3")
     @ApiSign.InternalApi(since = "1.0.3")
@@ -84,7 +94,7 @@ public final class ComponentContext {
     }
 
     @Contract("null -> fail")
-    public void loseFocus(KeyEventComponent comp) {
+    public void loseFocus(Component comp) {
         if (comp == null) {
             throw new NullPointerException("comp is null!");
         }
@@ -97,7 +107,7 @@ public final class ComponentContext {
             notice(FOCUS_CLEAR);
             synchronized (udl) {
                 window.invoke(() -> {
-                    var arr = old.getKeyboardFocusListeners();
+                    var arr = old.getListeners(KeyboardFocusListener.class);
                     for (var l : arr) {
                         if (l == null) continue;
                         l.lose(KeyboardFocusEvent.lose());
@@ -108,7 +118,7 @@ public final class ComponentContext {
     }
 
     @Contract("null -> fail")
-    public void gainFocus(KeyEventComponent comp) {
+    public void gainFocus(Component comp) {
         if (comp == null) {
             throw new NullPointerException("comp is null!");
         }
@@ -123,13 +133,13 @@ public final class ComponentContext {
             synchronized (udl) {
                 window.invoke(() -> {
                     if (oldFocusComponent != null) {
-                        var arr = oldFocusComponent.getKeyboardFocusListeners();
+                        var arr = oldFocusComponent.getListeners(KeyboardFocusListener.class);
                         for (var l : arr) {
                             if (l == null) continue;
                             l.lose(KeyboardFocusEvent.lose());
                         }
                     }
-                    var arr = focusComponent.getKeyboardFocusListeners();
+                    var arr = focusComponent.getListeners(KeyboardFocusListener.class);
                     for (var l : arr) {
                         if (l == null) continue;
                         l.gain(KeyboardFocusEvent.gain());
@@ -149,21 +159,20 @@ public final class ComponentContext {
 
     void notice(String s) {
         synchronized (udl) {
-            window.invoke(() -> {
-                Array.forArr(getListeners(), listener -> {
-                    if (listener == null) return;
-                    try {
-                        listener.action(StringEvent.create(s));
-                    } catch (Exception e) {
-                        log.error("An error occurred while performing the focus switch notification.", e);
-                    }
-                });
-            });
+            window.invoke(() -> Array.forArr(getListeners(), listener -> {
+                if (listener == null) return;
+                try {
+                    listener.action(StringEvent.create(s));
+                } catch (Exception e) {
+                    log.error("An error occurred while performing the focus switch notification.", e);
+                }
+            }));
         }
     }
 
     // ========================= BIND =========================
 
+    @Contract("null -> fail")
     public void bind(Window window) {
         if (window == null) {
             throw new NullPointerException("window is null!");
@@ -173,11 +182,14 @@ public final class ComponentContext {
                 throw new IllegalArgumentException("The current context is already bound to a window!");
             }
             this.window = window;
+            focusComponent = window;
         }
     }
 
     // ========================= ADD & REMOVE =========================
 
+    @Override
+    @Contract("null -> fail")
     public void addActionListener(ActionListener l) {
         if (l == null) {
             throw new NullPointerException("l is null!");
@@ -187,6 +199,8 @@ public final class ComponentContext {
         }
     }
 
+    @Override
+    @Contract("null -> fail")
     public void removeActionListener(ActionListener l) {
         if (l == null) {
             throw new NullPointerException("l is null!");
@@ -205,7 +219,8 @@ public final class ComponentContext {
 
     // ========================= GET =========================
 
-    public boolean isFocused(KeyEventComponent comp) {
+    @Contract("null -> fail")
+    public boolean isFocused(Component comp) {
         if (comp == null) {
             throw new NullPointerException("comp is null!");
         }
@@ -221,16 +236,23 @@ public final class ComponentContext {
         }
     }
 
-    public KeyEventComponent getFocusComponent() {
+    public Component getFocusComponent() {
         synchronized (fcl) {
             return focusComponent;
         }
     }
 
-    public KeyEventComponent getOldFocusComponent() {
+    public Component getOldFocusComponent() {
         synchronized (fcl) {
             return oldFocusComponent;
         }
+    }
+
+    @Override
+    @Contract(pure = true)
+    @Deprecated(since = "1.0.4",forRemoval = true)
+    public EventListenerList getListenerList() {
+        return listeners;
     }
 
     // ========================= EEE =========================

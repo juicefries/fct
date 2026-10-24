@@ -29,11 +29,7 @@
 // Data 2026/09/20 16:52
 //
 
-package io.github.juicefries.fct;
-
-import io.github.juicefries.fct.event.KeyCharInputListener;
-import io.github.juicefries.fct.event.KeyInputListener;
-import io.github.juicefries.fct.event.KeyboardFocusListener;
+package io.github.juicefries.fct.event;
 
 public interface KeyEventComponent extends EventComponent {
 

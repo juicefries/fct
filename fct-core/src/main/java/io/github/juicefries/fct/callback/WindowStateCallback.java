@@ -25,6 +25,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 窗口状态变化的监听：尺寸、帧缓冲尺寸、位置、焦点、刷新、内容缩放。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface WindowStateCallback extends GLFWCallback {
 
     void size(WindowData e);

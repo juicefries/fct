@@ -31,6 +31,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * {@link WindowToggleCallback} 的空实现。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class WindowToggleCallbackA implements WindowToggleCallback {
     @Override
     public void maximized(WindowData e) {

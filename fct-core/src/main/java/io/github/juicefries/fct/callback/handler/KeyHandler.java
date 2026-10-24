@@ -28,6 +28,14 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.Data;
 import io.github.juicefries.fct.callback.Handler;
 
+/**
+ * 键盘类 Handler 的标记。
+ *
+ * <p>把 {@code getHandlerType()} 固定成 {@code KEY_HANDLER}，方便按大类筛。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface KeyHandler extends Handler {
 
     @Override

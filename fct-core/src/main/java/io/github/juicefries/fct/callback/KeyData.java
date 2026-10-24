@@ -40,7 +40,17 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
-public final class KeyData implements CallbackData, Copyable,Cloneable, Readonly {
+/**
+ * 键盘事件的数据。
+ *
+ * <p>装着键码、扫描码、动作（按下 / 松开 / 重复）、修饰键，以及字符输入时的码点。
+ * 写法和 {@link MouseData} / {@link WindowData} 一样：静态工厂造，{@code copy()} 出一份新的给监听器，
+ * 免得一个监听器改坏了影响后面的人。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
+public final class KeyData extends CallbackData implements Copyable,Cloneable, Readonly {
 
     // 功能键
     public final static int VK_ESC            = GLFW.GLFW_KEY_ESCAPE;
@@ -179,9 +189,6 @@ public final class KeyData implements CallbackData, Copyable,Cloneable, Readonly
     public final static int PRESS = GLFW.GLFW_PRESS;
     public final static int RELEASE = GLFW.GLFW_RELEASE;
     public final static int REPEAT = GLFW.GLFW_REPEAT;
-
-    private long window = MemoryUtil.NULL;
-    private long type;
 
     // 键盘键值
     private int key;
@@ -334,16 +341,6 @@ public final class KeyData implements CallbackData, Copyable,Cloneable, Readonly
     }
 
     // ========================= GET =========================
-
-    @Override
-    public long getWindow() {
-        return window;
-    }
-
-    @Override
-    public long getType() {
-        return type;
-    }
 
     public int getKey() {
         if (type != KEY_INPUT_EVENT) {

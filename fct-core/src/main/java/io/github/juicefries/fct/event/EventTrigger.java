@@ -36,6 +36,8 @@ import io.github.juicefries.fct.sign.Initializable;
 
 public abstract class EventTrigger implements Initializable {
 
+    public final static EventTrigger NULL = null;
+
     public abstract void bind(Window window);
 
     @Override

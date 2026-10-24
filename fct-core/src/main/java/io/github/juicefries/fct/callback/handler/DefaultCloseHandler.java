@@ -41,6 +41,15 @@ import org.jetbrains.annotations.Contract;
 import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
 import org.lwjgl.system.Callback;
 
+/**
+ * 窗口关闭请求的默认分发。
+ *
+ * <p>一次事件分两路：先给 fct 登记的 {@link WindowLifeCallback} 监听器，
+ * 再把同一个事件转给用户挂在 GLFW 上的原生回调（{@code keep} 关掉就只走第一路）。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public final class DefaultCloseHandler extends CloseHandler {
 
     private final static Logger logger = LogManager.getLogger(DefaultCloseHandler.class);

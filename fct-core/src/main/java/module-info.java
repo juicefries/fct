@@ -35,9 +35,6 @@ module io.github.juicefries.fct.core {
     requires org.lwjgl.stb;
     requires io.github.juicefries.fct.lwjgl;
     requires io.github.juicefries.fct.util;
-    requires io.github.juicefries.fct.platform;
-    requires com.sun.jna.platform;
-    requires com.sun.jna;
     requires jdk.compiler;
 
     exports io.github.juicefries.fct;

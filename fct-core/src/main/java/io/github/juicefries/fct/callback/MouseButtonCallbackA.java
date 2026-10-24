@@ -31,6 +31,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * {@link MouseButtonCallback} 的空实现。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class MouseButtonCallbackA implements MouseButtonCallback {
     @Override
     public void press(MouseData e) {

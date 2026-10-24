@@ -25,6 +25,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 窗口最大 / 最小 / 恢复的监听。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface WindowToggleCallback extends GLFWCallback {
 
     /**

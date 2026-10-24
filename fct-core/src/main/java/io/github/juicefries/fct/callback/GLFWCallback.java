@@ -27,6 +27,15 @@ package io.github.juicefries.fct.callback;
 
 import io.github.juicefries.fct.sign.ApiSign;
 
+/**
+ * 所有 fct 监听器的空标记接口。
+ *
+ * <p>自己没有任何方法，只用来把键盘 / 鼠标 / 窗口这几组回调统一收进
+ * {@link GLFWCallbackList} 里按类型找。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 @ApiSign.SignInterface(since = "0.0.4")
 public interface GLFWCallback {
 }

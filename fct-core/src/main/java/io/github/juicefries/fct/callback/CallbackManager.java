@@ -81,6 +81,7 @@ import org.lwjgl.system.MemoryUtil;
  * @see io.github.juicefries.fct.input
  * @version 0.4
  */
+@Deprecated(since = "1.0.4",forRemoval = true)
 public class CallbackManager implements Manager, Initializable,Runnable {
 
     private final static Logger logger = LogManager.getLogger(CallbackManager.class);
@@ -265,14 +266,9 @@ public class CallbackManager implements Manager, Initializable,Runnable {
         }
         check();
 
-        if (data instanceof WindowData wd) {
-            push(wd);
-        }
-        if (data instanceof MouseData md) {
-            push(md);
-        }
-        if (data instanceof KeyData kd) {
-            push(kd);
+        synchronized (getLock()) {
+            buffer.add(CallbackData.handleMatching(window,data.copy()));
+            uhd();
         }
     }
 

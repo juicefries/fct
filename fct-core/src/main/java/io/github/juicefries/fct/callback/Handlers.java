@@ -51,6 +51,17 @@ import io.github.juicefries.fct.callback.handler.DefaultSizeHandler;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 「回调名 → 默认 Handler 类」的注册表。
+ *
+ * <p>默认那一套（{@code Close → DefaultCloseHandler} 之类）在静态块里灌好，
+ * 构造函数传 {@code false} 就能拿到一张空表，自己往里放。
+ *
+ * <p>{@code CallbackManager} 会用它反射造实例。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public final class Handlers extends ConcurrentHashMap<String,Class<? extends Handler>> {
 
     private final static Handlers defaults = new Handlers(false);

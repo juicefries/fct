@@ -43,7 +43,15 @@ import org.joml.Vector2d;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
-public final class MouseData implements CallbackData, Copyable, Cloneable, Readonly {
+/**
+ * 鼠标事件的数据：按钮、光标坐标、滚轮偏移、拖进来的文件路径。
+ *
+ * <p>和 {@link KeyData} 一样用静态工厂造，{@code copy()} 给每个监听器一份独立副本。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
+public final class MouseData extends CallbackData implements Copyable, Cloneable, Readonly {
 
     public final static long MOUSE_SCROLL_EVENT = Util.turn("MouseEvent-%s".formatted(Handler.SCROLL));
     public final static long MOUSE_CURSOR_POS_EVENT = Util.turn("MouseEvent-%s".formatted(Handler.CURSOR_POS));

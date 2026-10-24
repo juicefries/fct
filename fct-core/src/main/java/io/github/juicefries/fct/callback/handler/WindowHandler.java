@@ -28,6 +28,14 @@ package io.github.juicefries.fct.callback.handler;
 import io.github.juicefries.fct.callback.Data;
 import io.github.juicefries.fct.callback.Handler;
 
+/**
+ * 窗口类 Handler 的标记。
+ *
+ * <p>把 {@code getHandlerType()} 固定成 {@code WINDOW_HANDLER}。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface WindowHandler extends Handler {
 
     @Override

@@ -25,6 +25,15 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 键盘事件监听。
+ *
+ * <p>按下去调 {@code pressKey}，松开调 {@code loosenKey}，按住不放调 {@code longPress}，
+ * 输入字符调 {@code inputKey}；{@code inputModsKey} 是带修饰键（Ctrl / Shift / Alt）的那一种。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface KeyCallback extends GLFWCallback {
     /**
      * 按下按键事件

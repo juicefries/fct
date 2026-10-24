@@ -31,6 +31,12 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * {@link MouseScrollCallback} 的空实现。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class MouseScrollCallbackA implements MouseScrollCallback {
     @Override
     public void scroll(MouseData e) {

@@ -25,8 +25,20 @@
 
 package io.github.juicefries.fct.event;
 
-import io.github.juicefries.fct.sign.ApiSign;
-
-@ApiSign.SignInterface(since = "0.0.4")
 public interface Listener extends Event {
+
+    /**
+     * 获取名称
+     *
+     * <p>
+     *     用于调试。
+     * </p>
+     *
+     * @return 名称
+     * @since 1.0.4
+     */
+    default String name() {
+        return "Unnamed Listener";
+    }
+
 }

@@ -23,11 +23,9 @@
  *
  */
 
-package io.github.juicefries.fct;
+package io.github.juicefries.fct.event;
 
-import io.github.juicefries.fct.event.EventTrigger;
-import io.github.juicefries.fct.event.EventListenerList;
-import io.github.juicefries.fct.event.Listener;
+import io.github.juicefries.fct.Component;
 
 /**
  * 事件组件
@@ -43,6 +41,8 @@ import io.github.juicefries.fct.event.Listener;
  *     该类仅保留{@link #getListeners}与{@link #getListenerList}方法。
  *     <br>
  *     应该没人会看我写的文档吧。
+ *     <br>
+ *     自{@code 1.0.4}起{@link Component}将默认实现该接口。
  * </p>
  * @since 0.0.4
  * @author juicefries

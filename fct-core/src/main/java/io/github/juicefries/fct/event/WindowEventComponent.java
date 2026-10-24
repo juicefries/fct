@@ -23,19 +23,9 @@
  *
  */
 
-package io.github.juicefries.fct;
+package io.github.juicefries.fct.event;
 
-import io.github.juicefries.fct.event.CursorEnterListener;
-import io.github.juicefries.fct.event.WindowContentScaleListener;
-import io.github.juicefries.fct.event.WindowFocusListener;
-import io.github.juicefries.fct.event.WindowFrameBufferSizeListener;
-import io.github.juicefries.fct.event.WindowLifeListener;
-import io.github.juicefries.fct.event.WindowMaximizedListener;
-import io.github.juicefries.fct.event.WindowMinimizedListener;
-import io.github.juicefries.fct.event.WindowMoveListener;
-import io.github.juicefries.fct.event.WindowRefreshListener;
-import io.github.juicefries.fct.event.WindowRestoredListener;
-import io.github.juicefries.fct.event.WindowSizeListener;
+import io.github.juicefries.fct.Window;
 
 /**
  * 窗口事件组件

@@ -31,7 +31,7 @@
 
 package io.github.juicefries.fct;
 
-public class Blank extends Control {
+public final class Blank extends Control {
 
     {
         background = Color.NEAR_BLACK.copy();

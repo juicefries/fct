@@ -31,6 +31,14 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * {@link KeyCallback} 的空实现。
+ *
+ * <p>用匿名内部类只想接一个事件时继承它，其余方法不用管。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class KeyCallbackA implements KeyCallback {
     @Override
     public void pressKey(KeyData e) {

@@ -24,17 +24,27 @@
  */
 
 /**
- *
  * <h2>callback</h2>
  *
- * 懒得写，反正就是一坨大便
+ * <p>
+ *     GLFW 回调的统一外壳：窗口 / 键盘 / 鼠标的事件都变成 {@link io.github.juicefries.fct.callback.CallbackData}，
+ *     <br>
+ *     交给 {@link io.github.juicefries.fct.callback.Handler} 分发。
+ *     <br>
+ *     想造假事件就 {@code CallbackManager.push(...)} 灌一个，走同一条路；
+ *     <br>
+ *     只管窗口自己的回调，组件层不归这里，具体处理器在 {@code callback.handler}。
+ * </p>
  *
  * @author juicefries
+ * @author DeepSeek (AI) 文档
  * @since 0.0.3
+ * @deprecated 有些烂，打算扔掉
  */
 @ApiStatus.Internal
 @ApiStatus.Experimental
 @ApiSign.Dangerous(since = "0.0.5")
+@Deprecated(since = "1.0.4",forRemoval = true)
 package io.github.juicefries.fct.callback;
 
 import io.github.juicefries.fct.sign.ApiSign;

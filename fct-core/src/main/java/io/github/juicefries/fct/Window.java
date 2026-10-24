@@ -32,12 +32,17 @@
 package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.callback.CallbackManager;
+import io.github.juicefries.fct.event.ActionListener;
 import io.github.juicefries.fct.event.CursorEnterListener;
 import io.github.juicefries.fct.event.DisposeType;
+import io.github.juicefries.fct.event.EventComponent;
+import io.github.juicefries.fct.event.EventData;
 import io.github.juicefries.fct.event.EventTrigger;
+import io.github.juicefries.fct.event.StringEvent;
 import io.github.juicefries.fct.event.SysEvent;
 import io.github.juicefries.fct.event.SystemListener;
 import io.github.juicefries.fct.event.WindowContentScaleListener;
+import io.github.juicefries.fct.event.WindowEventComponent;
 import io.github.juicefries.fct.event.WindowFocusListener;
 import io.github.juicefries.fct.event.WindowFrameBufferSizeListener;
 import io.github.juicefries.fct.event.WindowLifeListener;
@@ -91,21 +96,14 @@ import org.lwjgl.system.MemoryUtil;
  * @since 0.0.1
  * @version 1.2
  * @author juicefries
- * @see EventContainer
  * @see Graphics
  * @see ThreadManager
  * @see CallbackManager
  */
-public class Window extends EventContainer implements
-        EventComponent,
-        WindowEventComponent,
-        KeyEventComponent,
-        MouseEventComponent,
-        Initializable
-{
+public class Window extends Container implements EventComponent, WindowEventComponent, Initializable {
 
-    final static Logger logger = LogManager.getLogger(Window.class);
-    final Lock invokeLock = Lock.create();
+    private final static Logger logger = LogManager.getLogger(Window.class);
+    private final Lock invokeLock = Lock.create();
 
     final AtomicBoolean initialize = new AtomicBoolean(false);
     ThreadManager threadMgr;
@@ -124,9 +122,10 @@ public class Window extends EventContainer implements
         parameters.put("Size",UIManager.getVector2i("fct.window.size"));
         parameters.put("Title","");
         parameters.put("Config",new WindowConfig());
-        parameters.put("EventTrigger",(EventTrigger) null);
+        parameters.put("EventTrigger",EventTrigger.NULL);
         parameters.put("Visible",UIManager.getBoolean("fct.window.visible"));
         parameters.put("ReuseGraphics",false);
+        parameters.put("EnableDefaultRefreshBehavior",true);
         layout = new PageLayout();
         visible = UIManager.getBoolean("fct.window.visible");
         background = UIManager.getColor("fct.window.background");
@@ -237,6 +236,8 @@ public class Window extends EventContainer implements
      * @param hints 提示列表
      * @since 0.0.5
      */
+    @Deprecated(since = "1.0.4")
+    @SuppressWarnings("unused")
     protected void additionalPrompt(List<Hint> hints) {
 
     }
@@ -248,8 +249,22 @@ public class Window extends EventContainer implements
         ComponentContext context = new ComponentContext();
         componentContext = context;
         context.bind(this);
-        context.gainFocus(this);
         ComponentContext.FCT_CC_LOCAL.set(context);
+        context.addActionListener(new ActionListener() {
+            @Override
+            public String name() {
+                return "Window[%d]-ComponentContextUpdateListener".formatted(window);
+            }
+
+            @Override
+            public void action(EventData e) {
+                if (e == null) return;
+                if (!(e instanceof StringEvent se)) return;
+                if (se.match(ComponentContext.STATUS_UPDATE)) {
+                    update();
+                }
+            }
+        });
         // 初始化输入
         _init_input_sets();
         // 注册系统监听器
@@ -314,16 +329,19 @@ public class Window extends EventContainer implements
     }
 
     protected void defaultInputSet() {
-        addWindowRefreshListener(_ -> validate());
-        addWindowFocusListener(e -> {
-            if (!e.isFocused()) return;
-            validate();
-        });
-        addWindowMoveListener(e -> {
+        if (isEnableDefaultRefreshBehavior()) {
+            addWindowRefreshListener(_ -> notice());
+            addWindowFocusListener(e -> {
+                if (!e.isFocused()) return;
+                notice();
+            });
+            addWindowRestoredListener(_ -> notice());
+        }
+        this.addWindowMoveListener(e -> {
             x = e.getX();
             y = e.getY();
         });
-        addWindowRestoredListener(_ -> validate());
+
         addWindowFBSListener(e -> {
             width = e.getWidth();
             height = e.getHeight();
@@ -405,7 +423,8 @@ public class Window extends EventContainer implements
         }
     }
 
-    public void repaint(int x,int y,int width,int height) {
+    @SuppressWarnings("unused")
+    public void repaint(int x, int y, int width, int height) {
         repaintImp(x, y, width, height);
     }
 
@@ -496,9 +515,7 @@ public class Window extends EventContainer implements
     void cancel(DisposeType type) {
         if (type != DisposeType.CANCEL_INVOKE && type != DisposeType.TERMINATE_INVOKE) {
             logger.log(Level.ALL,"dispose()[type:{}][cancel-SystemListener]",type);
-            Toolkit.invokeLater(() -> {
-                Sys.cancel(getOrBuildListener());
-            });
+            Toolkit.invokeLater(() -> Sys.cancel(getOrBuildListener()));
         }
     }
 
@@ -527,17 +544,23 @@ public class Window extends EventContainer implements
         threadMgr.invoke(invoke);
     }
 
-
     @Override
-    public void validate() {
+    public void update() {
         if (!isWorkerThread()) {
-            invoke(this::validateImp);
+            invoke(this::updateImp);
             return;
         }
-        validateImp();
+        updateImp();
     }
 
-    protected void validateImp() {
+    protected void updateImp() {
+        synchronized (cul) {
+            var components = getComponents();
+            for (var component : components) {
+                if (component == null) continue;
+                component.update();
+            }
+        }
         layout();
         repaint();
     }
@@ -792,6 +815,7 @@ public class Window extends EventContainer implements
      * @param sync 同步
      * @since 0.0.1
      */
+    @Deprecated(since = "1.0.4")
     public void setVSync(boolean sync) {
         if (!isInit()) return;
 
@@ -905,7 +929,7 @@ public class Window extends EventContainer implements
         if (visible) {
             if (!attrib) {
                 GLFW.glfwShowWindow(window);
-                validate();
+                update();
             }
         } else {
             if (attrib) {
@@ -949,6 +973,7 @@ public class Window extends EventContainer implements
         GLFW.glfwSetWindowAttrib(window,hint.hint(),hint.value());
     }
 
+    @Deprecated(since = "1.0.4")
     @ApiStatus.Experimental
     public void setWindowAttrib(int attrib, int value) {
         GLFW.glfwSetWindowAttrib(window,attrib,value);
@@ -978,7 +1003,15 @@ public class Window extends EventContainer implements
         parameters.put("ReuseGraphics",true,reuse);
     }
 
+    public void setEnableDefaultRefreshBehavior(boolean enable) {
+        parameters.put("EnableDefaultRefreshBehavior",enable);
+    }
+
     // ==================== GET =========================
+
+    public boolean isEnableDefaultRefreshBehavior() {
+        return parameters.get("EnableDefaultRefreshBehavior",true);
+    }
 
     /**
      * 获取或构建监听器
@@ -1069,28 +1102,12 @@ public class Window extends EventContainer implements
     @Override
     public Size getSize() {
         if (!isInit() || window == MemoryUtil.NULL) return super.getSize();
-
-        var size = GLFWUtil.getFrameBufferSize(window);
-
-        if (width != size.x) {
-            width = size.x;
-        }
-        if (height != size.y) {
-            height = size.y;
-        }
-        return new Size(size.x,size.y);
+        return Size.toSize(getFramebufferSize());
     }
 
     public Vector2i getContentSize() {
         if (!isInit() || window == MemoryUtil.NULL) return super.getSize().toVector2i();
         var size = GLFWUtil.getSize(window);
-
-        if (width != size.x) {
-            width = size.x;
-        }
-        if (height != size.y) {
-            height = size.y;
-        }
         return new Vector2i(size.x,size.y);
     }
 
@@ -1112,11 +1129,11 @@ public class Window extends EventContainer implements
      * 该方法在使用时应当转换为int.
      * @return 获取窗口宽度
      * @since 0.0.1
-     * @see #getSize()
+     * @see #getFramebufferWidth
      */
     @Override
     public float getWidth() {
-        return getSize().width;
+        return getFramebufferWidth();
     }
 
     /**
@@ -1124,17 +1141,19 @@ public class Window extends EventContainer implements
      * 该方法在使用时应当转换为int.
      * @return 获取窗口高度
      * @since 0.0.1
-     * @see #getSize()
+     * @see #getFramebufferHeight
      */
     @Override
     public float getHeight() {
-        return getSize().height;
+        return getFramebufferHeight();
     }
 
+    @Deprecated(since = "1.0.4")
     public int getContentWidth() {
         return getContentSize().x;
     }
 
+    @Deprecated(since = "1.0.4")
     public int getContentHeight() {
         return getContentSize().y;
     }
@@ -1239,10 +1258,12 @@ public class Window extends EventContainer implements
     }
 
     @ApiStatus.Experimental
+    @ApiSign.Dangerous(since = "1.0.4")
     public ThreadManager getThreadManager() {
         return threadMgr;
     }
 
+    @ApiSign.Dangerous(since = "1.0.4")
     public EventTrigger getEventTrigger() {
         return eventTrigger;
     }
@@ -1255,5 +1276,11 @@ public class Window extends EventContainer implements
     // ==================== EEE =========================
 
     // ==================== RRR =========================
+
+    @Override
+    @Deprecated(since = "1.0.4",forRemoval = true)
+    public String toString() {
+        return getClass().getCanonicalName() + "[window=" + window + "]";
+    }
 
 }

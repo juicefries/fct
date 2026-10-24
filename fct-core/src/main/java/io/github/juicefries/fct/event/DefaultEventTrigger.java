@@ -32,9 +32,6 @@
 package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.Component;
-import io.github.juicefries.fct.EventComponent;
-import io.github.juicefries.fct.KeyEventComponent;
-import io.github.juicefries.fct.MouseEventComponent;
 import io.github.juicefries.fct.UIManager;
 import io.github.juicefries.fct.Window;
 import io.github.juicefries.fct.callback.CallbackManager;
@@ -76,8 +73,8 @@ public final class DefaultEventTrigger extends EventTrigger {
     private static final Logger logger = LogManager.getLogger(DefaultEventTrigger.class);
     private final AtomicBoolean initialize = new AtomicBoolean(false);
 
-    private MouseEventComponent captureComponent;
-    private MouseEventComponent hoverComponent;
+    private Component captureComponent;
+    private Component hoverComponent;
     /** 当前已应用到窗口上的光标名，避免重复设置 */
     private String currentCursorName = UIManager.DEFAULT_CURSOR;
 
@@ -106,7 +103,7 @@ public final class DefaultEventTrigger extends EventTrigger {
         this.window = window;
     }
 
-    @Nullable KeyEventComponent getFocusComponent() {
+    @Nullable Component getFocusComponent() {
         return window.getComponentContext().getFocusComponent();
     }
 
@@ -151,9 +148,8 @@ public final class DefaultEventTrigger extends EventTrigger {
         return initialize.get();
     }
 
-    @Nullable EventComponent getEventComponentAt(float x, float y) {
-        Component comp = window.getComponentAt(x, y);
-        return comp instanceof EventComponent ec ? ec : null;
+    @Nullable Component getComponentAt(float x, float y) {
+        return window.getComponentAt(x, y);
     }
 
     @ApiStatus.Internal
@@ -185,17 +181,17 @@ public final class DefaultEventTrigger extends EventTrigger {
             float x = (float) cursorPos.x;
             float y = (float) cursorPos.y;
 
-            var ec = getEventComponentAt(x, y);
-            if (!(ec instanceof MouseEventComponent mec)) return;
+            var component = getComponentAt(x, y);
+            if (component == null) return;
 
-            captureComponent = mec;   // 按下即捕获，直到释放才清空
+            captureComponent = component;   // 按下即捕获，直到释放才清空
 
-            float localX = x - ((Component) mec).getAbsoluteX();
-            float localY = y - ((Component) mec).getAbsoluteY();
+            float localX = x - component.getAbsoluteX();
+            float localY = y - component.getAbsoluteY();
             //noinspection MagicConstant
             var _med_p__ = MouseEvent.press(e.getButton(), e.getMods(), localX, localY);
 
-            var listeners = getListeners(mec, MouseButtonListener.class);
+            var listeners = getListeners(component, MouseButtonListener.class);
             Array.forArr(listeners, listener -> {
                 if (listener == null) return;
                 listener.press(_med_p__);
@@ -214,8 +210,8 @@ public final class DefaultEventTrigger extends EventTrigger {
             float x = (float) cursorPos.x;
             float y = (float) cursorPos.y;
 
-            float localX = x - ((Component) ec).getAbsoluteX();
-            float localY = y - ((Component) ec).getAbsoluteY();
+            float localX = x - ec.getAbsoluteX();
+            float localY = y - ec.getAbsoluteY();
             //noinspection MagicConstant
             var _med_r__ = MouseEvent.release(e.getButton(), e.getMods(), localX, localY);
 
@@ -248,11 +244,11 @@ public final class DefaultEventTrigger extends EventTrigger {
         public void cursorPos(MouseData e) {
             if (e == null) return;
 
-            float x = (float) e.getXPos();
-            float y = (float) e.getYPos();
+            var x = (float) e.getXPos();
+            var y = (float) e.getYPos();
 
             // 非事件组件（容器、面板、空白）一律视作无悬停目标
-            var target = getEventComponentAt(x, y) instanceof MouseEventComponent mec ? mec : null;
+            var target = getComponentAt(x,y);
 
             if (target != hoverComponent) {
                 if (hoverComponent != null) {
@@ -263,13 +259,13 @@ public final class DefaultEventTrigger extends EventTrigger {
                 }
 
                 hoverComponent = target;
-                applyCursor((Component) target);
+                applyCursor(target);
             }
 
             if (target == null) return;
 
-            float localX = x - ((Component) target).getAbsoluteX();
-            float localY = y - ((Component) target).getAbsoluteY();
+            var localX = x - target.getAbsoluteX();
+            var localY = y - target.getAbsoluteY();
             var _med_m_p__ = MouseEvent.pos(localX, localY);
 
             var listeners = getListeners(target, MouseCursorListener.class);
@@ -281,23 +277,23 @@ public final class DefaultEventTrigger extends EventTrigger {
 
         /**
          * 派发进入 / 离开
-         * @param mec 目标事件组件
+         * @param comp 目标事件组件
          * @param entered {@code true} 为进入，{@code false} 为离开
          * @param x 窗口坐标X
          * @param y 窗口坐标Y
          * @since 1.0.1
          */
-        private void dispatchEnters(MouseEventComponent mec, boolean entered, float x, float y) {
-            if (mec == null) return;
+        private void dispatchEnters(Component comp, boolean entered, float x, float y) {
+            if (comp == null) return;
 
-            float localX = x - ((Component) mec).getAbsoluteX();
-            float localY = y - ((Component) mec).getAbsoluteY();
+            float localX = x - comp.getAbsoluteX();
+            float localY = y - comp.getAbsoluteY();
 
             var event = entered
                     ? MouseEvent.entered(localX, localY)
                     : MouseEvent.exited(localX, localY);
 
-            var listeners = getListeners(mec, MouseEntersListener.class);
+            var listeners = getListeners(comp, MouseEntersListener.class);
             Array.forArr(listeners, listener -> {
                 if (listener == null) return;
                 if (entered) {
@@ -353,8 +349,8 @@ public final class DefaultEventTrigger extends EventTrigger {
             if (hoverComponent != null && e != null) {
                 float x = (float) e.getXPos();
                 float y = (float) e.getYPos();
-                float oldLocalX = x - ((Component) hoverComponent).getAbsoluteX();
-                float oldLocalY = y - ((Component) hoverComponent).getAbsoluteY();
+                float oldLocalX = x - hoverComponent.getAbsoluteX();
+                float oldLocalY = y - hoverComponent.getAbsoluteY();
                 var _med_ex__ = MouseEvent.exited(oldLocalX, oldLocalY);
                 var exitedListeners = getListeners(hoverComponent, MouseEntersListener.class);
                 Array.forArr(exitedListeners, listener -> {
@@ -393,11 +389,11 @@ public final class DefaultEventTrigger extends EventTrigger {
             float x = (float) cursorPos.x;
             float y = (float) cursorPos.y;
 
-            var ec = getEventComponentAt(x, y);
+            var ec = getComponentAt(x, y);
             if (ec == null) return;
 
-            float localX = x - ((Component) ec).getAbsoluteX();
-            float localY = y - ((Component) ec).getAbsoluteY();
+            float localX = x - ec.getAbsoluteX();
+            float localY = y - ec.getAbsoluteY();
 
             var _med_d__ = MouseEvent.drop(e.getFilePaths(), localX, localY);
 
@@ -432,11 +428,11 @@ public final class DefaultEventTrigger extends EventTrigger {
             float x = (float) cursorPos.x;
             float y = (float) cursorPos.y;
 
-            var ec = getEventComponentAt(x, y);
+            var ec = getComponentAt(x, y);
             if (ec == null) return;
 
-            float localX = x - ((Component) ec).getAbsoluteX();
-            float localY = y - ((Component) ec).getAbsoluteY();
+            float localX = x - ec.getAbsoluteX();
+            float localY = y - ec.getAbsoluteY();
 
             var _med_s__ = MouseEvent.scroll(e.getXOffset(), e.getYOffset(), localX, localY);
 
@@ -682,11 +678,11 @@ public final class DefaultEventTrigger extends EventTrigger {
 
     // ========================= UTIL =========================
 
-    EventListenerList getListenerList(@NotNull EventComponent comp) {
+    EventListenerList getListenerList(@NotNull Component comp) {
         return comp.getListenerList();
     }
 
-    <T extends Listener> T[] getListeners(EventComponent comp,Class<T> type) {
+    <T extends Listener> T[] getListeners(Component comp,Class<T> type) {
         return getListenerList(comp).getListeners(type);
     }
 

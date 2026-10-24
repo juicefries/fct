@@ -33,14 +33,13 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.sign.Copyable;
 import java.util.Objects;
+
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import org.joml.Vector2i;
 
 public class Size implements Copyable {
-
-    public final static Size ZERO = new Size(0.0f,0.0f);
-    public final static Size MAX  = new Size(Float.MAX_VALUE,Float.MAX_VALUE);
-    public final static Size MIN  = new Size(Float.MIN_VALUE,Float.MIN_VALUE);
 
     public float width;
     public float height;
@@ -58,10 +57,12 @@ public class Size implements Copyable {
         height = size.height;
     }
 
+    @Contract(pure = true)
     public Size() {
-        this(ZERO);
+        this(0,0);
     }
 
+    @Contract("null -> fail")
     public Size(float[] size) {
         if (size == null) {
             throw new NullPointerException("size is null!");
@@ -73,6 +74,7 @@ public class Size implements Copyable {
         this.height = size[1];
     }
 
+    @Contract("null -> fail")
     public Size(int[] size) {
         if (size == null) {
             throw new NullPointerException("size is null!");
@@ -175,6 +177,14 @@ public class Size implements Copyable {
         vector2i.y = Math.round(size.height);
 
         return vector2i;
+    }
+
+    @Contract("null -> fail; !null -> new")
+    public static @NotNull Size toSize(Vector2i size) {
+        if (size == null) {
+            throw new NullPointerException("size is null!");
+        }
+        return new Size(size.x,size.y);
     }
 
     @Override

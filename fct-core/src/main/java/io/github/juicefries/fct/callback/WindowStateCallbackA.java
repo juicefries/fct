@@ -33,6 +33,12 @@ package io.github.juicefries.fct.callback;
 
 import org.jetbrains.annotations.Contract;
 
+/**
+ * {@link WindowStateCallback} 的空实现。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class WindowStateCallbackA implements WindowStateCallback {
 
     @Contract(pure = true)

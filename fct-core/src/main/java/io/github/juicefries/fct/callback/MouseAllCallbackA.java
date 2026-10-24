@@ -31,6 +31,14 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 鼠标全部回调拼在一起的空实现。
+ *
+ * <p>按钮、光标、进入 / 离开、拖放、滚轮一次接全，懒得拆开写时用它。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class MouseAllCallbackA implements
         MouseButtonCallback,
         MouseCursorCallback,

@@ -25,6 +25,16 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 模拟队列换缓冲的阶段。
+ *
+ * <p>{@code push()} 来自别的线程，所以事件先进缓冲，
+ * 再按 {@code ExchangeBegins → ClearArea → ExchangeEnded → ClearBuffer → ExchangeCompleted}
+ * 的顺序搬到执行队列里，避免边写边读。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public enum ExchangeStatus {
     /** 交换开始 */
     ExchangeBegins,

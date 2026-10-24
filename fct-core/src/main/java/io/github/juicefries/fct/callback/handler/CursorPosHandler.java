@@ -38,6 +38,14 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.system.Callback;
 
+/**
+ * 光标移动的处理底座，包着 LWJGL 那个原生回调。
+ *
+ * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultCursorPosHandler}。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public abstract class CursorPosHandler extends GLFWCursorPosCallback implements MouseHandler {
 
     private final Lock lock = Lock.create();

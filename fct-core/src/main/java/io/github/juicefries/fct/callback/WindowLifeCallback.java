@@ -25,6 +25,14 @@
 
 package io.github.juicefries.fct.callback;
 
+/**
+ * 窗口生命周期监听。
+ *
+ * <p>目前只有关闭：点了关闭按钮会进来，在这里决定到底关不关。
+ *
+ * @author DeepSeek (AI)
+ * @since 0.0.3
+ */
 public interface WindowLifeCallback extends GLFWCallback {
 
     void close(WindowData data);
