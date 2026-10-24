@@ -500,6 +500,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
         if (type == null) {
             throw new NullPointerException("type is null!");
         }
+        if (!isInit()) throw new IllegalStateException("The window has already been closed, but the method is being called again!");
         logger.trace("dispose()[type:{}]",type);
         if (!isWorkerThread()) {
             invoke(() -> {
