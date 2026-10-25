@@ -395,7 +395,7 @@ public class UIManager implements Manager {
      * @since 1.0.1
      */
     @Contract("null -> fail")
-    public static long getCursor(String cursorName) {
+    public static long getCursor(String cursorName) throws NullPointerException,IllegalArgumentException {
         if (cursorName == null) {
             throw new NullPointerException("cursorName is null!");
         }

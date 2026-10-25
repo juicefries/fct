@@ -59,6 +59,7 @@ import io.github.juicefries.fct.lwjgl.Hint;
 import io.github.juicefries.fct.lwjgl._GLFW_API;
 import io.github.juicefries.fct.lwjgl._GL_API;
 import io.github.juicefries.fct.sign.ApiSign;
+import io.github.juicefries.fct.sign.ApiSign.NotRecommended;
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
@@ -1199,7 +1200,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
      */
     @Override
     @Deprecated(since = "0.0.4")
-    @ApiSign.NotRecommended(since = "0.0.4")
+    @NotRecommended(since = "0.0.4")
     public Location getAbsoluteLocation() {
         return getLocation();
     }
@@ -1234,7 +1235,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
      */
     @Override
     @Deprecated(since = "0.0.4")
-    @ApiSign.NotRecommended(since = "0.0.4")
+    @NotRecommended(since = "0.0.4")
     public float getAbsoluteX() {
         return super.getAbsoluteX();
     }
@@ -1247,7 +1248,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
      */
     @Override
     @Deprecated(since = "0.0.4")
-    @ApiSign.NotRecommended(since = "0.0.4")
+    @NotRecommended(since = "0.0.4")
     public float getAbsoluteY() {
         return super.getAbsoluteY();
     }

@@ -33,7 +33,6 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.event.ActionEventComponent;
 import io.github.juicefries.fct.event.ActionListener;
-import io.github.juicefries.fct.event.EventComponent;
 import io.github.juicefries.fct.event.EventListenerList;
 import io.github.juicefries.fct.event.KeyboardFocusEvent;
 import io.github.juicefries.fct.event.KeyboardFocusListener;
@@ -41,6 +40,7 @@ import io.github.juicefries.fct.event.StringEvent;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
@@ -122,6 +122,7 @@ public final class ComponentContext implements ActionEventComponent {
         if (comp == null) {
             throw new NullPointerException("comp is null!");
         }
+        if (!comp.isFocusable()) return;
         check();
         synchronized (fcl) {
             if (focusComponent != null && isFocused(comp)) return;
@@ -226,7 +227,12 @@ public final class ComponentContext implements ActionEventComponent {
         }
         synchronized (fcl) {
             check();
-            return comp == focusComponent;
+            boolean result = comp == focusComponent;
+            if (result) {
+                log.log(Level.ALL,"You are really idle, and so am I...");
+            }
+
+            return result;
         }
     }
 

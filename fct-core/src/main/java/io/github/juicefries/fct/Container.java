@@ -458,7 +458,6 @@ public abstract class Container extends Component {
             if (comp == null) continue;
             remove(comp);
         }
-        notice();
     }
 
     // ========================= PAINT =========================

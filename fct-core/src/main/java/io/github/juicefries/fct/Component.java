@@ -152,6 +152,7 @@ public abstract class Component implements
 
     @Override
     public void gainFocus() {
+        if (!isFocusable()) return;
         var context = getComponentContext();
         if (context != null) {
             context.gainFocus(this);
@@ -295,6 +296,7 @@ public abstract class Component implements
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+        notice();
     }
 
     public void setEnabled(boolean enabled) {
@@ -310,15 +312,29 @@ public abstract class Component implements
     }
 
     public void setFocusable(boolean focusable) {
+        if (focusable && isFocus()) {
+            loseFocus();
+        }
         this.focusable = focusable;
+        notice();
     }
 
     // ========================= GET =========================
 
+    /**
+     * 获取组件的位置
+     * @return 位置X
+     * @since 0.0.1
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * 获取组建的位置
+     * @return 位置Y
+     * @since 0.0.1
+     */
     public float getY() {
         return y;
     }
@@ -327,6 +343,7 @@ public abstract class Component implements
         return new Location(x,y);
     }
 
+    @Deprecated(since = "1.0.4.2")
     public Location getAbsoluteLocation() {
         if (this instanceof Window) {
             return getLocation();
@@ -348,10 +365,12 @@ public abstract class Component implements
         return new Location(absX, absY);
     }
 
+    @Deprecated(since = "1.0.4.2")
     public float getAbsoluteX() {
         return getAbsoluteLocation().x;
     }
 
+    @Deprecated(since = "1.0.4.2")
     public float getAbsoluteY() {
         return getAbsoluteLocation().y;
     }
@@ -415,10 +434,16 @@ public abstract class Component implements
         return parent;
     }
 
+    /**
+     * 获取使用的光标名称
+     * @return 光标名称
+     * @since 1.0.4
+     */
     public String getCursorName() {
         return cursorName;
     }
 
+    @ApiSign.Dangerous(since = "1.0.4.2")
     public ComponentContext getComponentContext() {
         return componentContext;
     }
@@ -428,6 +453,18 @@ public abstract class Component implements
         return listenerList;
     }
 
+    /**
+     * 检查组件是否拥有焦点
+     *
+     * <p>
+     *     通过{@link #getComponentContext()}获取组件的焦点状态，
+     *     <br>
+     *     若当前的{@link ComponentContext}为{@code null}或没有焦点则返回{@code false}。
+     * </p>
+     *
+     * @return 焦点状态
+     * @since 1.0.4
+     */
     @Override
     public boolean isFocus() {
         var context = getComponentContext();
@@ -437,6 +474,11 @@ public abstract class Component implements
         return false;
     }
 
+    /**
+     * 可聚焦的
+     * @return 是否可聚焦
+     * @since 1.0.4.2
+     */
     public boolean isFocusable() {
         return focusable;
     }
