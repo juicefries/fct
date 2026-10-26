@@ -312,7 +312,7 @@ public abstract class Component implements
     }
 
     public void setFocusable(boolean focusable) {
-        if (focusable && isFocus()) {
+        if (!focusable && isFocus()) {
             loseFocus();
         }
         this.focusable = focusable;
