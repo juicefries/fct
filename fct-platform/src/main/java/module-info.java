@@ -29,4 +29,5 @@ module io.github.juicefries.fct.platform {
     requires com.sun.jna.platform;
     requires io.github.juicefries.fct.util;
     requires org.lwjgl.glfw;
+    requires io.github.juicefries.fct.core;
 }

@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ApiSign.InternalApi(since = "0.0.5")
 @ApiStatus.Experimental
+@Deprecated(since = "1.0.5", forRemoval = true)
 public class _DEBUG_API {
 
     private final static Logger logger = LogManager.getLogger("fct-debug-api");

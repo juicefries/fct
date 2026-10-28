@@ -111,6 +111,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
     CallbackManager callbackMgr;
     EventTrigger eventTrigger;
     Graphics graphics;
+    DrawingState drawState;
 
     Parameters<String,Object> parameters = new Parameters<>();
 
@@ -127,6 +128,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
         parameters.put("Visible",UIManager.getBoolean("fct.window.visible"));
         parameters.put("ReuseGraphics",false);
         parameters.put("EnableDefaultRefreshBehavior",true);
+        parameters.put("AutomaticallyUpdateViewport",true);
         layout = new PageLayout();
         visible = UIManager.getBoolean("fct.window.visible");
         background = UIManager.getColor("fct.window.background");
@@ -266,6 +268,10 @@ public class Window extends Container implements EventComponent, WindowEventComp
                 }
             }
         });
+
+        drawState = new GLDrawingState();
+        drawState.bind(window);
+
         // 初始化输入
         _init_input_sets();
         // 注册系统监听器
@@ -343,14 +349,22 @@ public class Window extends Container implements EventComponent, WindowEventComp
             y = e.getY();
         });
 
-        addWindowFBSListener(e -> {
+        addWindowFrameBufferSizeListener(e -> {
             width = e.getWidth();
             height = e.getHeight();
+            if (isAutomaticallyUpdateViewport()) {
+                GLUtil.viewport((int) width, (int) height);
+            }
         });
     }
 
     public Graphics getGraphics() {
         if (!isWorkerThread() || !isInit()) return null;
+
+        if (isAutomaticallyUpdateViewport()) {
+            var size = GLFWUtil.getFrameBufferSize(window);
+            GLUtil.viewport(size);
+        }
 
         var reuse = isReuseGraphics();
 
@@ -371,10 +385,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
 
     Graphics createGraphics() {
         var size = GLFWUtil.getFrameBufferSize(window);
-
-        GLUtil.viewport(size);
-
-        var g2d = GLGraphics2D.build();
+        var g2d = GLGraphics2D.build(drawState);
 
         g2d.setAttribute(Attribute.create());
         g2d.setMatrix4f(Math.create(size));
@@ -1009,7 +1020,15 @@ public class Window extends Container implements EventComponent, WindowEventComp
         parameters.put("EnableDefaultRefreshBehavior",enable);
     }
 
+    public void setAutomaticallyUpdateViewport(boolean automatically) {
+        parameters.put("AutomaticallyUpdateViewport",automatically);
+    }
+
     // ==================== GET =========================
+
+    public boolean isAutomaticallyUpdateViewport() {
+        return parameters.get("AutomaticallyUpdateViewport",false);
+    }
 
     public boolean isEnableDefaultRefreshBehavior() {
         return parameters.get("EnableDefaultRefreshBehavior",true);

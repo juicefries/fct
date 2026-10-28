@@ -23,12 +23,31 @@
  *
  */
 
-package io.github.juicefries.fct;
+//
+// Created by juicefries
+// The project name is fct
+// Data 2026/10/27 23:56
+//
 
-import io.github.juicefries.fct.sign.Initializable;
+package io.github.juicefries.fct.platform;
 
-@Deprecated(since = "1.0.4")
-public interface Application extends Initializable {
-    void start();
-    void stop();
+import io.github.juicefries.fct.Toolkit;
+import io.github.juicefries.fct.Window;
+import io.github.juicefries.fct.WindowConfig;
+
+public class FWindow extends Window {
+
+    public FWindow(WindowConfig config) {
+        super(config);
+    }
+
+    public FWindow() {
+        super();
+    }
+
+    @Override
+    protected void initComplete() {
+        WindowUtil.setWindowType(Toolkit.getWindow(this),WindowUtil.UTILITY);
+        super.initComplete();
+    }
 }

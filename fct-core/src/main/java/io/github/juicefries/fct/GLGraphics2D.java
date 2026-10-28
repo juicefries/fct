@@ -92,11 +92,6 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
 
     private final static String DEFAULT_SHADER_SRC_PATH = "/io/github/juicefries/fct/shaders/";
 
-    @Deprecated(since = "0.0.2")
-    public final static String DEFAULT_VERTEX_SHADER_SRC_PATH = "/io/github/juicefries/fct/shaders/graphics2d.vert";
-    @Deprecated(since = "0.0.2")
-    public final static String DEFAULT_FRAGMENT_SHADER_SRC_PATH = "/io/github/juicefries/fct/shaders/graphics2d.frag";
-
     private static final Logger logger = LogManager.getLogger(GLGraphics2D.class);
 
     private final AtomicBoolean initialize = new AtomicBoolean(false);
@@ -120,16 +115,79 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
 
     }
 
-    public static @NotNull Graphics build() {
-        return build(true);
+        /** 绑定的绘制状态；由窗口初始化时注入。 */
+    private volatile DrawingState drawingState;
+
+    /**
+     * 是否每次绘制前都同步 2D 状态。
+     *
+     * <p>默认 {@code true}：每个绘制入口都会把混合/深度/剔除/模板等纠正一遍，
+     * 代价是每次多几次状态查询。确定外部不会踩状态时可以关掉换性能。
+     */
+    private volatile boolean checkStateOnDraw = true;
+
+    /**
+     * 设置是否每次绘制都同步状态。
+     *
+     * @param value {@code true} 每次绘制都检查（安全），{@code false} 只在需要时检查（快）
+     */
+    public void setCheckStateOnDraw(boolean value) {
+        this.checkStateOnDraw = value;
     }
 
-    public static @NotNull Graphics build(boolean init) {
-        Graphics g = new GLGraphics2D();
+    /**
+     * 当前是否每次绘制都同步状态。
+     *
+     * @return {@code true} 表示每次绘制都检查
+     */
+    public boolean isCheckStateOnDraw() {
+        return checkStateOnDraw;
+    }
+
+    /**
+     * 绑定绘制状态。
+     *
+     * <p>窗口创建本画笔后、第一次绘制前调用，且只能绑一次。绑定之后所有 GL 状态改动
+     * 都走这份状态，3D 回来时才能正确还原。
+     *
+     * @param state 当前窗口对应的绘制状态
+     * @since 1.0.5
+     */
+    public void bind(DrawingState state) {
+        if (state == null) {
+            throw new NullPointerException("state is null!");
+        }
+        if (drawingState != null) {
+            throw new IllegalStateException("Already bound to: " + drawingState.getName());
+        }
+        this.drawingState = state;
+        drawingState.stateCheck();
+    }
+
+    /**
+     * 当前绑定的绘制状态；未绑定直接抛错，而不是拿一个不属于本窗口的上下文。
+     */
+    private DrawingState requireDrawingState() {
+        DrawingState state = drawingState;
+        if (state == null) {
+            throw new IllegalStateException(
+                    "GLGraphics2D is not bound to a DrawingState. Call bind(...) when the window initializes.");
+        }
+        state.stateCheck();
+        return state;
+    }
+
+    public static Graphics build(DrawingState state,boolean init) {
+        GLGraphics2D g = new GLGraphics2D();
+        g.bind(state);
         if (init) {
             g.initialize();
         }
         return g;
+    }
+
+    public static Graphics build(DrawingState state) {
+        return build(state,true);
     }
 
     @Override
@@ -161,7 +219,8 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
     @Override
     public Graphics create() {
         synchronized (lock) {
-            Graphics g = new GLGraphics2D();
+            var g = new GLGraphics2D();
+            g.bind(drawingState);
             g.setAttribute(getAttribute().copy());
             return g;
         }
@@ -231,20 +290,48 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
         initialize.set(true);
     }
 
+
+    /**
+     * 每次绘制前确保 2D 需要的状态。
+     *
+     * <p>2D 图元都要求：混合开、深度测试关、面剔除关。这些状态可能被 3D 渲染改过，
+     * 所以每个绘制入口都先同步一次，而不是指望调用方记得恢复。
+     *
+     * @param shader 本次绘制使用的着色器
+     */
+    private void beginDraw(Shader shader) {
+        if (checkStateOnDraw) {
+            DrawingState state = requireDrawingState();
+            // 2D 图元的基本要求，任何一项被 3D 改过都会直接画不出来或画错
+            state.setFlag(DrawingState.BLEND, true);
+            state.setFlag(DrawingState.DEPTH_TEST, false);
+            state.setFlag(DrawingState.CULL_FACE, false);
+            state.setFlag(DrawingState.STENCIL_TEST, false);
+            state.setFlag(DrawingState.POLYGON_OFFSET_FILL, false);
+            state.setFlag(DrawingState.COLOR_LOGIC_OP, false);
+            state.setFlag(DrawingState.RASTERIZER_DISCARD, false);
+            state.setFlags(DrawingState.COLOR_MASK, true, true, true, true);
+            state.update();
+        }
+        shader.useProgram();
+    }
+    private static void prepareDraw(@NotNull Shader shader, float[] vertices) {
+        GL33.glBindVertexArray(shader.vao());
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertices, GL33.GL_STREAM_DRAW);
+        GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 4 * 4, 0);
+        GL33.glEnableVertexAttribArray(0);
+        GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 4 * 4, 2 * 4);
+        GL33.glEnableVertexAttribArray(1);
+    }
     @Override
     public void fillRect(float x, float y, float width, float height) {
         Paint paint = getPaint();
         float[] vert = buildFillVertices(x, y, width, height, paint);
 
         Shader shader = shaders.get("pattern");
-        shader.useProgram();
-        GL33.glBindVertexArray(shader.vao());
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vert, GL33.GL_STREAM_DRAW);
-        GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 4 * 4, 0);
-        GL33.glEnableVertexAttribArray(0);
-        GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 4 * 4, 2 * 4);
-        GL33.glEnableVertexAttribArray(1);
+        beginDraw(shader);
+        prepareDraw(shader, vert);
 
         setupPaintUniforms(shader, paint);
         GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, 6);
@@ -256,14 +343,8 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
         float[] vert = buildTriangleVertices(x1, y1, x2, y2, x3, y3, paint);
 
         Shader shader = shaders.get("pattern");
-        shader.useProgram();
-        GL33.glBindVertexArray(shader.vao());
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vert, GL33.GL_STREAM_DRAW);
-        GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 4 * 4, 0);
-        GL33.glEnableVertexAttribArray(0);
-        GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 4 * 4, 2 * 4);
-        GL33.glEnableVertexAttribArray(1);
+        beginDraw(shader);
+        prepareDraw(shader, vert);
 
         setupPaintUniforms(shader, paint);
         GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, 3);
@@ -283,7 +364,7 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
         if (tid == 0) return;
 
         Shader shader = shaders.get("image");
-        shader.useProgram();
+        beginDraw(shader);
         GL33.glUniform1f(shader.getUniform("uOpacity"), getOpacity());
         GL33.glBindVertexArray(shader.vao());
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
@@ -334,7 +415,7 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
                 x4, y4, 0f, 1f    // 左下角 → UV (0,1)
         };
         Shader shader = shaders.get("image");
-        shader.useProgram();
+        beginDraw(shader);
         GL33.glUniform1f(shader.getUniform("uOpacity"), getOpacity());
         GL33.glBindVertexArray(shader.vao());
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
@@ -411,13 +492,16 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
 
 
         Shader shader = shaders.get("text");
-        shader.useProgram();
+        beginDraw(shader);
 
 
         GL33.glUniform1f(shader.getUniform("uOpacity"), getOpacity());
 
-        GL33.glEnable(GL33.GL_BLEND);
-        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+        DrawingState state = requireDrawingState();
+        state.setFlag(DrawingState.BLEND, true);
+        state.setInts(DrawingState.BLEND_FUNC, GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA,
+                GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+        state.update();
 
         GL33.glBindVertexArray(shader.vao());
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
@@ -448,15 +532,9 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
 
     private void drawTriangles(float[] vert, Paint paint) {
         Shader shader = shaders.get("pattern");
-        shader.useProgram();
+        beginDraw(shader);
         applyBlendMode();
-        GL33.glBindVertexArray(shader.vao());
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vert, GL33.GL_STREAM_DRAW);
-        GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 4 * 4, 0);
-        GL33.glEnableVertexAttribArray(0);
-        GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 4 * 4, 2 * 4);
-        GL33.glEnableVertexAttribArray(1);
+        prepareDraw(shader, vert);
         setupPaintUniforms(shader, paint);
         GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, vert.length / 4);
     }
@@ -736,16 +814,10 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
         };
 
         Shader shader = shaders.get("image");
-        shader.useProgram();
+        beginDraw(shader);
         GL33.glUniform1f(shader.getUniform("uOpacity"), getOpacity());
         applyBlendMode();
-        GL33.glBindVertexArray(shader.vao());
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, shader.vbo());
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vert, GL33.GL_STREAM_DRAW);
-        GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 4 * 4, 0);
-        GL33.glEnableVertexAttribArray(0);
-        GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 4 * 4, 2 * 4);
-        GL33.glEnableVertexAttribArray(1);
+        prepareDraw(shader, vert);
         GL33.glUniform1i(shader.getUniform("image"), 0);
         GL33.glActiveTexture(GL33.GL_TEXTURE0);
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, tid);
@@ -816,16 +888,34 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
 
     // ========================= OTM =========================
 
+    /**
+     * 应用裁剪状态：开关和裁剪框一起进绘制状态。
+     *
+     * <p>参数已经是 GL 坐标（y 轴从下往上）。
+     *
+     * @param enabled 是否启用
+     * @param x       GL 坐标 x
+     * @param y       GL 坐标 y
+     * @param width   宽
+     * @param height  高
+     */
+    private void applyScissor(boolean enabled, int x, int y, int width, int height) {
+        DrawingState state = requireDrawingState();
+        state.setFlag(DrawingState.SCISSOR_TEST, enabled);
+        if (enabled) {
+            state.setInts(DrawingState.SCISSOR_BOX, x, y, width, height);
+        }
+        state.update();
+    }
     @Override
     public void scissor(int x, int y, int width, int height) {
         var size = GLFWUtil.getFrameBufferSize();
-        GL33.glEnable(GL33.GL_SCISSOR_TEST);
-        GL33.glScissor(x, (size.y - y) - height, width, height);
+        applyScissor(true, x, (size.y - y) - height, width, height);
     }
 
     @Override
     public void release() {
-        GL33.glDisable(GL33.GL_SCISSOR_TEST);
+        applyScissor(false, 0, 0, 0, 0);
     }
 
     @Override
@@ -850,8 +940,7 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
 
         var size = GLFWUtil.getFrameBufferSize();
 
-        GL33.glEnable(GL33.GL_SCISSOR_TEST);
-        GL33.glScissor(cx, size.y - cy - ch, cw, ch);
+        applyScissor(true, cx, size.y - cy - ch, cw, ch);
 
         clipStack.push(new int[]{cx, cy, cw, ch});
     }
@@ -861,11 +950,11 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
         clipStack.poll();
         int[] cur = clipStack.peek();
         if (cur == null) {
-            GL33.glDisable(GL33.GL_SCISSOR_TEST);
+            applyScissor(false, 0, 0, 0, 0);
         } else {
             var size = GLFWUtil.getFrameBufferSize();
 
-            GL33.glScissor(cur[0], size.y - cur[1] - cur[3], cur[2], cur[3]);
+            applyScissor(true, cur[0], size.y - cur[1] - cur[3], cur[2], cur[3]);
         }
     }
 
@@ -994,7 +1083,7 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
             throw new NullPointerException("action is null!");
         }
         shaders.forEach((string, shader) -> {
-            shader.useProgram();
+            beginDraw(shader);
             action.accept(string, shader);
         });
     }
@@ -1241,13 +1330,32 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
     }
 
     private void applyBlendMode() {
-        GL33.glEnable(GL33.GL_BLEND);
+        int source;
+        int destination;
         switch (getBlendMode()) {
-            case NORMAL -> GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
-            case ADD -> GL33.glBlendFunc(GL33.GL_ONE, GL33.GL_ONE);
-            case MULTIPLY -> GL33.glBlendFunc(GL33.GL_DST_COLOR, GL33.GL_ZERO);
-            case SCREEN -> GL33.glBlendFunc(GL33.GL_ONE, GL33.GL_ONE_MINUS_SRC_COLOR);
+            case ADD -> {
+                source = GL33.GL_ONE;
+                destination = GL33.GL_ONE;
+            }
+            case MULTIPLY -> {
+                source = GL33.GL_DST_COLOR;
+                destination = GL33.GL_ZERO;
+            }
+            case SCREEN -> {
+                source = GL33.GL_ONE;
+                destination = GL33.GL_ONE_MINUS_SRC_COLOR;
+            }
+            default -> {
+                source = GL33.GL_SRC_ALPHA;
+                destination = GL33.GL_ONE_MINUS_SRC_ALPHA;
+            }
         }
+
+        // 走绘制状态：2D 改过的状态必须留下记录，否则 3D 回来时无从还原
+        DrawingState state = requireDrawingState();
+        state.setFlag(DrawingState.BLEND, true);
+        state.setInts(DrawingState.BLEND_FUNC, source, destination, source, destination);
+        state.update();
     }
 
     private void setupPaintUniforms(@NotNull Shader shader, Paint paint) {

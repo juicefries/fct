@@ -297,6 +297,10 @@ public class Toolkit implements Uninitialized, Manager {
         return ComponentContext.FCT_CC_LOCAL.get();
     }
 
+    public static @NonNls DrawingState getDrawingState() {
+        return DrawingState.fct_drawing_state_thread_local.get();
+    }
+
     public static @NotNull Handlers getHandlers() {
         Handlers handlers = new Handlers(false);
         handlers.putAll(Toolkit.handlers);

@@ -33,8 +33,6 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.util.Array;
-import io.github.juicefries.fct.util.Math;
-import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
 
 public abstract class Graphics implements Initializable {
