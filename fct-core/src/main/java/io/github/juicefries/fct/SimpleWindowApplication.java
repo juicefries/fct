@@ -31,13 +31,15 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.event.*;
+import io.github.juicefries.fct.event.CursorEnterListener;
+import io.github.juicefries.fct.event.KeyCharInputListener;
+import io.github.juicefries.fct.event.KeyInputListener;
+import io.github.juicefries.fct.event.MouseButtonListener;
 import io.github.juicefries.fct.lwjgl.Hint;
+import io.github.juicefries.fct.lwjgl.WindowHint;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
-import io.github.juicefries.fct.util.Lock;
-import io.github.juicefries.fct.util.NanoTimer;
-import io.github.juicefries.fct.util.Settings;
+import io.github.juicefries.fct.util.*;
 import io.github.juicefries.fct.util.Timer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -179,6 +181,7 @@ public abstract class SimpleWindowApplication implements Initializable,Applicati
     {
         Hint samples = Hint.samples(settings.getSamples());
         config.addHint(samples);
+        Array.forArr(settings.getHints(), config::addHint);
     }
 
     private void initializeWindowSettings(@NotNull Frame frame, @NotNull AppSettings settings)
@@ -224,6 +227,9 @@ public abstract class SimpleWindowApplication implements Initializable,Applicati
     @Override
     @ApiSign.Dangerous(since = "1.0.6")
     public void initialize() {
+        if (isInitialize()) {
+            return;
+        }
         windowHandle = frame.window;
         //noinspection deprecation
         frame.setVSync(settings.isVSync());
@@ -233,6 +239,12 @@ public abstract class SimpleWindowApplication implements Initializable,Applicati
 
         var threadMgr = frame.getThreadManager();
         threadMgr.every(update);
+
+        try {
+            simpleInit();
+        } catch (Exception e) {
+            log.error("An error occurred while calling the simple initialization method.",e);
+        }
     }
 
     @Override
@@ -554,9 +566,9 @@ public abstract class SimpleWindowApplication implements Initializable,Applicati
         protected void initComplete() {
             super.initComplete();
             try {
-                simpleInit();
+                SimpleWindowApplication.this.initialize();
             } catch (Throwable throwable) {
-                log.error("simpleInit 抛出异常", throwable);
+                log.error("An error occurred during initialization.", throwable);
                 stop();
                 return;
             }
@@ -574,6 +586,7 @@ public abstract class SimpleWindowApplication implements Initializable,Applicati
      */
     public static class AppSettings extends Settings {
 
+        private static final Logger log = LogManager.getLogger(AppSettings.class);
         private static final AppSettings defaults = new AppSettings(false);
 
         static {
@@ -649,6 +662,42 @@ public abstract class SimpleWindowApplication implements Initializable,Applicati
         public void setIcon(Image icon) {
             put("Icon", icon);
         }
+
+        public void setHint(String hint,int value) {
+            putInteger("Hint-%s".formatted(hint),value);
+        }
+
+        public Hint getHint(String hint) {
+            if (hint == null) {
+                throw new NullPointerException("hint is null!");
+            }
+
+            var hintKey = "Hint-%s".formatted(hint);
+            if (!containsKey(hintKey)) {
+                throw new IllegalArgumentException("Non-existent window hint, Hint: %s.".formatted(hintKey));
+            }
+            var hintVal = getInteger(hintKey,0);
+
+            return WindowHint.hint(hintKey,hintVal);
+        }
+
+        public Hint[] getHints() {
+            if (isEmpty()) {
+                return new Hint[0];
+            }
+
+            final String prefix = "Hint-";
+            java.util.List<Hint> hints = new java.util.ArrayList<>();
+            for (String key : keySet()) {
+                if (key == null || !key.startsWith(prefix)) {
+                    continue;
+                }
+                int value = getInteger(key, 0);
+                hints.add(WindowHint.hint(key, value));
+            }
+            return hints.toArray(Hint[]::new);
+        }
+
 
         /**
          * @return 是否开启垂直同步

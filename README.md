@@ -14,7 +14,7 @@ Specific libraries can be searched in the central repository.
 
 # Module
 
-`fct`-`1.0.6`
+`fct`-`1.0.6.1`
 
 `fct-util`-`1.0.5`
 
@@ -45,4 +45,4 @@ dependencies {
 }
 ```
 
-data - 2026/11/5-21:59
+data - 2026/11/6-01:17

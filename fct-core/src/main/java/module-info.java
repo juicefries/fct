@@ -37,6 +37,7 @@ module io.github.juicefries.fct.core {
     requires io.github.juicefries.fct.lwjgl;
     requires io.github.juicefries.fct.util;
     requires jdk.compiler;
+    requires org.apache.logging.log4j.core;
 
     exports io.github.juicefries.fct;
     exports io.github.juicefries.fct.callback;
