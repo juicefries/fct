@@ -23,14 +23,14 @@
  *
  */
 
-package io.github.juicefries.fct;
+package io.github.juicefries.fct.image;
 
-import io.github.juicefries.fct.image.Format;
+import io.github.juicefries.fct.Image;
 import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import org.jetbrains.annotations.Contract;
+
 import org.jetbrains.annotations.NotNull;
 
 /**

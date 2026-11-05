@@ -6,11 +6,11 @@
 
     <groupId>io.github.juicefries</groupId>
     <artifactId>fct</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packaging>jar</packaging>
 
     <name>Fan Concept Toolkit</name>
-    <description>Too lazy to write</description>
+    <description>A GUI demo referenced from Swing.</description>
     <url>https://github.com/juicefries/fct</url>
 
     <developers>

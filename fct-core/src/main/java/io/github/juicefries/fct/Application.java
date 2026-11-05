@@ -23,13 +23,27 @@
  *
  */
 
-package io.github.juicefries.fct.input;
+package io.github.juicefries.fct;
 
-public interface InputData extends Input {
-    int NOT_MATCH_EVENT_FIELD_INT_VALUE = 0x80000000;
-    double NOT_MATCH_EVENT_FIELD_DOUBLE_VALUE = 0x0.0000000000001P-1022;
-    long NOT_MATCH_EVENT_FIELD_LONG_VALUE = 0x8000000000000000L;
-    float NOT_MATCH_EVENT_FIELD_FLOAT_VALUE = 0x0.000002P-126f;
+public interface Application {
 
-    long getState();
+    void start();
+    void stop();
+    void initialize();
+    void update();
+
+    /**
+     * 设置应用名
+     *
+     * @param name 名称
+     */
+    void setName(String name);
+
+    /**
+     * 应用名。
+     *
+     * @return 名称
+     */
+    String getName();
+
 }

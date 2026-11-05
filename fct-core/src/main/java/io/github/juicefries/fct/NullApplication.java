@@ -23,22 +23,65 @@
  *
  */
 
-/**
- * <h2>Input</h2>
- *
- * <p>
- *     由于功能的冗余，加之难以添加新功能以及懒得删，所以这里弃用，
- *     <br>
- *     现在应当跳转到{@link io.github.juicefries.fct.callback callback}包，
- *     <br>
- *     {@link io.github.juicefries.fct.callback.CallbackManager CallbackManager}作为新的原始输入替代。
- * </p>
- *
- * @deprecated 由于麻烦所以弃用了
- * @since 0.0.3
- * @see io.github.juicefries.fct.callback callback
- * @see io.github.juicefries.fct.callback.CallbackManager CallbackManager
- * @author juicefries
- */
-@Deprecated(since = "0.0.3")
-package io.github.juicefries.fct.input;
+//
+// Created by juicefries
+// The project name is fct
+// Data 2026/11/05 21:26
+//
+
+package io.github.juicefries.fct;
+
+import org.jetbrains.annotations.Contract;
+
+public abstract class NullApplication implements Application {
+
+    String name;
+
+    @Contract(pure = true)
+    protected NullApplication() {
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void initialize() {
+
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    /**
+     * 设置应用名（日志用）。
+     *
+     * @param name 名称
+     */
+    @Override
+    public void setName(String name) {
+        if (name == null) {
+            throw new NullPointerException("name is null!");
+        }
+        this.name = name;
+    }
+
+    /**
+     * 应用名。
+     *
+     * @return 名称
+     */
+    @Override
+    public String getName() {
+        return name;
+    }
+}

@@ -44,7 +44,7 @@
 @ApiStatus.Internal
 @ApiStatus.Experimental
 @ApiSign.Dangerous(since = "0.0.5")
-@Deprecated(since = "1.0.4",forRemoval = true)
+@Deprecated(since = "1.0.4")
 package io.github.juicefries.fct.callback;
 
 import io.github.juicefries.fct.sign.ApiSign;

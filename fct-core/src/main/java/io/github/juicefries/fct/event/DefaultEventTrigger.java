@@ -247,7 +247,14 @@ public final class DefaultEventTrigger extends EventTrigger {
             var x = (float) e.getXPos();
             var y = (float) e.getYPos();
 
-            // 非事件组件（容器、面板、空白）一律视作无悬停目标
+            // 拖动中：按下时捕获的组件优先接收移动事件，
+            // 即使鼠标已经离开它的范围
+            var captured = captureComponent;
+            if (captured != null) {
+                dispatchMousePos(captured, x, y);
+                return;
+            }
+
             var target = getComponentAt(x,y);
 
             if (target != hoverComponent) {
@@ -264,11 +271,21 @@ public final class DefaultEventTrigger extends EventTrigger {
 
             if (target == null) return;
 
-            var localX = x - target.getAbsoluteX();
-            var localY = y - target.getAbsoluteY();
+            dispatchMousePos(target, x, y);
+        }
+
+        /**
+         * 派发鼠标位置事件
+         * @param comp 目标组件
+         * @param x 窗口坐标X
+         * @param y 窗口坐标Y
+         */
+        private void dispatchMousePos(@NotNull Component comp, float x, float y) {
+            float localX = x - comp.getAbsoluteX();
+            float localY = y - comp.getAbsoluteY();
             var _med_m_p__ = MouseEvent.pos(localX, localY);
 
-            var listeners = getListeners(target, MouseCursorListener.class);
+            var listeners = getListeners(comp, MouseCursorListener.class);
             Array.forArr(listeners, listener -> {
                 if (listener == null) return;
                 listener.mousePos(_med_m_p__);

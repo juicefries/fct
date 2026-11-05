@@ -37,6 +37,7 @@ import io.github.juicefries.fct.event.DefaultEventTrigger;
 import io.github.juicefries.fct.event.EventTrigger;
 import io.github.juicefries.fct.event.SysEvent;
 import io.github.juicefries.fct.event.SystemListener;
+import io.github.juicefries.fct.image.DefaultImage;
 import io.github.juicefries.fct.image.Format;
 import io.github.juicefries.fct.lwjgl.WindowHint;
 import io.github.juicefries.fct.sign.ApiSign;

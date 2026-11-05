@@ -25,6 +25,7 @@
 
 package io.github.juicefries.fct.event;
 
+@FunctionalInterface
 public interface ActionListener extends Listener {
     void action(EventData e);
 }

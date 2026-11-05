@@ -33,7 +33,6 @@ package io.github.juicefries.fct.callback;
 
 import io.github.juicefries.fct.Sys;
 import io.github.juicefries.fct.Toolkit;
-import io.github.juicefries.fct.input.InputManager;
 import io.github.juicefries.fct.lwjgl._GL_API;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
@@ -61,24 +60,8 @@ import org.lwjgl.system.MemoryUtil;
 /**
  * <h2>回调管理器 </h2>
  *
- * <p>
- *     用于替代{@link InputManager}对于增加一种回调就需要大量重写的操作，
- *     <br>
- *     同时增加{@link #push(CallbackData)}方法，用于推送事件，
- *     <br>
- *     由于线程安全问题，{@link #push(CallbackData)}之后将模拟的事件推送到列表等待执行，
- *     <br>
- *     所有回调的操作基本在{@link #run()}被调用的线程操作，
- *     <br>
- *     可通过{@link Toolkit}替换管理器自身的{@link Handler}类对回调的处理逻辑，
- *     <br>
- *     本身仅关闭窗口本身的回调分发，不对组件层负责。
- * </p>
- *
  * @since  0.0.3
  * @author juicefries
- * @see InputManager
- * @see io.github.juicefries.fct.input
  * @version 0.4
  */
 @Deprecated(since = "1.0.4",forRemoval = true)

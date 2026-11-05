@@ -31,6 +31,7 @@
 
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.event.DisposeType;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
@@ -336,11 +337,11 @@ public class Frame extends Window implements WindowConstants {
         super.defaultInputSet();
         addWindowLifeListener(_ -> {
             switch (defaultCloseOperation) {
-                case WindowConstants.DISPOSE_ON_CLOSE -> dispose();
+                case WindowConstants.DISPOSE_ON_CLOSE -> dispose(DisposeType.EVENT_INVOKE);
                 case WindowConstants.HIDE_ON_CLOSE -> setVisible(false);
                 case WindowConstants.DO_NOTHING_ON_CLOSE -> {}
                 case WindowConstants.EXIT_ON_CLOSE -> {
-                    dispose();
+                    dispose(DisposeType.EVENT_INVOKE);
                     if (Sys.isInitialize()) {
                         Sys.terminate();
                     }

@@ -26,6 +26,7 @@
 package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.sign.ApiSign;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 文本标签
@@ -133,7 +134,7 @@ public class ALabel extends Control implements AIComponent {
 
     // ========================= UTIL =========================
 
-    private static String truncate(String str, FontMetrics fm, float maxWidth) {
+    private static String truncate(String str, @NotNull FontMetrics fm, float maxWidth) {
         if (fm.stringWidth(str) <= maxWidth) return str;
         final String ellipsis = "…";
         StringBuilder sb = new StringBuilder();

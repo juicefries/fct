@@ -1,18 +1,27 @@
 # Fan Concept Toolkit
 
-实在懒得写名字，就是单纯看到风扇的时候临时想的名字，随便吧。
+# Introduction
 
-具体库已经上传到中央仓库了，可以自行下载使用，
+A GUI demo referenced from Swing.
 
-就是一个参照了`swing`做的demo项目。
+Specific libraries can be searched in the central repository.
 
-`fct`-`1.0.5` | 目前并不是稳定的版本,1.0.4与1.0.4.x目前因为限制未上传到中央仓库
+# Unsubmitted version:
+
+`fct-core` : `1.0.4` & `1.0.4.*`
+
+`fct-platform` : `1.0.2`
+
+# Module
+
+`fct`-`1.0.6`
 
 `fct-util`-`1.0.5`
 
 `fct-lwjgl`-`1.0.4`
 
-`fct-platform`-`1.0.2` | 平台版本懒得管了 1.0.3不在中央仓库
+`fct-platform`-`1.0.2`
+
 
 ```xml
 <dependency>
@@ -36,4 +45,4 @@ dependencies {
 }
 ```
 
-data - 2026/10/28-20:07
+data - 2026/11/5-21:59

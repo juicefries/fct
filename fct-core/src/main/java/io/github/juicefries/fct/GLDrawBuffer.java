@@ -31,6 +31,7 @@
 
 package io.github.juicefries.fct;
 
+import io.github.juicefries.fct.image.DefaultImage;
 import io.github.juicefries.fct.image.Format;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
