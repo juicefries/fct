@@ -26,65 +26,54 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/24 02:51
+// Data 2026/11/07 22:40
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
-import org.jetbrains.annotations.Contract;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.PosEvent;
+import io.github.juicefries.fct.callback.listener.PosListener;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 窗口位置变化的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultPosHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class PosHandler extends GLFWWindowPosCallback implements WindowHandler {
+public final class PosHandler extends GLFWWindowPosCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-
-    private final Data data = new Data();
-
-    protected PosHandler() {
+    public PosHandler() {
 
     }
 
     @Override
-    public final @Nullable Callback register(long window) {
-        return check(GLFW.glfwSetWindowPosCallback(window, this));
+    public void register(long window) {
+        check(GLFW.glfwSetWindowPosCallback(window,this));
     }
 
+
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
+    public void simulate(@NotNull CallbackEventData event) {
+        var container = Event.get(event.window());
+        if (container == null) return;
+        var listeners = container.getListeners(PosListener.class);
+        if (!(event instanceof PosEvent wpe)) return;
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.pos(wpe.copy());
         }
-        super.free();
     }
 
     @Override
-    @Contract(pure = true)
-    public final @NotNull String getType() {
-        return Handler.POS;
+    public void invoke(long window, int x, int y) {
+        var container = Event.get(window);
+        if (container == null) return;
+        var listeners = container.getListeners(PosListener.class);
+        var e = PosEvent.pos(window,x,y);
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.pos(e.copy());
+        }
     }
 
-    protected Lock getLock() {
-        return lock;
-    }
 
-    @Override
-    public Data getUpdateData() {
-        return data;
-    }
 }

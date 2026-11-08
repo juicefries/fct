@@ -31,12 +31,9 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.callback.Handler;
+import io.github.juicefries.fct.callback.handler.Handler;
 import io.github.juicefries.fct.callback.Handlers;
-import io.github.juicefries.fct.event.DefaultEventTrigger;
-import io.github.juicefries.fct.event.EventTrigger;
-import io.github.juicefries.fct.event.SysEvent;
-import io.github.juicefries.fct.event.SystemListener;
+import io.github.juicefries.fct.event.*;
 import io.github.juicefries.fct.image.DefaultImage;
 import io.github.juicefries.fct.image.Format;
 import io.github.juicefries.fct.lwjgl.WindowHint;
@@ -51,6 +48,7 @@ import java.awt.image.DataBufferInt;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -72,6 +70,7 @@ import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTruetype;
+import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -104,12 +103,7 @@ public class Toolkit implements Uninitialized, Manager {
      */
     private final static Logger logger = LogManager.getLogger(Toolkit.class);
 
-    /**
-     * 默认处理者
-     * @since 0.0.3
-     */
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final static Handlers DEFAULT = new Handlers(true);
+    private final static Lock CHL = Lock.create("CallbackHandlerLock");
 
     /**
      * 处理者
@@ -119,11 +113,16 @@ public class Toolkit implements Uninitialized, Manager {
 
     /**
      * 默认事件管理器
+     *
+     * <p>
+     *     不处理任何事件
+     * </p>
+     *
      * @since 0.0.4
      * @see EventTrigger
-     * @see DefaultEventTrigger
+     * @see NullEventTrigger
      */
-    public final static Class<? extends EventTrigger> DEFAULT_TRIGGER = DefaultEventTrigger.class;
+    public final static Class<? extends EventTrigger> DEFAULT_TRIGGER = NullEventTrigger.class;
 
     /**
      * 事件管理器
@@ -219,40 +218,38 @@ public class Toolkit implements Uninitialized, Manager {
         synchronized (lock()) { FONT_PATH_MAP.put(name, path); }
     }
 
-    @Contract("_, null -> fail; null, !null -> fail")
-    public static void putHandler(String type, Class<? extends Handler> handlerClass) {
+    @Contract("null, _ -> fail; !null, null -> fail")
+    public static void putHandler(Class<? extends Callback> callbackClass,
+                                  Class<? extends Handler> handlerClass)
+    {
+        if (callbackClass == null) {
+            throw new NullPointerException("callbackClass is null!");
+        }
         if (handlerClass == null) {
             throw new NullPointerException("handlerClass is null!");
         }
-        if (type == null) {
-            throw new NullPointerException("type is null!");
+
+        // 处理类必须是回调类的子类/实现
+        if (!callbackClass.isAssignableFrom(handlerClass)) {
+            throw new IllegalArgumentException(
+                    "handlerClass " + handlerClass.getName() + " is not a subclass/implementation of callbackClass "
+                            + callbackClass.getName());
         }
 
-        synchronized (lock()) {
-            handlers.put(type,handlerClass);
-        }
-    }
-
-    @Contract("null, _ -> fail; !null, null -> fail")
-    public static void putHandler(String type, String name) throws ClassNotFoundException {
-        if (type == null) {
-            throw new NullPointerException("type is null!");
-        }
-        if (name == null) {
-            throw new NullPointerException("name is null!");
+        // 回调类必须是抽象类（不能是接口，不能是具体类）
+        if (callbackClass.isInterface() || !Modifier.isAbstract(callbackClass.getModifiers())) {
+            throw new IllegalArgumentException(
+                    "callbackClass must be an abstract class: " + callbackClass.getName());
         }
 
-        Class<?> handlerClass = Class.forName(name);
-        if (!Handler.class.isAssignableFrom(handlerClass)) {
-            throw new ClassNotFoundException(
-                    String.format("Class [%s] is not of type Handler!", name)
-            );
+        // 处理类不能是接口/抽象类（必须可以 new）
+        if (handlerClass.isInterface() || Modifier.isAbstract(handlerClass.getModifiers())) {
+            throw new IllegalArgumentException(
+                    "handlerClass must be a concrete class: " + handlerClass.getName());
         }
 
-        synchronized (lock()) {
-            //noinspection unchecked
-            Class<? extends Handler> h = (Class<? extends Handler>) handlerClass;
-            Toolkit.putHandler(type, h);
+        synchronized (CHL) {
+            handlers.put(callbackClass, handlerClass);
         }
     }
 
@@ -286,7 +283,10 @@ public class Toolkit implements Uninitialized, Manager {
         if (handlers == null) {
             throw new NullPointerException("handlers is null!");
         }
-        synchronized (lock()) {
+        if (handlers.isEmpty()) {
+            throw new IllegalArgumentException("The passed-in handlers cannot be empty!");
+        }
+        synchronized (CHL) {
             handlers.clear();
             Toolkit.handlers.putAll(handlers);
         }
@@ -304,14 +304,15 @@ public class Toolkit implements Uninitialized, Manager {
 
     public static @NotNull Handlers getHandlers() {
         Handlers handlers = new Handlers(false);
-        handlers.putAll(Toolkit.handlers);
+        synchronized (CHL) {
+            handlers.putAll(Toolkit.handlers);
+        }
         return handlers;
     }
 
+    @Contract(" -> new")
     public static @NotNull Handlers getDefaultHandlers() {
-        Handlers handlers = new Handlers(false);
-        handlers.putAll(Toolkit.DEFAULT);
-        return handlers;
+        return new Handlers(true);
     }
 
     /**
@@ -363,7 +364,7 @@ public class Toolkit implements Uninitialized, Manager {
 
     @Contract(pure = true)
     public static @NotNull Class<? extends EventTrigger> getDefaultTrigger() {
-        return Objects.requireNonNullElse(DEFAULT_TRIGGER, DefaultEventTrigger.class);
+        return Objects.requireNonNullElse(DEFAULT_TRIGGER, NullEventTrigger.class);
     }
 
     @Contract("null, _, _ -> fail")

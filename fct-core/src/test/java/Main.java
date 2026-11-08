@@ -1,11 +1,5 @@
-import io.github.juicefries.fct.ALabel;
-import io.github.juicefries.fct.App;
-import io.github.juicefries.fct.Blank;
-import io.github.juicefries.fct.Button;
-import io.github.juicefries.fct.Color;
-import io.github.juicefries.fct.Panel;
-import io.github.juicefries.fct.UIManager;
-import io.github.juicefries.fct.WindowConfig;
+import io.github.juicefries.fct.*;
+import io.github.juicefries.fct.callback.Event;
 import io.github.juicefries.fct.layout.BoxLayout;
 import io.github.juicefries.fct.lwjgl.Hint;
 
@@ -21,6 +15,11 @@ void main() {
         var button = new Button("点我");
         button.setIdealSize(0, 56);
         button.setCursorName(UIManager.HAND_CURSOR);
+        button.addActionListener(e -> {
+            var container = Event.get(Toolkit.getWindow(frame));
+            var ime = container.getIME();
+            ime.set(!ime.get());
+        });
 
         // Control → 文本 I 形
         var label = new ALabel("可以选中的文本");

@@ -1,89 +1,53 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2026 juicefries
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/25 17:25
+// Data 2026/11/08 00:44
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
-import org.jetbrains.annotations.Contract;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.ToggleEvent;
+import io.github.juicefries.fct.callback.listener.ToggleListener;
+import io.github.juicefries.fct.util.Array;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowMaximizeCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 窗口最大化的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultMaximizeHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class MaximizeHandler extends GLFWWindowMaximizeCallback implements WindowHandler {
+import java.util.Objects;
 
-    private final Lock lock = Lock.create();
-    private final Data data = new Data();
+public final class MaximizeHandler extends GLFWWindowMaximizeCallback implements Handler {
 
-    protected MaximizeHandler() {
+    public MaximizeHandler() {
 
     }
 
     @Override
-    public final @Nullable Callback register(long window) {
-        return check(GLFW.glfwSetWindowMaximizeCallback(window, this));
+    public void register(long window) {
+        check(GLFW.glfwSetWindowMaximizeCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
+    public void simulate(@NotNull CallbackEventData event) {
+        if (!(event instanceof ToggleEvent te)) return;
+        if (Objects.equals(event.type(), ToggleEvent.WINDOW_MAXIMIZED_EVENT)) {
+            invoke(te.window(),true);
         }
-        super.free();
+        if (Objects.equals(event.type(), ToggleEvent.WINDOW_RESTORED_EVENT)) {
+            invoke(te.window(),false);
+        }
     }
 
     @Override
-    @Contract(pure = true)
-    public final @NotNull String getType() {
-        return Handler.MAXIMIZE;
-    }
-
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public Data getUpdateData() {
-        return data;
+    public void invoke(long window, boolean maximized) {
+        var listeners = Event.getListeners(window, ToggleListener.class);
+        Array.forArr(listeners,listener -> {
+            if (maximized) {
+                listener.maximized(ToggleEvent.maximized(window,true));
+            } else {
+                listener.restored(ToggleEvent.maximized(window,false));
+            }
+        });
     }
 }

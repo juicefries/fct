@@ -1,86 +1,47 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2026 juicefries
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/29 02:09
+// Data 2026/11/08 02:32
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.ScrollEvent;
+import io.github.juicefries.fct.callback.listener.ScrollListener;
+import io.github.juicefries.fct.lwjgl.Mouse;
+import io.github.juicefries.fct.util.Array;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 滚轮的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultScrollHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class ScrollHandler extends GLFWScrollCallback implements MouseHandler {
+public final class ScrollHandler extends GLFWScrollCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-
-    protected Data data = new Data();
-
-    protected ScrollHandler() {
+    public ScrollHandler() {
 
     }
 
     @Override
-    public Callback register(long window) {
-        return check(GLFW.glfwSetScrollCallback(window,this));
+    public void register(long window) {
+        check(GLFW.glfwSetScrollCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
-        }
-        super.free();
-    }
-
-    protected Lock getLock() {
-        return lock;
+    public void simulate(@NotNull CallbackEventData event) {
+        if ((!(event instanceof ScrollEvent e))) return;
+        var listeners = Event.getListeners(e.window(), ScrollListener.class);
+        Array.forArr(listeners,listener -> listener.scroll(e.copy()));
     }
 
     @Override
-    public String getType() {
-        return Handler.SCROLL;
+    public void invoke(long window, double xoffset, double yoffset) {
+        var listeners = Event.getListeners(window, ScrollListener.class);
+        var location = Mouse.getCursorPos(window);
+        double x = location.x;
+        double y = location.y;
+        var e = ScrollEvent.scroll(window,xoffset,yoffset,x,y);
+        Array.forArr(listeners,listener -> listener.scroll(e.copy()));
     }
 
-    @Override
-    public Data getUpdateData() {
-        return data;
-    }
 }

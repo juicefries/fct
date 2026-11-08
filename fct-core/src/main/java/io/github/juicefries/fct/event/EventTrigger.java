@@ -48,4 +48,5 @@ public abstract class EventTrigger implements Initializable {
 
     @Override
     public abstract boolean isInitialize();
+
 }

@@ -39,4 +39,8 @@ public class CopyFailedException extends Exception {
         super(cause);
     }
 
+    public CopyFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

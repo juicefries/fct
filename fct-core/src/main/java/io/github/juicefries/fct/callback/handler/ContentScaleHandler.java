@@ -1,89 +1,44 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2026 juicefries
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/25 16:43
+// Data 2026/11/07 23:54
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
-import org.jetbrains.annotations.Contract;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.ContentScaleEvent;
+import io.github.juicefries.fct.callback.listener.ContentScaleListener;
+import io.github.juicefries.fct.util.Array;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowContentScaleCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 内容（DPI）缩放变化的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultContentScaleHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class ContentScaleHandler extends GLFWWindowContentScaleCallback implements WindowHandler {
+public final class ContentScaleHandler extends GLFWWindowContentScaleCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-    private final Data data = new Data();
-
-    protected ContentScaleHandler() {
+    public ContentScaleHandler() {
 
     }
 
     @Override
-    public final @Nullable Callback register(long window) {
-        return check(GLFW.glfwSetWindowContentScaleCallback(window, this));
+    public void register(long window) {
+        check(GLFW.glfwSetWindowContentScaleCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
-        }
-        super.free();
+    public void simulate(@NotNull CallbackEventData event) {
+        if (!(event instanceof ContentScaleEvent cse)) return;
+        invoke(cse.window(),cse.xScale(),cse.yScale());
     }
 
     @Override
-    @Contract(pure = true)
-    public final @NotNull String getType() {
-        return Handler.CONTENT_SCALE;
+    public void invoke(long window, float xScale, float yScale) {
+        var container = Event.get(window);
+        if (container == null) return;
+        var listeners = container.getListeners(ContentScaleListener.class);
+        var e = ContentScaleEvent.scale(window,xScale,yScale);
+        Array.forArr(listeners, listener -> listener.scale(e.copy()));
     }
 
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public Data getUpdateData() {
-        return data;
-    }
 }

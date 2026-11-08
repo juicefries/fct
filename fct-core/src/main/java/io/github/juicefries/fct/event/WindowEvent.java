@@ -37,7 +37,7 @@ import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
 import io.github.juicefries.fct.sign.Uninitialized;
 import io.github.juicefries.fct.util.Util;
-import io.github.juicefries.fct.callback.WindowData;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;

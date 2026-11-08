@@ -1,89 +1,41 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2026 juicefries
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/23 00:43
+// Data 2026/11/08 00:23
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
-import org.jetbrains.annotations.Contract;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.FocusEvent;
+import io.github.juicefries.fct.callback.listener.FocusListener;
+import io.github.juicefries.fct.util.Array;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 窗口获得 / 失去焦点的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultFocusHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class FocusHandler extends GLFWWindowFocusCallback implements WindowHandler {
+public final class FocusHandler extends GLFWWindowFocusCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-    private final Data data = new Data();
-
-    protected FocusHandler() {
+    public FocusHandler() {
 
     }
 
     @Override
-    public final @Nullable Callback register(long window) {
-        return check(GLFW.glfwSetWindowFocusCallback(window, this));
+    public void register(long window) {
+        check(GLFW.glfwSetWindowFocusCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
-        }
-        super.free();
+    public void simulate(@NotNull CallbackEventData event) {
+        if (!(event instanceof FocusEvent e)) return;
+        invoke(e.window(),e.focused());
     }
 
     @Override
-    @Contract(pure = true)
-    public final @NotNull String getType() {
-        return Handler.FOCUS;
-    }
-
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public Data getUpdateData() {
-        return data;
+    public void invoke(long window, boolean focused) {
+        var listeners = Event.getListeners(window, FocusListener.class);
+        var e = FocusEvent.focus(window, focused);
+        Array.forArr(listeners,listener -> listener.focused(e.copy()));
     }
 }

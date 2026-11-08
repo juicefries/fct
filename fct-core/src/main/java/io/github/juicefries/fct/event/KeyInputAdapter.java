@@ -38,7 +38,7 @@ public abstract class KeyInputAdapter implements KeyInputListener {
     }
 
     @Override
-    public void longPress(KeyEvent e) {
+    public void repeat(KeyEvent e) {
 
     }
 

@@ -23,7 +23,6 @@
  *
  */
 
-@SuppressWarnings("deprecation")
 module io.github.juicefries.fct.core {
     requires java.desktop;
     requires java.logging;
@@ -42,6 +41,8 @@ module io.github.juicefries.fct.core {
     exports io.github.juicefries.fct;
     exports io.github.juicefries.fct.callback;
     exports io.github.juicefries.fct.callback.handler;
+    exports io.github.juicefries.fct.callback.listener;
+    exports io.github.juicefries.fct.callback.event;
     exports io.github.juicefries.fct.image;
     exports io.github.juicefries.fct.shader;
     exports io.github.juicefries.fct.event;

@@ -14,13 +14,13 @@ Specific libraries can be searched in the central repository.
 
 # Module
 
-`fct`-`1.0.6.1`
+`fct`-`1.0.7`
 
-`fct-util`-`1.0.5`
+`fct-util`-`1.0.6`
 
-`fct-lwjgl`-`1.0.4`
+`fct-lwjgl`-`1.0.5`
 
-`fct-platform`-`1.0.2`
+`fct-platform`-`1.0.3`
 
 
 ```xml
@@ -45,4 +45,4 @@ dependencies {
 }
 ```
 
-data - 2026/11/6-01:17
+data - 2026/11/8-23:27

@@ -25,6 +25,8 @@
 
 package io.github.juicefries.fct.event;
 
+import java.util.function.Consumer;
+
 /**
  * 动作监听器事件组件
  *
@@ -65,6 +67,10 @@ public interface ActionEventComponent extends EventComponent {
      */
     default ActionListener[] getActionListeners() {
         return getListeners(ActionListener.class);
+    }
+
+    default void forActionListener(Consumer<ActionListener> consumer) {
+        forListener(ActionListener.class,consumer);
     }
 
 }

@@ -26,61 +26,51 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/22 23:13
+// Data 2026/11/07 21:54
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
-import org.jetbrains.annotations.Nullable;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.SizeEvent;
+import io.github.juicefries.fct.callback.listener.*;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 窗口尺寸变化（逻辑像素）的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultSizeHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class SizeHandler extends GLFWWindowSizeCallback implements WindowHandler {
+public final class SizeHandler extends GLFWWindowSizeCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-    private final Data data = new Data();
-
-    protected SizeHandler() {
+    public SizeHandler() {
 
     }
 
     @Override
-    public final @Nullable Callback register(long window) {
-        return check(GLFW.glfwSetWindowSizeCallback(window, this));
+    public void register(long window) {
+        check(GLFW.glfwSetWindowSizeCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
+    public void simulate(@NotNull CallbackEventData event) {
+        var container = Event.get(event.window());
+        if (container == null) return;
+        var listeners = container.getListeners(SizeListener.class);
+        if (!(event instanceof SizeEvent se)) return;
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.size(se.copy());
         }
-        super.free();
     }
 
     @Override
-    public String getType() {
-        return Handler.SIZE;
-    }
-
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public Data getUpdateData() {
-        return data;
+    public void invoke(long window, int width, int height) {
+        var container = Event.get(window);
+        if (container == null) return;
+        var listeners = container.getListeners(SizeListener.class);
+        var e = SizeEvent.size(window,width,height);
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.size(e.copy());
+        }
     }
 }

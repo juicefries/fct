@@ -75,6 +75,7 @@ public interface Copyable {
      * @throws CopyFailedException 在复制时若对象不匹配或为null抛出
      * @see CopyFailedException
      */
+    @Deprecated(since = "1.0.6")
     default void copy(Copyable template) throws CopyFailedException {
 
     }

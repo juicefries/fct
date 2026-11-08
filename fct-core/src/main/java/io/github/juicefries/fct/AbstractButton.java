@@ -34,7 +34,6 @@ package io.github.juicefries.fct;
 import io.github.juicefries.fct.event.MouseButtonAdapter;
 import io.github.juicefries.fct.event.MouseEntersListener;
 import io.github.juicefries.fct.event.MouseEvent;
-import io.github.juicefries.fct.util.Array;
 
 public abstract class AbstractButton extends Control {
 
@@ -69,8 +68,7 @@ public abstract class AbstractButton extends Control {
                     setSelect(false);
                     notice();
                     if (contains(e.getX(), e.getY())) {
-                        var listeners = getActionListeners();
-                        Array.forArr(listeners, action -> action.action(e));
+                        forActionListener(listener -> listener.action(e.copy()));
                     }
                 }
             }

@@ -35,7 +35,6 @@ import io.github.juicefries.fct.sign.CopyFailedException;
 import io.github.juicefries.fct.sign.Copyable;
 import io.github.juicefries.fct.sign.Readonly;
 import io.github.juicefries.fct.util.Array;
-import io.github.juicefries.fct.util.Util;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -176,7 +175,7 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
     public final static long KEY_CHAR_INPUT_EVENT = _event_data_util._build_event_id("KED-CharInput");
     public final static long KEY_PRESS_EVENT      = _event_data_util._build_event_id("KED-Press");
     public final static long KEY_RELEASE_EVENT    = _event_data_util._build_event_id("KED-Release");
-    public final static long KEY_LONG_PRESS_EVENT = _event_data_util._build_event_id("KED-LongPress");
+    public final static long KEY_REPEAT_EVENT = _event_data_util._build_event_id("KED-Repeat");
 
     long type;
 
@@ -307,6 +306,7 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
 
     private char codepoint;
 
+    @Contract(pure = true)
     private KeyEvent() {
 
     }
@@ -350,15 +350,15 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
         return release(key,0);
     }
 
-    public static @NotNull KeyEvent longPress(int key, int mods) {
-        var e = create(KEY_LONG_PRESS_EVENT);
+    public static @NotNull KeyEvent repeat(int key, int mods) {
+        var e = create(KEY_REPEAT_EVENT);
         e.key = key;
         e.mods = mods;
         return e;
     }
 
-    public static @NotNull KeyEvent longPress(int key) {
-        return longPress(key,0);
+    public static @NotNull KeyEvent repeat(int key) {
+        return repeat(key,0);
     }
 
     // ========================= GET =========================
@@ -491,7 +491,7 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
     }) int getKey() {
         var contains = Array.contains(getType(),
                 KEY_PRESS_EVENT,
-                KEY_LONG_PRESS_EVENT,
+                KEY_REPEAT_EVENT,
                 KEY_RELEASE_EVENT
         );
         if (!contains) return GLFW.GLFW_KEY_UNKNOWN;
@@ -502,7 +502,7 @@ public class KeyEvent implements EventData, Copyable,Cloneable, Readonly {
     public int getMods() {
         var contains = Array.contains(getType(),
                 KEY_PRESS_EVENT,
-                KEY_LONG_PRESS_EVENT,
+                KEY_REPEAT_EVENT,
                 KEY_RELEASE_EVENT
         );
         if (!contains) return 0;

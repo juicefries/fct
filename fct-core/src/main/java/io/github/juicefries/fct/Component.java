@@ -32,21 +32,12 @@
 package io.github.juicefries.fct;
 
 
-import io.github.juicefries.fct.event.ActionEventComponent;
-import io.github.juicefries.fct.event.ActionListener;
-import io.github.juicefries.fct.event.EventComponent;
-import io.github.juicefries.fct.event.EventListenerList;
-import io.github.juicefries.fct.event.KeyCharInputListener;
-import io.github.juicefries.fct.event.KeyEventComponent;
-import io.github.juicefries.fct.event.KeyInputListener;
-import io.github.juicefries.fct.event.KeyboardFocusListener;
-import io.github.juicefries.fct.event.MouseButtonListener;
-import io.github.juicefries.fct.event.MouseCursorListener;
-import io.github.juicefries.fct.event.MouseDropListener;
-import io.github.juicefries.fct.event.MouseEntersListener;
-import io.github.juicefries.fct.event.MouseEventComponent;
-import io.github.juicefries.fct.event.MouseWheelListener;
+import io.github.juicefries.fct.event.*;
 import io.github.juicefries.fct.sign.ApiSign;
+import io.github.juicefries.fct.util.Array;
+import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Consumer;
 
 /**
  *

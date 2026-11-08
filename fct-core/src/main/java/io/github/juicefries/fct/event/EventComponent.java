@@ -26,6 +26,11 @@
 package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.Component;
+import io.github.juicefries.fct.sign.ApiSign;
+import io.github.juicefries.fct.util.Array;
+import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Consumer;
 
 /**
  * 事件组件
@@ -90,6 +95,18 @@ public interface EventComponent {
         }
 
         return listeners;
+    }
+
+    @ApiStatus.Experimental
+    @ApiSign.NotRecommended(since = "1.0.7")
+    default <L extends Listener> void forListener(Class<L> type, Consumer<L> consumer) {
+        if (type == null) {
+            throw new NullPointerException("type is null!");
+        }
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        Array.forArr(getListeners(type), consumer);
     }
 
 }

@@ -31,6 +31,8 @@
 
 package io.github.juicefries.fct.event;
 
+import java.util.function.Consumer;
+
 public interface KeyEventComponent extends EventComponent {
 
     // ========================= OTM =========================
@@ -80,6 +82,29 @@ public interface KeyEventComponent extends EventComponent {
 
     default KeyboardFocusListener[] getKeyboardFocusListeners() {
         return getListeners(KeyboardFocusListener.class);
+    }
+
+    // ========================= UTIL =========================
+
+    default void forKeyInputListener(Consumer<KeyInputListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(KeyInputListener.class,consumer);
+    }
+
+    default void forKeyCharInputListener(Consumer<KeyCharInputListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(KeyCharInputListener.class,consumer);
+    }
+
+    default void forKeyboardFocusListener(Consumer<KeyboardFocusListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(KeyboardFocusListener.class,consumer);
     }
 
 }

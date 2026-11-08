@@ -1,86 +1,54 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2026 juicefries
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/29 03:32
+// Data 2026/11/08 03:18
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.CursorEnterEvent;
+import io.github.juicefries.fct.callback.listener.CursorEnterListener;
+import io.github.juicefries.fct.util.Array;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 光标进出窗口的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultCursorEnterHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class CursorEnterHandler extends GLFWCursorEnterCallback implements MouseHandler {
+import java.util.Objects;
 
-    private final Lock lock = Lock.create();
+public final class CursorEnterHandler extends GLFWCursorEnterCallback implements Handler {
 
-    private final Data data = new Data();
-
-    protected CursorEnterHandler() {
+    public CursorEnterHandler() {
 
     }
 
     @Override
-    public Callback register(long window) {
-        return check(GLFW.glfwSetCursorEnterCallback(window,this));
+    public void register(long window) {
+        check(GLFW.glfwSetCursorEnterCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
+    public void simulate(@NotNull CallbackEventData event) {
+        if (!(event instanceof CursorEnterEvent e)) return;
+        if (Objects.equals(e.type(), CursorEnterEvent.CURSOR_ENTER_EVENT)) {
+            invoke(e.window(),true);
         }
-        super.free();
-    }
-
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public String getType() {
-        return Handler.CURSOR_ENTER;
+        if (Objects.equals(e.type(), CursorEnterEvent.CURSOR_LEAVE_EVENT)) {
+            invoke(e.window(),false);
+        }
     }
 
     @Override
-    public Data getUpdateData() {
-        return data;
+    public void invoke(long window, boolean entered) {
+        var listeners = Event.getListeners(window, CursorEnterListener.class);
+        Array.forArr(listeners,listener -> {
+            if (entered) {
+                listener.enter(CursorEnterEvent.enter(window));
+            } else {
+                listener.leave(CursorEnterEvent.leave(window));
+            }
+        });
     }
+
 }

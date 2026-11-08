@@ -49,6 +49,40 @@ public class GLFWUtil {
 
     public final static Lock lock = Lock.create();
 
+    // ========================= InputMode =========================
+
+    public static int getInputMode_I(long window,int mode) {
+        return GLFW.glfwGetInputMode(window, mode);
+    }
+
+    public static boolean getInputMode(long window,int mode) {
+        return WindowHint.convert(getInputMode_I(window, mode));
+    }
+
+    public static int getIME_I(long window) {
+        return getInputMode_I(window,GLFW.GLFW_IME);
+    }
+
+    public static boolean getIME(long window) {
+        return getInputMode(window,GLFW.GLFW_IME);
+    }
+
+    public static void setInputMode(long window,int mode,int value) {
+        GLFW.glfwSetInputMode(window, mode, value);
+    }
+
+    public static void setInputMode(long window,int mode,boolean value) {
+        setInputMode(window,mode,WindowHint.convert(value));
+    }
+
+    public static void setIME(long window,int value) {
+        setInputMode(window,GLFW.GLFW_IME,value);
+    }
+
+    public static void setIME(long window,boolean open) {
+        setIME(window,WindowHint.convert(open));
+    }
+
     // ========================= GetWindowAttrib =========================
 
     public static boolean getWindowAttrib(long window, int attrib) {

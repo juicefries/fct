@@ -31,23 +31,9 @@
 
 package io.github.juicefries.fct.callback;
 
-import io.github.juicefries.fct.callback.handler.DefaultButtonHandler;
-import io.github.juicefries.fct.callback.handler.DefaultCharInputHandler;
-import io.github.juicefries.fct.callback.handler.DefaultCharModesInputHandler;
-import io.github.juicefries.fct.callback.handler.DefaultCloseHandler;
-import io.github.juicefries.fct.callback.handler.DefaultContentScaleHandler;
-import io.github.juicefries.fct.callback.handler.DefaultCursorEnterHandler;
-import io.github.juicefries.fct.callback.handler.DefaultCursorPosHandler;
-import io.github.juicefries.fct.callback.handler.DefaultDropHandler;
-import io.github.juicefries.fct.callback.handler.DefaultFocusHandler;
-import io.github.juicefries.fct.callback.handler.DefaultFramebufferSizeHandler;
-import io.github.juicefries.fct.callback.handler.DefaultKeyInputHandler;
-import io.github.juicefries.fct.callback.handler.DefaultMaximizeHandler;
-import io.github.juicefries.fct.callback.handler.DefaultMinimizedHandler;
-import io.github.juicefries.fct.callback.handler.DefaultPosHandler;
-import io.github.juicefries.fct.callback.handler.DefaultRefreshHandler;
-import io.github.juicefries.fct.callback.handler.DefaultScrollHandler;
-import io.github.juicefries.fct.callback.handler.DefaultSizeHandler;
+import io.github.juicefries.fct.callback.handler.*;
+import org.lwjgl.glfw.*;
+import org.lwjgl.system.Callback;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,33 +48,37 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author DeepSeek (AI)
  * @since 0.0.3
  */
-public final class Handlers extends ConcurrentHashMap<String,Class<? extends Handler>> {
+public final class Handlers extends ConcurrentHashMap<Class<? extends Callback>,Class<? extends Handler>> {
 
     private final static Handlers defaults = new Handlers(false);
 
     static {
         // 窗口
-        defaults.put(Handler.CLOSE, DefaultCloseHandler.class);
-        defaults.put(Handler.FOCUS, DefaultFocusHandler.class);
-        defaults.put(Handler.SIZE, DefaultSizeHandler.class);
-        defaults.put(Handler.FRAME_BUFFER_SIZE, DefaultFramebufferSizeHandler.class);
-        defaults.put(Handler.POS, DefaultPosHandler.class);
-        defaults.put(Handler.REFRESH, DefaultRefreshHandler.class);
-        defaults.put(Handler.CONTENT_SCALE, DefaultContentScaleHandler.class);
-        defaults.put(Handler.MAXIMIZE, DefaultMaximizeHandler.class);
-        defaults.put(Handler.MINIMIZED, DefaultMinimizedHandler.class);
+        defaults.put(GLFWWindowCloseCallback.class, CloseHandler.class);
+        defaults.put(GLFWWindowFocusCallback.class, FocusHandler.class);
+        defaults.put(GLFWWindowSizeCallback.class, SizeHandler.class);
+        defaults.put(GLFWFramebufferSizeCallback.class, FramebufferSizeHandler.class);
+        defaults.put(GLFWWindowPosCallback.class, PosHandler.class);
+        defaults.put(GLFWWindowRefreshCallback.class, RefreshHandler.class);
+        defaults.put(GLFWWindowContentScaleCallback.class, ContentScaleHandler.class);
+        defaults.put(GLFWWindowMaximizeCallback.class, MaximizeHandler.class);
+        defaults.put(GLFWWindowIconifyCallback.class, MinimizedHandler.class);
 
         // 键盘
-        defaults.put(Handler.KEY_INPUT, DefaultKeyInputHandler.class);
-        defaults.put(Handler.CHAR_INPUT, DefaultCharInputHandler.class);
-        defaults.put(Handler.CHAR_MODES_INPUT, DefaultCharModesInputHandler.class);
+        defaults.put(GLFWKeyCallback.class, KeyHandler.class);
+        defaults.put(GLFWCharCallback.class, CharHandler.class);
 
         // 鼠标
-        defaults.put(Handler.SCROLL, DefaultScrollHandler.class);
-        defaults.put(Handler.CURSOR_POS, DefaultCursorPosHandler.class);
-        defaults.put(Handler.DROP, DefaultDropHandler.class);
-        defaults.put(Handler.CURSOR_ENTER, DefaultCursorEnterHandler.class);
-        defaults.put(Handler.BUTTON, DefaultButtonHandler.class);
+        defaults.put(GLFWScrollCallback.class, ScrollHandler.class);
+        defaults.put(GLFWCursorPosCallback.class, CursorPosHandler.class);
+        defaults.put(GLFWDropCallback.class, DropHandler.class);
+        defaults.put(GLFWCursorEnterCallback.class, CursorEnterHandler.class);
+        defaults.put(GLFWMouseButtonCallback.class, ButtonHandler.class);
+
+        // 输入法
+        defaults.put(GLFWIMEStatusCallback.class, IMEStatusHandler.class);
+        defaults.put(GLFWPreeditCallback.class, PreeditHandler.class);
+        defaults.put(GLFWPreeditCandidateCallback.class, PreeditCandidateHandler.class);
     }
 
 

@@ -26,65 +26,44 @@
 //
 // Created by juicefries
 // The project name is fct
-// Data 2026/08/22 19:42
+// Data 2026/11/07 18:57
 //
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
-import org.jetbrains.annotations.Contract;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.CloseEvent;
+import io.github.juicefries.fct.callback.listener.CloseListener;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 窗口关闭请求的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultCloseHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class CloseHandler extends GLFWWindowCloseCallback implements WindowHandler {
+public final class CloseHandler extends GLFWWindowCloseCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-
-    protected Data data = new Data();
-
-    protected CloseHandler() {
+    public CloseHandler() {
 
     }
 
     @Override
-    public final @Nullable Callback register(long window) {
-        return check(GLFW.glfwSetWindowCloseCallback(window, this));
+    public void register(long window) {
+        check(GLFW.glfwSetWindowCloseCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
+    public void simulate(@NotNull CallbackEventData event) {
+        invoke(event.window());
+    }
+
+    @Override
+    public void invoke(long window) {
+        var container = Event.get(window);
+        if (container == null) return;
+        var listeners = container.getListeners(CloseListener.class);
+        var e = CloseEvent.close(window);
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.close(e.copy());
         }
-        super.free();
-    }
-
-    @Override
-    @Contract(pure = true)
-    public final @NotNull String getType() {
-        return Handler.CLOSE;
-    }
-
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public Data getUpdateData() {
-        return data;
     }
 }

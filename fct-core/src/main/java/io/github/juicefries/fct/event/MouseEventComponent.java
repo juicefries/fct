@@ -31,6 +31,8 @@
 
 package io.github.juicefries.fct.event;
 
+import java.util.function.Consumer;
+
 public interface MouseEventComponent extends EventComponent {
 
     // ========================= ADD =========================
@@ -78,4 +80,42 @@ public interface MouseEventComponent extends EventComponent {
     default MouseEntersListener[] getMouseEntersListeners() {
         return getListeners(MouseEntersListener.class);
     }
+
+    // ========================= UTIL =========================
+
+    default void forMouseButtonListener(Consumer<MouseButtonListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(MouseButtonListener.class, consumer);
+    }
+
+    default void forMouseWheelListener(Consumer<MouseWheelListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(MouseWheelListener.class,consumer);
+    }
+
+    default void forMouseCursorListener(Consumer<MouseCursorListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(MouseCursorListener.class,consumer);
+    }
+
+    default void forMouseDropListener(Consumer<MouseDropListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(MouseDropListener.class,consumer);
+    }
+
+    default void forMouseEntersListener(Consumer<MouseEntersListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(MouseEntersListener.class,consumer);
+    }
+
 }

@@ -31,55 +31,47 @@
 
 package io.github.juicefries.fct.callback.handler;
 
-import io.github.juicefries.fct.callback.Data;
-import io.github.juicefries.fct.callback.Handler;
-import io.github.juicefries.fct.util.Lock;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.callback.event.CallbackEventData;
+import io.github.juicefries.fct.callback.event.FrameBufferSizeEvent;
+import io.github.juicefries.fct.callback.listener.FrameBufferSizeListener;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-import org.lwjgl.system.Callback;
 
-/**
- * 帧缓冲尺寸变化（真实像素）的处理底座，包着 LWJGL 那个原生回调。
- *
- * <p>要自己接管就继承它、实现 {@code invoke}；想省事就直接用 {@link DefaultFramebufferSizeHandler}。
- *
- * @author DeepSeek (AI)
- * @since 0.0.3
- */
-public abstract class FramebufferSizeHandler extends GLFWFramebufferSizeCallback implements WindowHandler {
+public final class FramebufferSizeHandler extends GLFWFramebufferSizeCallback implements Handler {
 
-    private final Lock lock = Lock.create();
-    private final Data data = new Data();
-
-    protected FramebufferSizeHandler() {
+    public FramebufferSizeHandler() {
 
     }
 
     @Override
-    public Callback register(long window) {
-        return check(GLFW.glfwSetFramebufferSizeCallback(window,this));
+    public void register(long window) {
+        check(GLFW.glfwSetFramebufferSizeCallback(window,this));
     }
 
     @Override
-    public final void free() {
-        freeHandler();
-        synchronized (getLock()) {
-            data.clear();
+    public void simulate(@NotNull CallbackEventData event) {
+        var container = Event.get(event.window());
+        if (container == null) return;
+        var listeners = container.getListeners(FrameBufferSizeListener.class);
+        if (!(event instanceof FrameBufferSizeEvent wfbse)) return;
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.size(wfbse.copy());
         }
-        super.free();
     }
 
     @Override
-    public String getType() {
-        return Handler.FRAME_BUFFER_SIZE;
+    public void invoke(long window, int width, int height) {
+        var container = Event.get(window);
+        if (container == null) return;
+        var listeners = container.getListeners(FrameBufferSizeListener.class);
+        var e = FrameBufferSizeEvent.size(window,width,height);
+        for (var l : listeners) {
+            if (l == null) continue;
+            l.size(e.copy());
+        }
     }
 
-    protected Lock getLock() {
-        return lock;
-    }
-
-    @Override
-    public Data getUpdateData() {
-        return data;
-    }
 }

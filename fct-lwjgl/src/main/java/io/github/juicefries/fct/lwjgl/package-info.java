@@ -24,7 +24,6 @@
  */
 
 /**
- * 基本没有任何东西，纯粹提供依赖用的。
  * @since 1.0.1
  * @author juicefries
  * @version 1.1

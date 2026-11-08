@@ -30,7 +30,6 @@ module io.github.juicefries.fct.util {
     requires org.joml;
 
     exports io.github.juicefries.fct.sign;
-    exports io.github.juicefries.fct.logging;
     exports io.github.juicefries.fct.util;
 
     opens io.github.juicefries.fct.logging;

@@ -38,7 +38,7 @@ public interface KeyInputListener extends Listener {
      * @param e KED
      * @since 0.0.4
      */
-    void longPress(KeyEvent e);
+    void repeat(KeyEvent e);
 
     /**
      * 释放

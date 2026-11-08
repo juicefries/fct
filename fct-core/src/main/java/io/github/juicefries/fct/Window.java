@@ -31,27 +31,8 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.callback.CallbackManager;
-import io.github.juicefries.fct.event.ActionListener;
-import io.github.juicefries.fct.event.CursorEnterListener;
-import io.github.juicefries.fct.event.DisposeType;
-import io.github.juicefries.fct.event.EventComponent;
-import io.github.juicefries.fct.event.EventData;
-import io.github.juicefries.fct.event.EventTrigger;
-import io.github.juicefries.fct.event.StringEvent;
-import io.github.juicefries.fct.event.SysEvent;
-import io.github.juicefries.fct.event.SystemListener;
-import io.github.juicefries.fct.event.WindowContentScaleListener;
-import io.github.juicefries.fct.event.WindowEventComponent;
-import io.github.juicefries.fct.event.WindowFocusListener;
-import io.github.juicefries.fct.event.WindowFrameBufferSizeListener;
-import io.github.juicefries.fct.event.WindowLifeListener;
-import io.github.juicefries.fct.event.WindowMaximizedListener;
-import io.github.juicefries.fct.event.WindowMinimizedListener;
-import io.github.juicefries.fct.event.WindowMoveListener;
-import io.github.juicefries.fct.event.WindowRefreshListener;
-import io.github.juicefries.fct.event.WindowRestoredListener;
-import io.github.juicefries.fct.event.WindowSizeListener;
+import io.github.juicefries.fct.callback.Event;
+import io.github.juicefries.fct.event.*;
 import io.github.juicefries.fct.lwjgl.GLFWUtil;
 import io.github.juicefries.fct.layout.PageLayout;
 import io.github.juicefries.fct.lwjgl.GLUtil;
@@ -99,7 +80,6 @@ import org.lwjgl.system.MemoryUtil;
  * @author juicefries
  * @see Graphics
  * @see ThreadManager
- * @see CallbackManager
  */
 public class Window extends Container implements EventComponent, WindowEventComponent, Initializable {
 
@@ -108,7 +88,6 @@ public class Window extends Container implements EventComponent, WindowEventComp
 
     final AtomicBoolean initialize = new AtomicBoolean(false);
     ThreadManager threadMgr;
-    CallbackManager callbackMgr;
     EventTrigger eventTrigger;
     Graphics graphics;
     DrawingState drawState;
@@ -280,7 +259,8 @@ public class Window extends Container implements EventComponent, WindowEventComp
         _GL_API._swap_interval(true);
 
         GLGraphics2D.setGlClearColor(getBackground());
-        threadMgr.every(callbackMgr);
+        //noinspection removal
+        threadMgr.every(Event.get(window));
         initialize.set(true);
         initComplete();
 
@@ -289,9 +269,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
     }
 
     void _init_input_sets() {
-        callbackMgr = new CallbackManager();
-        callbackMgr.bind(window);
-        callbackMgr.initialize();
+        Event.bind(window);
 
         try {
             var tb = Array.createB(1);
@@ -303,7 +281,14 @@ public class Window extends Container implements EventComponent, WindowEventComp
             }
 
             if (eventTrigger == null) {
-                eventTrigger = Util.newInstance(Toolkit.getTrigger());
+                //noinspection ReassignedVariable
+                var triggerClass = Toolkit.getTrigger();
+
+                if (triggerClass == NullEventTrigger.class) {
+                    triggerClass = LwjglEventTrigger.class;
+                }
+
+                eventTrigger = Util.newInstance(triggerClass);
             }
 
             eventTrigger.bind(this);
@@ -480,7 +465,8 @@ public class Window extends Container implements EventComponent, WindowEventComp
                 parameters.clear();
                 // 清理线程管理器
                 logger.log(Level.ALL, "window[{}]-Cleanup thread", window);
-                threadMgr.removeEvery(callbackMgr);
+                threadMgr.removeEvery(Event.get(window));
+                threadMgr.clear();
                 threadMgr.cleanup();
                 threadMgr = null;
                 // 清理事件处理器
@@ -488,9 +474,8 @@ public class Window extends Container implements EventComponent, WindowEventComp
                 eventTrigger.dispose();
                 eventTrigger = null;
                 // 清理回调管理器
-                logger.log(Level.ALL, "window[{}]-Clear CallbackManager", window);
-                callbackMgr.dispose();
-                callbackMgr = null;
+                logger.log(Level.ALL, "window[{}]-Clear EventContainer", window);
+                Event.free(window);
                 // 清理组件上下文
                 logger.log(Level.ALL,"window[{}]-Clear component context",window);
                 componentContext.cleanup();
@@ -1024,7 +1009,21 @@ public class Window extends Container implements EventComponent, WindowEventComp
         parameters.put("AutomaticallyUpdateViewport",automatically);
     }
 
+    public void setIMEOpen(boolean open) {
+        if (window == MemoryUtil.NULL) return;
+        invoke(() -> Event.get(window).getIME().set(open));
+    }
+
     // ==================== GET =========================
+
+    public io.github.juicefries.fct.callback.Container getEventContainer() {
+        if (window == MemoryUtil.NULL) return null;
+        return Event.get(window);
+    }
+
+    public boolean isIMEOpen() {
+        return getEventContainer().getIME().getActualValue();
+    }
 
     public boolean isAutomaticallyUpdateViewport() {
         return parameters.get("AutomaticallyUpdateViewport",false);
@@ -1270,12 +1269,6 @@ public class Window extends Container implements EventComponent, WindowEventComp
     @NotRecommended(since = "0.0.4")
     public float getAbsoluteY() {
         return super.getAbsoluteY();
-    }
-
-    @ApiStatus.Experimental
-    @ApiSign.Dangerous(since = "0.0.3")
-    public CallbackManager getCallbackManager() {
-        return callbackMgr;
     }
 
     @ApiStatus.Experimental

@@ -27,6 +27,8 @@ package io.github.juicefries.fct.event;
 
 import io.github.juicefries.fct.Window;
 
+import java.util.function.Consumer;
+
 /**
  * 窗口事件组件
  * <p>
@@ -318,5 +320,139 @@ public interface WindowEventComponent extends EventComponent {
      */
     default CursorEnterListener[] getCursorEnterListeners() {
         return getListeners(CursorEnterListener.class);
+    }
+
+    // ========================= UTIL =========================
+
+    /**
+     * 遍历窗口生命周期监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowLifeListener(Consumer<WindowLifeListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowLifeListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口刷新监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowRefreshListener(Consumer<WindowRefreshListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowRefreshListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口焦点监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowFocusListener(Consumer<WindowFocusListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowFocusListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口移动监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowMoveListener(Consumer<WindowMoveListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowMoveListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口最大化监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowMaximizedListener(Consumer<WindowMaximizedListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowMaximizedListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口最小化监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowMinimizedListener(Consumer<WindowMinimizedListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowMinimizedListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口还原监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowRestoredListener(Consumer<WindowRestoredListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowRestoredListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口尺寸监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowSizeListener(Consumer<WindowSizeListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowSizeListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口帧缓冲大小监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowFrameBufferSizeListener(Consumer<WindowFrameBufferSizeListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowFrameBufferSizeListener.class, consumer);
+    }
+
+    /**
+     * 遍历窗口内容缩放监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forWindowContentScaleListener(Consumer<WindowContentScaleListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(WindowContentScaleListener.class, consumer);
+    }
+
+    /**
+     * 遍历光标进入监听器
+     * @param consumer 消费者
+     * @since 0.0.5
+     */
+    default void forCursorEnterListener(Consumer<CursorEnterListener> consumer) {
+        if (consumer == null) {
+            throw new NullPointerException("consumer is null!");
+        }
+        forListener(CursorEnterListener.class, consumer);
     }
 }
