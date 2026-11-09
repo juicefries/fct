@@ -81,12 +81,14 @@ import org.lwjgl.system.MemoryUtil;
  * @see Graphics
  * @see ThreadManager
  */
+@Deprecated(since = "1.0.7.1")
 public class Window extends Container implements EventComponent, WindowEventComponent, Initializable {
 
     private final static Logger logger = LogManager.getLogger(Window.class);
     private final Lock invokeLock = Lock.create();
 
     final AtomicBoolean initialize = new AtomicBoolean(false);
+    @SuppressWarnings("removal")
     ThreadManager threadMgr;
     EventTrigger eventTrigger;
     Graphics graphics;
@@ -108,6 +110,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
         parameters.put("ReuseGraphics",false);
         parameters.put("EnableDefaultRefreshBehavior",true);
         parameters.put("AutomaticallyUpdateViewport",true);
+        parameters.put("CloseAllActions",false);
         layout = new PageLayout();
         visible = UIManager.getBoolean("fct.window.visible");
         background = UIManager.getColor("fct.window.background");
@@ -218,13 +221,13 @@ public class Window extends Container implements EventComponent, WindowEventComp
      * @param hints 提示列表
      * @since 0.0.5
      */
-    @Deprecated(since = "1.0.4")
     @SuppressWarnings("unused")
     protected void additionalPrompt(List<Hint> hints) {
 
     }
 
     void _window_sets() {
+        //noinspection removal
         threadMgr.setThreadName("FCT-WindowThread[%d]".formatted(window));
         // 绑定
         _GL_API._bind(window);
@@ -241,6 +244,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
             @Override
             public void action(EventData e) {
                 if (e == null) return;
+                if (isCloseAllActions()) return;
                 if (!(e instanceof StringEvent se)) return;
                 if (se.match(ComponentContext.STATUS_UPDATE)) {
                     update();
@@ -322,19 +326,28 @@ public class Window extends Container implements EventComponent, WindowEventComp
 
     protected void defaultInputSet() {
         if (isEnableDefaultRefreshBehavior()) {
-            addWindowRefreshListener(_ -> notice());
-            addWindowFocusListener(e -> {
-                if (!e.isFocused()) return;
+            addWindowRefreshListener(_ -> {
+                if (isCloseAllActions()) return;
                 notice();
             });
-            addWindowRestoredListener(_ -> notice());
+            addWindowFocusListener(e -> {
+                if (!e.isFocused()) return;
+                if (isCloseAllActions()) return;
+                notice();
+            });
+            addWindowRestoredListener(_ -> {
+                if (isCloseAllActions()) return;
+                notice();
+            });
         }
         this.addWindowMoveListener(e -> {
+            if (isCloseAllActions()) return;
             x = e.getX();
             y = e.getY();
         });
 
         addWindowFrameBufferSizeListener(e -> {
+            if (isCloseAllActions()) return;
             width = e.getWidth();
             height = e.getHeight();
             if (isAutomaticallyUpdateViewport()) {
@@ -383,6 +396,13 @@ public class Window extends Container implements EventComponent, WindowEventComp
 
     @ApiStatus.Internal
     void repaintImpI(int x, int y, int width, int height) {
+        if (isCloseAllActions()) {
+            if (graphics != null && !isReuseGraphics()) {
+                graphics.dispose();
+            }
+            return;
+        }
+
         Graphics2D g = (Graphics2D) getGraphics();
         if (g == null) return;
 
@@ -552,6 +572,7 @@ public class Window extends Container implements EventComponent, WindowEventComp
     }
 
     protected void updateImp() {
+        if (isCloseAllActions()) return;
         synchronized (cul) {
             var components = getComponents();
             for (var component : components) {
@@ -1014,6 +1035,10 @@ public class Window extends Container implements EventComponent, WindowEventComp
         invoke(() -> Event.get(window).getIME().set(open));
     }
 
+    public void setCloseAllActions(boolean close) {
+        parameters.put("CloseAllActions",close);
+    }
+
     // ==================== GET =========================
 
     public io.github.juicefries.fct.callback.Container getEventContainer() {
@@ -1023,6 +1048,10 @@ public class Window extends Container implements EventComponent, WindowEventComp
 
     public boolean isIMEOpen() {
         return getEventContainer().getIME().getActualValue();
+    }
+
+    public boolean isCloseAllActions() {
+        return parameters.get("CloseAllActions",false);
     }
 
     public boolean isAutomaticallyUpdateViewport() {

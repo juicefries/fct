@@ -336,6 +336,7 @@ public class Frame extends Window implements WindowConstants {
     protected void defaultInputSet() {
         super.defaultInputSet();
         addWindowLifeListener(_ -> {
+            if (isCloseAllActions()) return;
             switch (defaultCloseOperation) {
                 case WindowConstants.DISPOSE_ON_CLOSE -> dispose(DisposeType.EVENT_INVOKE);
                 case WindowConstants.HIDE_ON_CLOSE -> setVisible(false);
