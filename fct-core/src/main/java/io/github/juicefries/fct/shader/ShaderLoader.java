@@ -40,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 @Experimental
+@Deprecated(since = "1.0.7.2")
 public final class ShaderLoader implements Uninitialized {
 
     private static final Logger log = LogManager.getLogger(ShaderLoader.class);

@@ -124,4 +124,11 @@ public abstract class CallbackEventData implements Copyable, Readonly  {
     public String toString() {
         return getClass().getSimpleName();
     }
+
+    public static String[] toEventTypes() {
+        synchronized (ETL) {
+            return types.toArray(String[]::new);
+        }
+    }
+
 }

@@ -34,13 +34,19 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.event.*;
 import io.github.juicefries.fct.sign.ApiSign;
-import io.github.juicefries.fct.util.Array;
-import org.jetbrains.annotations.ApiStatus;
-
-import java.util.function.Consumer;
 
 /**
- *
+ * <h2>Component</h2>
+ * <p>
+ *     组件类，基础的组件，不建议用。
+ *     <br>
+ *     建议使用其对应的两种子类，
+ *     <br>
+ *     {@link Container}容器，能加组件。
+ *     <br>
+ *     {@link Control}控件，叶子组件。
+ * </p>
+ * @since 0.0.2
  */
 public abstract class Component implements
         EventComponent,

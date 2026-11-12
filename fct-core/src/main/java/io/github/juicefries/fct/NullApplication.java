@@ -33,6 +33,7 @@ package io.github.juicefries.fct;
 
 import org.jetbrains.annotations.Contract;
 
+@Deprecated(since = "1.0.7.2",forRemoval = true)
 public abstract class NullApplication implements Application {
 
     String name;

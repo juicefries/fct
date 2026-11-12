@@ -57,7 +57,7 @@ import java.util.function.Consumer;
  * @see WindowEventComponent
  * @see KeyEventComponent
  */
-public interface EventComponent {
+public interface EventComponent extends Event {
 
     /**
      * 获取监听器列表

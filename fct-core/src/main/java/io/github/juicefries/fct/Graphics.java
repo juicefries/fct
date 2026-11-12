@@ -82,37 +82,6 @@ public abstract class Graphics implements Initializable {
 
     /**
      * 设置一处裁剪区域
-     * <p>
-     *     自{@code 0.0.5}版本后默认将为空方法，部分类仍可使用实现。
-     * </p>
-     * @param x 起始点X
-     * @param y 起始点Y
-     * @param width 宽度
-     * @param height 高度
-     * @deprecated 由于GL的限制，一次中只能设置一处裁剪，因此废弃，但仍可使用
-     * @since 0.0.1
-     */
-    @Deprecated(since = "0.0.1",forRemoval = true)
-    public void scissor(int x, int y, int width, int height) {
-
-    }
-
-    /**
-     * 释放裁剪区域
-     * <p>
-     *     自{@code 0.0.5}版本后默认将为空方法，部分类仍可使用实现。
-     * </p>
-     * @deprecated 由于GL的限制，一次中只能设置一处裁剪，因此废弃，但仍可使用
-     * @since 0.0.1
-     */
-    @Deprecated(since = "0.0.1",forRemoval = true)
-    public void release() {
-
-    }
-
-
-    /**
-     * 设置一处裁剪区域
      *
      * <p>
      *     在当前裁剪区域的基础上，将裁剪范围收窄为传入的矩形区域，

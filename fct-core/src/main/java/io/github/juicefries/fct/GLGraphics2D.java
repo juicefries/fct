@@ -33,6 +33,7 @@ package io.github.juicefries.fct;
 
 import io.github.juicefries.fct.lwjgl.GLFWUtil;
 import io.github.juicefries.fct.image.Format;
+import io.github.juicefries.fct.shader.Shader;
 import io.github.juicefries.fct.shader.ShaderLoader;
 import io.github.juicefries.fct.sign.ApiSign;
 import io.github.juicefries.fct.sign.Initializable;
@@ -906,16 +907,6 @@ public class GLGraphics2D extends Graphics2D implements Initializable {
             state.setInts(DrawingState.SCISSOR_BOX, x, y, width, height);
         }
         state.update();
-    }
-    @Override
-    public void scissor(int x, int y, int width, int height) {
-        var size = GLFWUtil.getFrameBufferSize();
-        applyScissor(true, x, (size.y - y) - height, width, height);
-    }
-
-    @Override
-    public void release() {
-        applyScissor(false, 0, 0, 0, 0);
     }
 
     @Override

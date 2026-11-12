@@ -31,8 +31,9 @@
 
 package io.github.juicefries.fct;
 
-import io.github.juicefries.fct.event.KeyEventComponent;
 import io.github.juicefries.fct.util.Lock;
+import org.jetbrains.annotations.Contract;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -510,16 +511,19 @@ public abstract class Container extends Component {
             if (comp == null) continue;
             if (!comp.isVisible()) continue;
             g.save();
-            int cx = (int) Math.floor(comp.getAbsoluteX());
-            int cy = (int) Math.floor(comp.getAbsoluteY());
-            int cw = (int) Math.ceil(comp.getAbsoluteX() + comp.getWidth()) - cx;
-            int ch = (int) Math.ceil(comp.getAbsoluteY() + comp.getHeight()) - cy;
+            //noinspection deprecation
+            var location = comp.getAbsoluteLocation();
+            int cx = (int) Math.floor(location.x);
+            int cy = (int) Math.floor(location.y);
+            int cw = (int) Math.ceil(location.x + comp.getWidth()) - cx;
+            int ch = (int) Math.ceil(location.y + comp.getHeight()) - cy;
             g.clip(cx, cy, cw, ch);
 
             g.translate(comp.getX(), comp.getY());
             comp.paint(g);
             g.unclip();
             g.restore();
+            g.update();
         }
     }
 
@@ -569,6 +573,7 @@ public abstract class Container extends Component {
      * @return 是否为祖先
      * @since 0.0.1
      */
+    @Contract(value = "null -> false", pure = true)
     private boolean checkIsParent(Container container) {
         if (container == null) {
             return false;

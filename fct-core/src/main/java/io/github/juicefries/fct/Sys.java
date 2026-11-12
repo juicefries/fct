@@ -75,6 +75,8 @@ import org.lwjgl.glfw.GLFW;
  * @see GLFW
  * @author juicefries
  */
+@ApiSign.Dangerous(since = "1.0.7.2")
+@Deprecated(since = "1.0.7.2")
 public final class Sys implements Uninitialized, Manager, Serializable {
 
     /**

@@ -62,6 +62,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 1.0.6
  * @author juicefries
  */
+@Deprecated(since = "1.0.7.2")
 public abstract class SimpleWindowApplication implements Initializable,Application {
 
     private static final Logger log = LogManager.getLogger(SimpleWindowApplication.class);

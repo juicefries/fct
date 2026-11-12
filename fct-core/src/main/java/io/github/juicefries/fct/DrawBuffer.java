@@ -47,6 +47,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @author juicefries
  */
 @ApiStatus.Experimental
+@Deprecated(since = "1.0.7.2")
 public abstract class DrawBuffer implements AutoCloseable {
 
     protected final int width;

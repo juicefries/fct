@@ -29,9 +29,9 @@
 // Data 2026/08/19 00:39
 //
 
-package io.github.juicefries.fct;
+package io.github.juicefries.fct.shader;
 
-import io.github.juicefries.fct.shader.ShaderLoader;
+import io.github.juicefries.fct.GLGraphics2D;
 import io.github.juicefries.fct.sign.Initializable;
 import io.github.juicefries.fct.util.Array;
 import io.github.juicefries.fct.util.Lock;
@@ -55,6 +55,7 @@ import org.lwjgl.opengl.GL33;
  * @see ShaderLoader
  * @see Initializable
  */
+@Deprecated(since = "1.0.7")
 public class Shader implements Initializable {
 
     final Lock lock = Lock.create();

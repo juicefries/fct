@@ -53,5 +53,8 @@ module io.github.juicefries.fct.core {
     opens io.github.juicefries.fct;
     opens io.github.juicefries.fct.event;
     opens io.github.juicefries.fct.image;
+    opens io.github.juicefries.fct.shader;
+    exports io.github.juicefries.fct.bas;
+    opens io.github.juicefries.fct.bas;
 
 }
